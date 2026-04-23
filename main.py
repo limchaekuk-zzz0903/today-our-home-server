@@ -29,24 +29,19 @@ async def get_db() -> asyncpg.Connection:
     return await _pool.acquire()
 
 
-@app.on_event("startup")
-async def startup():
+async def _init_db():
+    """DB 연결 및 테이블 생성 — 백그라운드에서 실행"""
     global _pool
     if not DATABASE_URL:
-        print("⚠️  DATABASE_URL 환경변수가 없습니다. Railway에서 PostgreSQL 플러그인을 추가해주세요.")
+        print("⚠️  DATABASE_URL 없음 — PostgreSQL 플러그인을 추가해주세요.")
         return
     try:
-        _pool = await asyncio.wait_for(
-            asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=10),
-            timeout=8,
-        )
+        _pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=10)
         print("✅ DB 연결 성공")
-    except asyncio.TimeoutError:
-        print("⚠️  DB 연결 타임아웃 (8초 초과) — 서버는 계속 기동합니다")
-        _pool = None
     except Exception as e:
         print(f"⚠️  DB 연결 실패: {e}")
-        _pool = None
+        return
+
     async with _pool.acquire() as conn:
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS devices (
@@ -96,11 +91,19 @@ async def startup():
                 updated_at TIMESTAMPTZ DEFAULT NOW()
             );
         """)
+    print("✅ 테이블 초기화 완료")
+
+
+@app.on_event("startup")
+async def startup():
+    # DB 초기화를 백그라운드 태스크로 실행 → 서버가 즉시 요청 수락
+    asyncio.create_task(_init_db())
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    await _pool.close()
+    if _pool:
+        await _pool.close()
 
 
 # ── 인증 헬퍼 ──────────────────────────────────────────────────────────────────
