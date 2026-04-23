@@ -167,7 +167,13 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    db_url = os.environ.get("DATABASE_URL", "")
+    return {
+        "status": "ok",
+        "db_connected": _pool is not None,
+        "db_url_set": bool(db_url),
+        "db_url_prefix": db_url[:20] if db_url else "NOT SET",
+    }
 
 
 # ── 기기 등록 ──────────────────────────────────────────────────────────────────
