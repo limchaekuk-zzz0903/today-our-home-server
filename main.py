@@ -35,9 +35,18 @@ async def startup():
         print("⚠️  DATABASE_URL 환경변수가 없습니다. Railway에서 PostgreSQL 플러그인을 추가해주세요.")
         return
     try:
-        _pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=10)
+        _pool = await asyncpg.create_pool(
+            DATABASE_URL,
+            min_size=1,
+            max_size=10,
+            command_timeout=10,
+        )
+        async with _pool.acquire() as conn:
+            await conn.execute("SELECT 1")
+        print("✅ DB 연결 성공")
     except Exception as e:
         print(f"⚠️  DB 연결 실패: {e}")
+        _pool = None
         return
     async with _pool.acquire() as conn:
         await conn.execute("""
