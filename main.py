@@ -23,13 +23,22 @@ _pool: asyncpg.Pool = None
 
 
 async def get_db() -> asyncpg.Connection:
+    if _pool is None:
+        raise HTTPException(status_code=503, detail="데이터베이스가 연결되지 않았어요. 잠시 후 다시 시도해주세요.")
     return await _pool.acquire()
 
 
 @app.on_event("startup")
 async def startup():
     global _pool
-    _pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=10)
+    if not DATABASE_URL:
+        print("⚠️  DATABASE_URL 환경변수가 없습니다. Railway에서 PostgreSQL 플러그인을 추가해주세요.")
+        return
+    try:
+        _pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=10)
+    except Exception as e:
+        print(f"⚠️  DB 연결 실패: {e}")
+        return
     async with _pool.acquire() as conn:
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS devices (
