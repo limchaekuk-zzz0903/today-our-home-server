@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta
+import asyncio
 import os
 import random
 import string
@@ -35,19 +36,17 @@ async def startup():
         print("⚠️  DATABASE_URL 환경변수가 없습니다. Railway에서 PostgreSQL 플러그인을 추가해주세요.")
         return
     try:
-        _pool = await asyncpg.create_pool(
-            DATABASE_URL,
-            min_size=1,
-            max_size=10,
-            command_timeout=10,
+        _pool = await asyncio.wait_for(
+            asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=10),
+            timeout=8,
         )
-        async with _pool.acquire() as conn:
-            await conn.execute("SELECT 1")
         print("✅ DB 연결 성공")
+    except asyncio.TimeoutError:
+        print("⚠️  DB 연결 타임아웃 (8초 초과) — 서버는 계속 기동합니다")
+        _pool = None
     except Exception as e:
         print(f"⚠️  DB 연결 실패: {e}")
         _pool = None
-        return
     async with _pool.acquire() as conn:
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS devices (
