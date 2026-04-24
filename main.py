@@ -1,11 +1,13 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, AsyncGenerator
 from datetime import datetime, timedelta
 import asyncio
+import hashlib
 import os
 import random
+import secrets as _secrets
 import string
 import asyncpg
 
@@ -23,10 +25,15 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "")
 _pool: asyncpg.Pool = None
 
 
-async def get_db() -> asyncpg.Connection:
+async def get_db() -> AsyncGenerator[asyncpg.Connection, None]:
+    """커넥션 풀에서 acquire 후 요청 완료 시 반드시 release"""
     if _pool is None:
         raise HTTPException(status_code=503, detail="데이터베이스가 연결되지 않았어요. 잠시 후 다시 시도해주세요.")
-    return await _pool.acquire()
+    conn = await _pool.acquire()
+    try:
+        yield conn
+    finally:
+        await _pool.release(conn)
 
 
 async def _init_db():
@@ -90,7 +97,30 @@ async def _init_db():
                 is_completed BOOLEAN DEFAULT FALSE,
                 updated_at TIMESTAMPTZ DEFAULT NOW()
             );
+            CREATE TABLE IF NOT EXISTS users (
+                id TEXT PRIMARY KEY,
+                email TEXT,
+                name TEXT NOT NULL DEFAULT '사용자',
+                provider TEXT NOT NULL DEFAULT 'email',
+                social_id TEXT,
+                password_hash TEXT,
+                profile_image_url TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
         """)
+        # 유니크 인덱스 (이미 있으면 무시)
+        try:
+            await conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email) WHERE email IS NOT NULL AND provider='email'"
+            )
+        except Exception:
+            pass
+        try:
+            await conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS users_social_idx ON users(provider, social_id) WHERE social_id IS NOT NULL"
+            )
+        except Exception:
+            pass
     print("✅ 테이블 초기화 완료")
 
 
@@ -574,6 +604,75 @@ class SocialAuthRequest(BaseModel):
     social_id: str
     name: str
     device_id: str
+    email: Optional[str] = None
+    profile_image_url: Optional[str] = None
+
+class EmailRegisterRequest(BaseModel):
+    email: str
+    password: str
+    name: str
+    device_id: str
+
+class EmailLoginRequest(BaseModel):
+    email: str
+    password: str
+    device_id: str
+
+
+def _hash_pw(pw: str) -> str:
+    return hashlib.sha256(pw.encode()).hexdigest()
+
+
+# ── 이메일 회원가입 (서버 저장) ───────────────────────────────────────────────
+
+@app.post("/api/auth/email/register")
+async def email_register(
+    req: EmailRegisterRequest,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    existing = await conn.fetchrow(
+        "SELECT id FROM users WHERE email=$1 AND provider='email'", req.email
+    )
+    if existing:
+        raise HTTPException(status_code=400, detail="이미 사용 중인 이메일이에요.")
+    uid = _rand_id()
+    await conn.execute(
+        "INSERT INTO users (id, email, name, provider, password_hash) VALUES ($1,$2,$3,'email',$4)",
+        uid, req.email, req.name, _hash_pw(req.password),
+    )
+    await conn.execute("""
+        INSERT INTO devices (id, user_name) VALUES ($1, $2)
+        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW()
+    """, req.device_id, req.name)
+    token = _secrets.token_urlsafe(32)
+    return {"user_id": uid, "name": req.name, "email": req.email, "token": token}
+
+
+# ── 이메일 로그인 (서버 조회) ─────────────────────────────────────────────────
+
+@app.post("/api/auth/email/login")
+async def email_login(
+    req: EmailLoginRequest,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    row = await conn.fetchrow(
+        "SELECT id, name, email, profile_image_url FROM users WHERE email=$1 AND provider='email' AND password_hash=$2",
+        req.email, _hash_pw(req.password),
+    )
+    if not row:
+        raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 일치하지 않아요.")
+    await conn.execute("""
+        INSERT INTO devices (id, user_name) VALUES ($1, $2)
+        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW()
+    """, req.device_id, row["name"])
+    token = _secrets.token_urlsafe(32)
+    return {
+        "user_id": row["id"],
+        "name": row["name"],
+        "email": row["email"],
+        "profile_image_url": row["profile_image_url"],
+        "token": token,
+    }
 
 
 # ── 소셜 인증 ─────────────────────────────────────────────────────────────────
@@ -583,23 +682,62 @@ async def social_auth(
     req: SocialAuthRequest,
     conn: asyncpg.Connection = Depends(get_db),
 ):
-    import secrets as _secrets
+    # users 테이블에 upsert
     row = await conn.fetchrow(
-        "SELECT id FROM social_users WHERE provider=$1 AND social_id=$2",
+        "SELECT id, name, email FROM users WHERE provider=$1 AND social_id=$2",
         req.provider, req.social_id,
     )
     if not row:
         uid = _rand_id()
         await conn.execute(
-            "INSERT INTO social_users (id, provider, social_id, name, device_id) VALUES ($1,$2,$3,$4,$5)",
-            uid, req.provider, req.social_id, req.name, req.device_id,
+            "INSERT INTO users (id, email, name, provider, social_id, profile_image_url) VALUES ($1,$2,$3,$4,$5,$6)",
+            uid, req.email, req.name, req.provider, req.social_id, req.profile_image_url,
         )
+        user_id = uid
+        user_name = req.name
+    else:
+        user_id = row["id"]
+        user_name = row["name"]
+
+    # 레거시 social_users 테이블도 유지
+    legacy = await conn.fetchrow(
+        "SELECT id FROM social_users WHERE provider=$1 AND social_id=$2",
+        req.provider, req.social_id,
+    )
+    if not legacy:
+        await conn.execute(
+            "INSERT INTO social_users (id, provider, social_id, name, device_id) VALUES ($1,$2,$3,$4,$5)",
+            _rand_id(), req.provider, req.social_id, req.name, req.device_id,
+        )
+
     await conn.execute("""
         INSERT INTO devices (id, user_name) VALUES ($1, $2)
         ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW()
-    """, req.device_id, req.name)
-    device_secret = _secrets.token_urlsafe(32)
-    return {"device_secret": device_secret, "user_id": req.device_id}
+    """, req.device_id, user_name)
+
+    token = _secrets.token_urlsafe(32)
+    return {"device_secret": token, "user_id": user_id, "name": user_name}
+
+
+# ── 계정 복원 (앱 재설치 후 로그인 시) ────────────────────────────────────────
+
+@app.get("/api/auth/restore")
+async def restore_account(
+    user_id: str,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    row = await conn.fetchrow(
+        "SELECT id, email, name, provider, profile_image_url FROM users WHERE id=$1", user_id
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="계정을 찾을 수 없어요.")
+    return {
+        "user_id": row["id"],
+        "email": row["email"],
+        "name": row["name"],
+        "provider": row["provider"],
+        "profile_image_url": row["profile_image_url"],
+    }
 
 
 # ── 전화번호 등록 ──────────────────────────────────────────────────────────────
