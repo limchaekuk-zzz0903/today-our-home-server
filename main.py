@@ -504,3 +504,319 @@ async def delete_event(
 ):
     await conn.execute("DELETE FROM events WHERE id=$1", event_id)
     return {"ok": True}
+
+
+# ════════════════════════════════════════════════════════════════════════
+# 새 기능: 전화번호 / 연락처 초대 / 소셜 인증
+# ════════════════════════════════════════════════════════════════════════
+
+# ── 새 테이블 마이그레이션 (startup에서 이미 실행됨 — 별도 함수) ──────────────
+
+async def _migrate_contact_tables():
+    """연락처 초대 기능을 위한 추가 테이블/컬럼"""
+    if _pool is None:
+        return
+    async with _pool.acquire() as conn:
+        try:
+            await conn.execute("ALTER TABLE devices ADD COLUMN phone_number TEXT")
+        except Exception:
+            pass  # 이미 존재하면 무시
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS family_invitations (
+                id TEXT PRIMARY KEY,
+                family_id TEXT NOT NULL,
+                from_device_id TEXT NOT NULL,
+                from_name TEXT NOT NULL,
+                to_device_id TEXT NOT NULL,
+                to_name TEXT NOT NULL DEFAULT '사용자',
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+            CREATE TABLE IF NOT EXISTS social_users (
+                id TEXT PRIMARY KEY,
+                provider TEXT NOT NULL,
+                social_id TEXT NOT NULL,
+                name TEXT,
+                device_id TEXT,
+                UNIQUE (provider, social_id)
+            );
+        """)
+        # family members 에 created_by 정보 조회를 위해 families 쿼리 사용 (이미 있음)
+    print("✅ 연락처 초대 테이블 마이그레이션 완료")
+
+
+@app.on_event("startup")
+async def startup_extended():
+    # _init_db 이후 추가 마이그레이션
+    await asyncio.sleep(3)           # _init_db 태스크가 먼저 끝날 때까지 대기
+    asyncio.create_task(_migrate_contact_tables())
+
+
+# ── 요청 모델 ─────────────────────────────────────────────────────────────────
+
+class PhoneUpdateRequest(BaseModel):
+    device_id: str
+    phone_number: str
+
+class PhoneLookupRequest(BaseModel):
+    phone_numbers: list[str]
+
+class ContactInviteRequest(BaseModel):
+    from_device_id: str
+    to_device_id: str
+
+class InvitationRespondRequest(BaseModel):
+    device_id: str
+    action: str   # "accept" | "reject"
+
+class SocialAuthRequest(BaseModel):
+    provider: str
+    social_id: str
+    name: str
+    device_id: str
+
+
+# ── 소셜 인증 ─────────────────────────────────────────────────────────────────
+
+@app.post("/api/auth/social")
+async def social_auth(
+    req: SocialAuthRequest,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    import secrets as _secrets
+    row = await conn.fetchrow(
+        "SELECT id FROM social_users WHERE provider=$1 AND social_id=$2",
+        req.provider, req.social_id,
+    )
+    if not row:
+        uid = _rand_id()
+        await conn.execute(
+            "INSERT INTO social_users (id, provider, social_id, name, device_id) VALUES ($1,$2,$3,$4,$5)",
+            uid, req.provider, req.social_id, req.name, req.device_id,
+        )
+    await conn.execute("""
+        INSERT INTO devices (id, user_name) VALUES ($1, $2)
+        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW()
+    """, req.device_id, req.name)
+    device_secret = _secrets.token_urlsafe(32)
+    return {"device_secret": device_secret, "user_id": req.device_id}
+
+
+# ── 전화번호 등록 ──────────────────────────────────────────────────────────────
+
+@app.post("/api/devices/phone")
+async def register_phone(
+    req: PhoneUpdateRequest,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    await conn.execute(
+        "UPDATE devices SET phone_number=$1 WHERE id=$2",
+        req.phone_number, req.device_id,
+    )
+    return {"ok": True}
+
+
+# ── 전화번호로 사용자 조회 ─────────────────────────────────────────────────────
+
+@app.post("/api/devices/lookup")
+async def lookup_by_phones(
+    req: PhoneLookupRequest,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    if not req.phone_numbers:
+        return {"found": []}
+    rows = await conn.fetch(
+        "SELECT id, user_name, phone_number FROM devices WHERE phone_number = ANY($1::text[])",
+        req.phone_numbers,
+    )
+    return {
+        "found": [
+            {"phone": r["phone_number"], "device_id": r["id"], "user_name": r["user_name"]}
+            for r in rows
+        ]
+    }
+
+
+# ── 연락처 초대 전송 ───────────────────────────────────────────────────────────
+
+@app.post("/api/family/contact-invite")
+async def contact_invite(
+    req: ContactInviteRequest,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    member = await conn.fetchrow(
+        "SELECT family_id FROM family_members WHERE device_id=$1", req.from_device_id
+    )
+    if not member:
+        raise HTTPException(status_code=403, detail="가족 그룹의 구성원만 초대할 수 있어요.")
+
+    family_id = member["family_id"]
+
+    already = await conn.fetchrow(
+        "SELECT family_id FROM family_members WHERE device_id=$1", req.to_device_id
+    )
+    if already:
+        raise HTTPException(status_code=400, detail="이미 다른 가족 그룹에 속해있어요.")
+
+    existing = await conn.fetchrow(
+        "SELECT id FROM family_invitations WHERE from_device_id=$1 AND to_device_id=$2 AND status='pending'",
+        req.from_device_id, req.to_device_id,
+    )
+    if existing:
+        raise HTTPException(status_code=400, detail="이미 초대장을 보냈어요.")
+
+    from_dev = await conn.fetchrow("SELECT user_name FROM devices WHERE id=$1", req.from_device_id)
+    to_dev   = await conn.fetchrow("SELECT user_name FROM devices WHERE id=$1", req.to_device_id)
+
+    inv_id = _rand_id()
+    await conn.execute("""
+        INSERT INTO family_invitations
+            (id, family_id, from_device_id, from_name, to_device_id, to_name, status)
+        VALUES ($1,$2,$3,$4,$5,$6,'pending')
+    """,
+        inv_id, family_id,
+        req.from_device_id, from_dev["user_name"] if from_dev else "사용자",
+        req.to_device_id,   to_dev["user_name"]   if to_dev   else "사용자",
+    )
+    return {"ok": True, "invitation_id": inv_id}
+
+
+# ── 받은 초대 조회 ─────────────────────────────────────────────────────────────
+
+@app.get("/api/family/received-invitations")
+async def get_received_invitations(
+    device_id: str,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    rows = await conn.fetch("""
+        SELECT fi.id, fi.from_name, f.name AS family_name, fi.created_at
+        FROM family_invitations fi
+        JOIN families f ON f.id = fi.family_id
+        WHERE fi.to_device_id=$1 AND fi.status='pending'
+        ORDER BY fi.created_at DESC
+    """, device_id)
+    return {
+        "invitations": [
+            {
+                "id": r["id"],
+                "from_name": r["from_name"],
+                "family_name": r["family_name"],
+                "created_at": r["created_at"].isoformat(),
+            }
+            for r in rows
+        ]
+    }
+
+
+# ── 초대 수락/거절 ─────────────────────────────────────────────────────────────
+
+@app.post("/api/family/invitations/{inv_id}/respond")
+async def respond_invitation(
+    inv_id: str,
+    req: InvitationRespondRequest,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    inv = await conn.fetchrow(
+        "SELECT * FROM family_invitations WHERE id=$1 AND to_device_id=$2 AND status='pending'",
+        inv_id, req.device_id,
+    )
+    if not inv:
+        raise HTTPException(status_code=404, detail="초대장을 찾을 수 없어요.")
+
+    if req.action == "accept":
+        existing = await conn.fetchrow(
+            "SELECT family_id FROM family_members WHERE device_id=$1", req.device_id
+        )
+        if existing:
+            raise HTTPException(status_code=400, detail="이미 가족 그룹에 속해 있어요.")
+        await conn.execute("UPDATE family_invitations SET status='accepted' WHERE id=$1", inv_id)
+        await conn.execute(
+            "INSERT INTO family_members (family_id, device_id) VALUES ($1,$2) ON CONFLICT DO NOTHING",
+            inv["family_id"], req.device_id,
+        )
+        family = await conn.fetchrow("SELECT name FROM families WHERE id=$1", inv["family_id"])
+        return {"ok": True, "family_id": inv["family_id"], "family_name": family["name"] if family else "우리 가족"}
+    else:
+        await conn.execute("UPDATE family_invitations SET status='rejected' WHERE id=$1", inv_id)
+        return {"ok": True}
+
+
+# ── 가족 구성원 조회 (created_by 포함) ────────────────────────────────────────
+
+@app.get("/api/family/members-v2")
+async def get_family_members_v2(
+    device_id: str,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    member = await conn.fetchrow(
+        "SELECT family_id FROM family_members WHERE device_id=$1", device_id
+    )
+    if not member:
+        return {"family_id": None, "family_name": None, "members": [], "created_by": None}
+
+    family_id = member["family_id"]
+    family = await conn.fetchrow("SELECT name, created_by FROM families WHERE id=$1", family_id)
+    members = await conn.fetch("""
+        SELECT d.id, d.user_name, d.last_seen
+        FROM family_members fm
+        JOIN devices d ON d.id = fm.device_id
+        WHERE fm.family_id=$1
+        ORDER BY fm.joined_at
+    """, family_id)
+    created_by = family["created_by"] if family else None
+    return {
+        "family_id": family_id,
+        "family_name": family["name"] if family else None,
+        "created_by": created_by,
+        "members": [
+            {
+                "device_id": m["id"],
+                "user_name": m["user_name"],
+                "last_seen": m["last_seen"].isoformat(),
+                "is_creator": m["id"] == created_by,
+            }
+            for m in members
+        ],
+    }
+
+
+# ── 가족 구성원 제거 / 나가기 ─────────────────────────────────────────────────
+
+@app.delete("/api/family/members/{member_device_id}")
+async def remove_family_member(
+    member_device_id: str,
+    device_id: str,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    requester = await conn.fetchrow(
+        "SELECT family_id FROM family_members WHERE device_id=$1", device_id
+    )
+    if not requester:
+        raise HTTPException(status_code=403, detail="가족 그룹의 구성원이 아니에요.")
+
+    family_id = requester["family_id"]
+    target = await conn.fetchrow(
+        "SELECT 1 FROM family_members WHERE family_id=$1 AND device_id=$2",
+        family_id, member_device_id,
+    )
+    if not target:
+        raise HTTPException(status_code=404, detail="해당 구성원을 찾을 수 없어요.")
+
+    family = await conn.fetchrow("SELECT created_by FROM families WHERE id=$1", family_id)
+    is_creator = family and family["created_by"] == device_id
+    is_self    = device_id == member_device_id
+
+    if not (is_creator or is_self):
+        raise HTTPException(status_code=403, detail="방장만 다른 구성원을 제거할 수 있어요.")
+
+    await conn.execute(
+        "DELETE FROM family_members WHERE family_id=$1 AND device_id=$2",
+        family_id, member_device_id,
+    )
+    # 자신이 나가는 경우 대기 중인 초대 취소
+    if is_self:
+        await conn.execute(
+            "UPDATE family_invitations SET status='rejected' WHERE to_device_id=$1 AND status='pending'",
+            member_device_id,
+        )
+    return {"ok": True}
