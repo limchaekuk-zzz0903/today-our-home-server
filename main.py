@@ -609,10 +609,10 @@ async def register_phone(
     req: PhoneUpdateRequest,
     conn: asyncpg.Connection = Depends(get_db),
 ):
-    await conn.execute(
-        "UPDATE devices SET phone_number=$1 WHERE id=$2",
-        req.phone_number, req.device_id,
-    )
+    await conn.execute("""
+        INSERT INTO devices (id, phone_number) VALUES ($1, $2)
+        ON CONFLICT (id) DO UPDATE SET phone_number=$2, last_seen=NOW()
+    """, req.device_id, req.phone_number)
     return {"ok": True}
 
 
