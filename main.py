@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, AsyncGenerator
 from datetime import datetime, timedelta
 import asyncio
 import hashlib
+import json
 import os
 import random
 import secrets as _secrets
@@ -165,6 +166,7 @@ def _rand_id(n=12) -> str:
 class DeviceRegisterRequest(BaseModel):
     id: str
     user_name: str = "사용자"
+    user_id: Optional[str] = None
 
 
 class CreateFamilyRequest(BaseModel):
@@ -225,11 +227,40 @@ async def register_device(
     conn: asyncpg.Connection = Depends(get_db),
 ):
     await conn.execute("""
-        INSERT INTO devices (id, user_name, last_seen)
-        VALUES ($1, $2, NOW())
-        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW()
-    """, req.id, req.user_name)
-    return {"ok": True, "device_id": req.id}
+        INSERT INTO devices (id, user_name, last_seen, user_id)
+        VALUES ($1, $2, NOW(), $3)
+        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW(),
+            user_id=COALESCE($3, devices.user_id)
+    """, req.id, req.user_name, req.user_id)
+
+    family_id = None
+    family_name = None
+
+    if req.user_id:
+        # 이미 가족에 속해 있는지 확인
+        existing = await conn.fetchrow(
+            "SELECT family_id FROM family_members WHERE device_id=$1", req.id
+        )
+        if not existing:
+            # 같은 user_id를 가진 다른 기기의 가족 멤버십 조회 → 이 기기에도 복원
+            old_row = await conn.fetchrow("""
+                SELECT fm.family_id FROM devices d
+                JOIN family_members fm ON fm.device_id = d.id
+                WHERE d.user_id=$1 AND d.id!=$2
+                LIMIT 1
+            """, req.user_id, req.id)
+            if old_row:
+                await conn.execute(
+                    "INSERT INTO family_members (family_id, device_id) VALUES ($1,$2) ON CONFLICT DO NOTHING",
+                    old_row["family_id"], req.id,
+                )
+                fam = await conn.fetchrow(
+                    "SELECT name FROM families WHERE id=$1", old_row["family_id"]
+                )
+                family_id = old_row["family_id"]
+                family_name = fam["name"] if fam else None
+
+    return {"ok": True, "device_id": req.id, "family_id": family_id, "family_name": family_name}
 
 
 # ── 가족 생성 ──────────────────────────────────────────────────────────────────
@@ -547,10 +578,20 @@ async def _migrate_contact_tables():
     if _pool is None:
         return
     async with _pool.acquire() as conn:
+        for col_sql in [
+            "ALTER TABLE devices ADD COLUMN phone_number TEXT",
+            "ALTER TABLE devices ADD COLUMN user_id TEXT",
+        ]:
+            try:
+                await conn.execute(col_sql)
+            except Exception:
+                pass
         try:
-            await conn.execute("ALTER TABLE devices ADD COLUMN phone_number TEXT")
+            await conn.execute(
+                "CREATE INDEX IF NOT EXISTS devices_user_id_idx ON devices(user_id) WHERE user_id IS NOT NULL"
+            )
         except Exception:
-            pass  # 이미 존재하면 무시
+            pass
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS family_invitations (
                 id TEXT PRIMARY KEY,
@@ -571,8 +612,18 @@ async def _migrate_contact_tables():
                 UNIQUE (provider, social_id)
             );
         """)
-        # family members 에 created_by 정보 조회를 위해 families 쿼리 사용 (이미 있음)
-    print("✅ 연락처 초대 테이블 마이그레이션 완료")
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS messages (
+                id TEXT PRIMARY KEY,
+                family_id TEXT NOT NULL,
+                device_id TEXT NOT NULL,
+                user_name TEXT NOT NULL DEFAULT '사용자',
+                content TEXT NOT NULL,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+            CREATE INDEX IF NOT EXISTS messages_family_idx ON messages(family_id, created_at DESC);
+        """)
+    print("✅ 연락처 초대 + 메시지 테이블 마이그레이션 완료")
 
 
 @app.on_event("startup")
@@ -641,9 +692,9 @@ async def email_register(
         uid, req.email, req.name, _hash_pw(req.password),
     )
     await conn.execute("""
-        INSERT INTO devices (id, user_name) VALUES ($1, $2)
-        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW()
-    """, req.device_id, req.name)
+        INSERT INTO devices (id, user_name, user_id) VALUES ($1, $2, $3)
+        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW(), user_id=$3
+    """, req.device_id, req.name, uid)
     token = _secrets.token_urlsafe(32)
     return {"user_id": uid, "name": req.name, "email": req.email, "token": token}
 
@@ -662,9 +713,9 @@ async def email_login(
     if not row:
         raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 일치하지 않아요.")
     await conn.execute("""
-        INSERT INTO devices (id, user_name) VALUES ($1, $2)
-        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW()
-    """, req.device_id, row["name"])
+        INSERT INTO devices (id, user_name, user_id) VALUES ($1, $2, $3)
+        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW(), user_id=$3
+    """, req.device_id, row["name"], row["id"])
     token = _secrets.token_urlsafe(32)
     return {
         "user_id": row["id"],
@@ -711,9 +762,9 @@ async def social_auth(
         )
 
     await conn.execute("""
-        INSERT INTO devices (id, user_name) VALUES ($1, $2)
-        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW()
-    """, req.device_id, user_name)
+        INSERT INTO devices (id, user_name, user_id) VALUES ($1, $2, $3)
+        ON CONFLICT (id) DO UPDATE SET user_name=$2, last_seen=NOW(), user_id=$3
+    """, req.device_id, user_name, user_id)
 
     token = _secrets.token_urlsafe(32)
     return {"device_secret": token, "user_id": user_id, "name": user_name}
@@ -724,6 +775,7 @@ async def social_auth(
 @app.get("/api/auth/restore")
 async def restore_account(
     user_id: str,
+    device_id: Optional[str] = None,
     conn: asyncpg.Connection = Depends(get_db),
 ):
     row = await conn.fetchrow(
@@ -731,12 +783,37 @@ async def restore_account(
     )
     if not row:
         raise HTTPException(status_code=404, detail="계정을 찾을 수 없어요.")
+
+    family_id = None
+    family_name = None
+
+    # 이 user_id와 연결된 기기들 중 가족 멤버십이 있는 기기 탐색
+    fam_row = await conn.fetchrow("""
+        SELECT fm.family_id, f.name AS family_name
+        FROM devices d
+        JOIN family_members fm ON fm.device_id = d.id
+        JOIN families f ON f.id = fm.family_id
+        WHERE d.user_id = $1
+        LIMIT 1
+    """, user_id)
+    if fam_row:
+        family_id = fam_row["family_id"]
+        family_name = fam_row["family_name"]
+        # 새 device_id가 제공됐고 아직 가족에 없으면 자동 추가
+        if device_id:
+            await conn.execute(
+                "INSERT INTO family_members (family_id, device_id) VALUES ($1,$2) ON CONFLICT DO NOTHING",
+                family_id, device_id,
+            )
+
     return {
         "user_id": row["id"],
         "email": row["email"],
         "name": row["name"],
         "provider": row["provider"],
         "profile_image_url": row["profile_image_url"],
+        "family_id": family_id,
+        "family_name": family_name,
     }
 
 
@@ -958,3 +1035,191 @@ async def remove_family_member(
             member_device_id,
         )
     return {"ok": True}
+
+
+# ── WebSocket 연결 관리자 ──────────────────────────────────────────────────────
+
+class ChatConnectionManager:
+    def __init__(self):
+        # family_id → set of WebSocket
+        self._rooms: dict[str, set[WebSocket]] = {}
+
+    def _room(self, family_id: str) -> set[WebSocket]:
+        if family_id not in self._rooms:
+            self._rooms[family_id] = set()
+        return self._rooms[family_id]
+
+    async def connect(self, ws: WebSocket, family_id: str):
+        await ws.accept()
+        self._room(family_id).add(ws)
+
+    def disconnect(self, ws: WebSocket, family_id: str):
+        self._room(family_id).discard(ws)
+
+    async def broadcast(self, family_id: str, message: dict, exclude: WebSocket | None = None):
+        text = json.dumps(message, ensure_ascii=False)
+        dead = set()
+        for ws in list(self._room(family_id)):
+            if ws is exclude:
+                continue
+            try:
+                await ws.send_text(text)
+            except Exception:
+                dead.add(ws)
+        for ws in dead:
+            self._room(family_id).discard(ws)
+
+
+_chat_mgr = ChatConnectionManager()
+
+
+# ── WebSocket 채팅 ─────────────────────────────────────────────────────────────
+
+@app.websocket("/ws/chat/{device_id}")
+async def ws_chat(device_id: str, ws: WebSocket):
+    if _pool is None:
+        await ws.close(code=1011)
+        return
+
+    async with _pool.acquire() as conn:
+        member = await conn.fetchrow(
+            "SELECT family_id FROM family_members WHERE device_id=$1", device_id
+        )
+        if not member:
+            await ws.close(code=4003)
+            return
+        family_id = member["family_id"]
+        device = await conn.fetchrow("SELECT user_name FROM devices WHERE id=$1", device_id)
+        user_name = device["user_name"] if device else "사용자"
+
+        # 최근 50개 메시지 히스토리 전송
+        rows = await conn.fetch("""
+            SELECT id, device_id, user_name, content, created_at
+            FROM messages WHERE family_id=$1
+            ORDER BY created_at DESC LIMIT 50
+        """, family_id)
+        history = [
+            {
+                "type": "history",
+                "id": r["id"],
+                "device_id": r["device_id"],
+                "user_name": r["user_name"],
+                "content": r["content"],
+                "created_at": r["created_at"].isoformat(),
+            }
+            for r in reversed(rows)
+        ]
+
+    await _chat_mgr.connect(ws, family_id)
+    try:
+        # 히스토리 일괄 전송
+        await ws.send_text(json.dumps({"type": "history_batch", "messages": history}, ensure_ascii=False))
+
+        while True:
+            data = await ws.receive_text()
+            try:
+                payload = json.loads(data)
+            except Exception:
+                continue
+
+            content = (payload.get("content") or "").strip()
+            if not content:
+                continue
+
+            async with _pool.acquire() as conn:
+                msg_id = _rand_id()
+                await conn.execute("""
+                    INSERT INTO messages (id, family_id, device_id, user_name, content)
+                    VALUES ($1, $2, $3, $4, $5)
+                """, msg_id, family_id, device_id, user_name, content)
+
+                created_at = datetime.utcnow().isoformat()
+
+            msg = {
+                "type": "message",
+                "id": msg_id,
+                "device_id": device_id,
+                "user_name": user_name,
+                "content": content,
+                "created_at": created_at,
+            }
+            # 보낸 사람 포함 모든 구성원에게 전송
+            await _chat_mgr.broadcast(family_id, msg)
+
+    except WebSocketDisconnect:
+        pass
+    finally:
+        _chat_mgr.disconnect(ws, family_id)
+
+
+# ── 메신저 ─────────────────────────────────────────────────────────────────────
+
+class SendMessageRequest(BaseModel):
+    device_id: str
+    content: str
+
+@app.post("/api/family/messages")
+async def send_message(
+    req: SendMessageRequest,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    member = await conn.fetchrow(
+        "SELECT family_id FROM family_members WHERE device_id=$1", req.device_id
+    )
+    if not member:
+        raise HTTPException(status_code=403, detail="가족 그룹의 구성원만 메시지를 보낼 수 있어요.")
+
+    device = await conn.fetchrow("SELECT user_name FROM devices WHERE id=$1", req.device_id)
+    user_name = device["user_name"] if device else "사용자"
+
+    msg_id = _rand_id()
+    await conn.execute("""
+        INSERT INTO messages (id, family_id, device_id, user_name, content)
+        VALUES ($1, $2, $3, $4, $5)
+    """, msg_id, member["family_id"], req.device_id, user_name, req.content)
+
+    return {"ok": True, "id": msg_id}
+
+
+@app.get("/api/family/messages")
+async def get_messages(
+    device_id: str,
+    since: Optional[str] = None,
+    limit: int = 50,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    member = await conn.fetchrow(
+        "SELECT family_id FROM family_members WHERE device_id=$1", device_id
+    )
+    if not member:
+        return {"messages": []}
+
+    if since:
+        rows = await conn.fetch("""
+            SELECT id, device_id, user_name, content, created_at
+            FROM messages
+            WHERE family_id=$1 AND created_at > $2
+            ORDER BY created_at ASC
+        """, member["family_id"], datetime.fromisoformat(since))
+    else:
+        rows = await conn.fetch("""
+            SELECT id, device_id, user_name, content, created_at
+            FROM messages
+            WHERE family_id=$1
+            ORDER BY created_at DESC
+            LIMIT $2
+        """, member["family_id"], limit)
+        rows = list(reversed(rows))
+
+    return {
+        "messages": [
+            {
+                "id": r["id"],
+                "device_id": r["device_id"],
+                "user_name": r["user_name"],
+                "content": r["content"],
+                "created_at": r["created_at"].isoformat(),
+            }
+            for r in rows
+        ]
+    }
