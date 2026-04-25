@@ -1099,11 +1099,9 @@ async def delete_family_group(
     await conn.execute("DELETE FROM join_requests WHERE family_id=$1", family_id)
     await conn.execute("DELETE FROM events WHERE family_id=$1", family_id)
     await conn.execute(
-        "DELETE FROM family_invitations WHERE family_id=$1 OR from_device_id IN "
-        "(SELECT device_id FROM family_members WHERE family_id=$1)",
-        family_id,
+        "DELETE FROM family_invitations WHERE family_id=$1", family_id
     )
-    await conn.execute("DELETE FROM chat_messages WHERE family_id=$1", family_id)
+    await conn.execute("DELETE FROM messages WHERE family_id=$1", family_id)
     await conn.execute("DELETE FROM families WHERE id=$1", family_id)
     return {"ok": True}
 
@@ -1134,7 +1132,7 @@ async def dev_reset_device(
                 await conn.execute("DELETE FROM invite_codes WHERE family_id=$1", family_id)
                 await conn.execute("DELETE FROM join_requests WHERE family_id=$1", family_id)
                 await conn.execute("DELETE FROM events WHERE family_id=$1", family_id)
-                await conn.execute("DELETE FROM chat_messages WHERE family_id=$1", family_id)
+                await conn.execute("DELETE FROM messages WHERE family_id=$1", family_id)
                 await conn.execute("DELETE FROM families WHERE id=$1", family_id)
             else:
                 # 일반 구성원 → 해당 기기만 제거
@@ -1148,7 +1146,13 @@ async def dev_reset_device(
         return {"ok": True, "reset": "device", "device_id": device_id}
     else:
         # 전체 초기화 (family 관련 테이블만)
-        await conn.execute("TRUNCATE family_members, families, invite_codes, join_requests, events, chat_messages RESTART IDENTITY CASCADE")
+        await conn.execute("DELETE FROM messages WHERE 1=1")
+        await conn.execute("DELETE FROM family_invitations WHERE 1=1")
+        await conn.execute("DELETE FROM family_members WHERE 1=1")
+        await conn.execute("DELETE FROM invite_codes WHERE 1=1")
+        await conn.execute("DELETE FROM join_requests WHERE 1=1")
+        await conn.execute("DELETE FROM events WHERE 1=1")
+        await conn.execute("DELETE FROM families WHERE 1=1")
         return {"ok": True, "reset": "all"}
 
 
