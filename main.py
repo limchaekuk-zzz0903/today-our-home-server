@@ -236,29 +236,32 @@ async def register_device(
     family_id = None
     family_name = None
 
-    if req.user_id:
-        # 이미 가족에 속해 있는지 확인
-        existing = await conn.fetchrow(
-            "SELECT family_id FROM family_members WHERE device_id=$1", req.id
-        )
-        if not existing:
-            # 같은 user_id를 가진 다른 기기의 가족 멤버십 조회 → 이 기기에도 복원
-            old_row = await conn.fetchrow("""
-                SELECT fm.family_id FROM devices d
-                JOIN family_members fm ON fm.device_id = d.id
-                WHERE d.user_id=$1 AND d.id!=$2
-                LIMIT 1
-            """, req.user_id, req.id)
-            if old_row:
-                await conn.execute(
-                    "INSERT INTO family_members (family_id, device_id) VALUES ($1,$2) ON CONFLICT DO NOTHING",
-                    old_row["family_id"], req.id,
-                )
-                fam = await conn.fetchrow(
-                    "SELECT name FROM families WHERE id=$1", old_row["family_id"]
-                )
-                family_id = old_row["family_id"]
-                family_name = fam["name"] if fam else None
+    # 이미 가족에 속해 있는지 먼저 확인 (항상)
+    existing = await conn.fetchrow(
+        "SELECT family_id FROM family_members WHERE device_id=$1", req.id
+    )
+    if existing:
+        fam = await conn.fetchrow("SELECT name FROM families WHERE id=$1", existing["family_id"])
+        family_id = existing["family_id"]
+        family_name = fam["name"] if fam else None
+    elif req.user_id:
+        # 같은 user_id를 가진 다른 기기의 가족 멤버십 조회 → 이 기기에도 복원
+        old_row = await conn.fetchrow("""
+            SELECT fm.family_id FROM devices d
+            JOIN family_members fm ON fm.device_id = d.id
+            WHERE d.user_id=$1 AND d.id!=$2
+            LIMIT 1
+        """, req.user_id, req.id)
+        if old_row:
+            await conn.execute(
+                "INSERT INTO family_members (family_id, device_id) VALUES ($1,$2) ON CONFLICT DO NOTHING",
+                old_row["family_id"], req.id,
+            )
+            fam = await conn.fetchrow(
+                "SELECT name FROM families WHERE id=$1", old_row["family_id"]
+            )
+            family_id = old_row["family_id"]
+            family_name = fam["name"] if fam else None
 
     return {"ok": True, "device_id": req.id, "family_id": family_id, "family_name": family_name}
 
