@@ -1037,6 +1037,121 @@ async def remove_family_member(
     return {"ok": True}
 
 
+@app.patch("/api/family/members/{member_device_id}/name")
+async def update_member_name(
+    member_device_id: str,
+    body: dict,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    requester_device_id = body.get("device_id")
+    new_name = (body.get("name") or "").strip()
+    if not new_name:
+        raise HTTPException(status_code=400, detail="이름을 입력해주세요.")
+
+    requester = await conn.fetchrow(
+        "SELECT family_id FROM family_members WHERE device_id=$1", requester_device_id
+    )
+    if not requester:
+        raise HTTPException(status_code=403, detail="가족 그룹의 구성원이 아니에요.")
+
+    family_id = requester["family_id"]
+    target = await conn.fetchrow(
+        "SELECT 1 FROM family_members WHERE family_id=$1 AND device_id=$2",
+        family_id, member_device_id,
+    )
+    if not target:
+        raise HTTPException(status_code=404, detail="해당 구성원을 찾을 수 없어요.")
+
+    family = await conn.fetchrow("SELECT created_by FROM families WHERE id=$1", family_id)
+    is_creator = family and family["created_by"] == requester_device_id
+    is_self = requester_device_id == member_device_id
+
+    if not (is_creator or is_self):
+        raise HTTPException(status_code=403, detail="방장만 다른 구성원의 이름을 수정할 수 있어요.")
+
+    await conn.execute(
+        "UPDATE devices SET user_name=$1 WHERE id=$2", new_name, member_device_id
+    )
+    return {"ok": True, "name": new_name}
+
+
+# ── 가족 그룹 전체 삭제 (방장 전용) ────────────────────────────────────────────
+
+@app.delete("/api/family/group")
+async def delete_family_group(
+    device_id: str,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    member = await conn.fetchrow(
+        "SELECT family_id FROM family_members WHERE device_id=$1", device_id
+    )
+    if not member:
+        raise HTTPException(status_code=404, detail="가족 그룹을 찾을 수 없어요.")
+
+    family_id = member["family_id"]
+    family = await conn.fetchrow("SELECT created_by FROM families WHERE id=$1", family_id)
+    if not family or family["created_by"] != device_id:
+        raise HTTPException(status_code=403, detail="방장만 가족 그룹을 삭제할 수 있어요.")
+
+    # 관련 데이터 모두 삭제 (cascade)
+    await conn.execute("DELETE FROM family_members WHERE family_id=$1", family_id)
+    await conn.execute("DELETE FROM invite_codes WHERE family_id=$1", family_id)
+    await conn.execute("DELETE FROM join_requests WHERE family_id=$1", family_id)
+    await conn.execute("DELETE FROM events WHERE family_id=$1", family_id)
+    await conn.execute(
+        "DELETE FROM family_invitations WHERE family_id=$1 OR from_device_id IN "
+        "(SELECT device_id FROM family_members WHERE family_id=$1)",
+        family_id,
+    )
+    await conn.execute("DELETE FROM chat_messages WHERE family_id=$1", family_id)
+    await conn.execute("DELETE FROM families WHERE id=$1", family_id)
+    return {"ok": True}
+
+
+# ── 개발/초기화용: 특정 기기의 가족 데이터 초기화 ──────────────────────────────
+
+@app.post("/api/dev/reset-device")
+async def dev_reset_device(
+    body: dict,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    secret = body.get("secret", "")
+    if secret != "todayourhome-reset-2024":
+        raise HTTPException(status_code=403, detail="unauthorized")
+
+    device_id = body.get("device_id")
+    if device_id:
+        # 특정 기기만 초기화
+        member = await conn.fetchrow(
+            "SELECT family_id FROM family_members WHERE device_id=$1", device_id
+        )
+        if member:
+            family_id = member["family_id"]
+            family = await conn.fetchrow("SELECT created_by FROM families WHERE id=$1", family_id)
+            if family and family["created_by"] == device_id:
+                # 방장 기기 → 그룹 전체 삭제
+                await conn.execute("DELETE FROM family_members WHERE family_id=$1", family_id)
+                await conn.execute("DELETE FROM invite_codes WHERE family_id=$1", family_id)
+                await conn.execute("DELETE FROM join_requests WHERE family_id=$1", family_id)
+                await conn.execute("DELETE FROM events WHERE family_id=$1", family_id)
+                await conn.execute("DELETE FROM chat_messages WHERE family_id=$1", family_id)
+                await conn.execute("DELETE FROM families WHERE id=$1", family_id)
+            else:
+                # 일반 구성원 → 해당 기기만 제거
+                await conn.execute(
+                    "DELETE FROM family_members WHERE device_id=$1", device_id
+                )
+        await conn.execute("DELETE FROM join_requests WHERE device_id=$1", device_id)
+        await conn.execute(
+            "UPDATE invite_codes SET used=TRUE WHERE created_by=$1", device_id
+        )
+        return {"ok": True, "reset": "device", "device_id": device_id}
+    else:
+        # 전체 초기화 (family 관련 테이블만)
+        await conn.execute("TRUNCATE family_members, families, invite_codes, join_requests, events, chat_messages RESTART IDENTITY CASCADE")
+        return {"ok": True, "reset": "all"}
+
+
 # ── WebSocket 연결 관리자 ──────────────────────────────────────────────────────
 
 class ChatConnectionManager:
