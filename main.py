@@ -9,7 +9,7 @@ import random
 import string
 from contextlib import contextmanager
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import List, Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Response
@@ -191,7 +191,7 @@ class PhoneRegisterReq(BaseModel):
     phone_number: str
 
 class PhoneLookupReq(BaseModel):
-    phone_numbers: list[str]
+    phone_numbers: List[str]
 
 class FamilyCreateReq(BaseModel):
     device_id: str
