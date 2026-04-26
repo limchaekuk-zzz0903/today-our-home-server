@@ -120,13 +120,15 @@ def init_db():
     with get_db() as conn:
         for stmt in stmts:
             conn.execute(text(stmt))
-        # phone_number 유니크 인덱스 (중복 등록 방지)
-        try:
+
+    # phone_number 유니크 인덱스 — 별도 트랜잭션으로 실행 (PG에서 tx aborted 방지)
+    try:
+        with get_db() as conn:
             conn.execute(text(
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_phone ON device_phones(phone_number)"
             ))
-        except Exception:
-            pass
+    except Exception:
+        pass
 
 
 init_db()
