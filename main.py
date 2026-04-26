@@ -273,17 +273,9 @@ async def create_family(
     req: CreateFamilyRequest,
     conn: asyncpg.Connection = Depends(get_db),
 ):
-    # 기기 존재 확인
     device = await conn.fetchrow("SELECT id FROM devices WHERE id=$1", req.device_id)
     if not device:
         raise HTTPException(status_code=404, detail="기기를 찾을 수 없어요. 먼저 기기를 등록해주세요.")
-
-    # 이미 가족 그룹에 속해 있으면 오류
-    existing = await conn.fetchrow(
-        "SELECT family_id FROM family_members WHERE device_id=$1", req.device_id
-    )
-    if existing:
-        raise HTTPException(status_code=400, detail="이미 가족 그룹에 속해 있어요.")
 
     family_id = _rand_id()
     await conn.execute(
@@ -291,7 +283,7 @@ async def create_family(
         family_id, req.family_name, req.device_id,
     )
     await conn.execute(
-        "INSERT INTO family_members (family_id, device_id) VALUES ($1, $2)",
+        "INSERT INTO family_members (family_id, device_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
         family_id, req.device_id,
     )
     return {"family_id": family_id, "family_name": req.family_name}
@@ -302,15 +294,22 @@ async def create_family(
 @app.post("/api/family/invite-code")
 async def generate_invite_code(
     device_id: str,
+    family_id: Optional[str] = None,
     conn: asyncpg.Connection = Depends(get_db),
 ):
-    member = await conn.fetchrow(
-        "SELECT family_id FROM family_members WHERE device_id=$1", device_id
-    )
-    if not member:
-        raise HTTPException(status_code=403, detail="가족 그룹의 구성원만 초대 코드를 생성할 수 있어요.")
-
-    family_id = member["family_id"]
+    if family_id is None:
+        member = await conn.fetchrow(
+            "SELECT family_id FROM family_members WHERE device_id=$1 ORDER BY joined_at LIMIT 1", device_id
+        )
+        if not member:
+            raise HTTPException(status_code=403, detail="가족 그룹의 구성원만 초대 코드를 생성할 수 있어요.")
+        family_id = member["family_id"]
+    else:
+        member = await conn.fetchrow(
+            "SELECT 1 FROM family_members WHERE device_id=$1 AND family_id=$2", device_id, family_id
+        )
+        if not member:
+            raise HTTPException(status_code=403, detail="가족 그룹의 구성원만 초대 코드를 생성할 수 있어요.")
     # 기존 유효 코드가 있으면 재사용
     existing = await conn.fetchrow(
         "SELECT code, expires_at FROM invite_codes WHERE family_id=$1 AND used=FALSE AND expires_at > NOW()",
@@ -335,13 +334,6 @@ async def join_family(
     req: JoinFamilyRequest,
     conn: asyncpg.Connection = Depends(get_db),
 ):
-    # 이미 가족에 속해있는지 확인
-    already = await conn.fetchrow(
-        "SELECT family_id FROM family_members WHERE device_id=$1", req.device_id
-    )
-    if already:
-        raise HTTPException(status_code=400, detail="이미 가족 그룹에 속해 있어요.")
-
     # 대기 중인 요청이 있는지 확인
     pending = await conn.fetchrow(
         "SELECT id FROM join_requests WHERE device_id=$1 AND status='pending'", req.device_id
@@ -463,17 +455,20 @@ async def get_family_members(
 @app.get("/api/family/pending-requests")
 async def get_pending_requests(
     device_id: str,
+    family_id: Optional[str] = None,
     conn: asyncpg.Connection = Depends(get_db),
 ):
-    member = await conn.fetchrow(
-        "SELECT family_id FROM family_members WHERE device_id=$1", device_id
-    )
-    if not member:
-        return {"requests": []}
+    if family_id is None:
+        member = await conn.fetchrow(
+            "SELECT family_id FROM family_members WHERE device_id=$1 ORDER BY joined_at LIMIT 1", device_id
+        )
+        if not member:
+            return {"requests": []}
+        family_id = member["family_id"]
 
     rows = await conn.fetch(
         "SELECT id, device_id, device_name, created_at FROM join_requests WHERE family_id=$1 AND status='pending'",
-        member["family_id"],
+        family_id,
     )
     return {
         "requests": [
@@ -961,18 +956,58 @@ async def respond_invitation(
 
 # ── 가족 구성원 조회 (created_by 포함) ────────────────────────────────────────
 
-@app.get("/api/family/members-v2")
-async def get_family_members_v2(
+@app.get("/api/family/my-families")
+async def get_my_families(
     device_id: str,
     conn: asyncpg.Connection = Depends(get_db),
 ):
-    member = await conn.fetchrow(
-        "SELECT family_id FROM family_members WHERE device_id=$1", device_id
-    )
-    if not member:
-        return {"family_id": None, "family_name": None, "members": [], "created_by": None}
+    """기기가 속한 모든 가족 그룹 목록"""
+    rows = await conn.fetch("""
+        SELECT f.id, f.name, f.created_by,
+               COUNT(fm2.device_id) AS member_count
+        FROM family_members fm
+        JOIN families f ON f.id = fm.family_id
+        JOIN family_members fm2 ON fm2.family_id = f.id
+        WHERE fm.device_id = $1
+        GROUP BY f.id, f.name, f.created_by
+        ORDER BY f.created_at
+    """, device_id)
+    return {
+        "families": [
+            {
+                "family_id": r["id"],
+                "family_name": r["name"],
+                "created_by": r["created_by"],
+                "member_count": r["member_count"],
+                "is_admin": r["created_by"] == device_id,
+            }
+            for r in rows
+        ]
+    }
 
-    family_id = member["family_id"]
+
+@app.get("/api/family/members-v2")
+async def get_family_members_v2(
+    device_id: str,
+    family_id: Optional[str] = None,
+    conn: asyncpg.Connection = Depends(get_db),
+):
+    # family_id 미지정 시 첫 번째 가족 사용
+    if family_id is None:
+        member = await conn.fetchrow(
+            "SELECT family_id FROM family_members WHERE device_id=$1 ORDER BY joined_at LIMIT 1", device_id
+        )
+        if not member:
+            return {"family_id": None, "family_name": None, "members": [], "created_by": None}
+        family_id = member["family_id"]
+    else:
+        # 해당 가족의 구성원인지 확인
+        member = await conn.fetchrow(
+            "SELECT 1 FROM family_members WHERE device_id=$1 AND family_id=$2", device_id, family_id
+        )
+        if not member:
+            return {"family_id": None, "family_name": None, "members": [], "created_by": None}
+
     family = await conn.fetchrow("SELECT name, created_by FROM families WHERE id=$1", family_id)
     members = await conn.fetch("""
         SELECT d.id, d.user_name, d.last_seen
