@@ -4,6 +4,7 @@
 - SQLAlchemy 의존성 제거
 """
 import os
+import ssl
 import uuid
 import random
 import string
@@ -40,7 +41,13 @@ _pg_pool: Optional[asyncpg.Pool] = None
 async def get_pg_pool() -> asyncpg.Pool:
     global _pg_pool
     if _pg_pool is None:
-        _pg_pool = await asyncpg.create_pool(_DB_URL, min_size=1, max_size=10)
+        # Railway PostgreSQL requires SSL; disable cert verification for internal connections
+        ssl_ctx = ssl.create_default_context()
+        ssl_ctx.check_hostname = False
+        ssl_ctx.verify_mode = ssl.CERT_NONE
+        # Strip sslmode param from URL — asyncpg uses ssl= kwarg instead
+        url = _DB_URL.split("?")[0]
+        _pg_pool = await asyncpg.create_pool(url, min_size=1, max_size=10, ssl=ssl_ctx)
     return _pg_pool
 
 
