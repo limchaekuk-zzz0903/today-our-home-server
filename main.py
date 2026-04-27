@@ -251,7 +251,7 @@ async def startup():
 
 # ── 인증 미들웨어 ─────────────────────────────────────────────────────────────
 
-_NO_AUTH_PATHS = {"/api/ping", "/api/auth/social", "/api/auth/email/register", "/api/auth/email/login"}
+_NO_AUTH_PATHS = {"/api/ping", "/api/debug/db", "/api/auth/social", "/api/auth/email/register", "/api/auth/email/login"}
 
 
 @app.middleware("http")
