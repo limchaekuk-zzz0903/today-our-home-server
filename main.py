@@ -429,7 +429,7 @@ async def _get_family_members(family_id: str):
 
 @app.get("/api/ping")
 async def ping():
-    return {"status": "ok", "message": "오늘우리집 서버 정상 동작 중", "build": "v4-fix-15"}
+    return {"status": "ok", "message": "오늘우리집 서버 정상 동작 중", "build": "v4-fix-16"}
 
 
 @app.get("/api/debug/db", include_in_schema=False)
@@ -834,11 +834,13 @@ async def get_pending_requests(device_id: str, family_id: Optional[str] = None):
     if not fid:
         return {"requests": []}
     rows = await DB.fetch(
-        "SELECT id, device_id, device_name AS requester_name, status"
+        "SELECT id, device_id, device_name AS requester_name, status, created_at"
         " FROM join_requests WHERE family_id = ? AND status = 'pending'",
         fid,
     )
-    return {"requests": rows}
+    def _serialize_row(r: dict) -> dict:
+        return {k: (v.isoformat() if hasattr(v, 'isoformat') else v) for k, v in r.items()}
+    return {"requests": [_serialize_row(r) for r in rows]}
 
 
 @app.get("/api/family/join-status")
