@@ -354,10 +354,8 @@ class SharedEventReq(BaseModel):
 
 # ── 헬퍼 ─────────────────────────────────────────────────────────────────────
 
-def _now():
-    """PostgreSQL은 datetime 객체, SQLite는 ISO 문자열을 사용"""
-    n = datetime.now()
-    return n if _USE_PG else n.isoformat()
+def _now() -> str:
+    return datetime.now().isoformat()
 
 
 def _hash_pw(pw: str) -> str:
@@ -381,9 +379,9 @@ async def _upsert_device_secret(device_id: str, secret: str, user_id: str):
     if _USE_PG:
         await DB.execute("""
             INSERT INTO device_secrets (device_id, secret, user_id, created_at)
-            VALUES (?, ?, ?, ?)
+            VALUES ($1, $2, $3, NOW())
             ON CONFLICT (device_id) DO UPDATE SET secret = EXCLUDED.secret, user_id = EXCLUDED.user_id
-        """, device_id, secret, user_id, _now())
+        """, device_id, secret, user_id)
     else:
         await DB.execute("""
             INSERT OR REPLACE INTO device_secrets (device_id, secret, user_id, created_at)
@@ -395,9 +393,9 @@ async def _upsert_device(device_id: str, name: str):
     if _USE_PG:
         await DB.execute("""
             INSERT INTO devices (id, user_name, created_at)
-            VALUES (?, ?, ?)
+            VALUES ($1, $2, NOW())
             ON CONFLICT (id) DO UPDATE SET user_name = EXCLUDED.user_name
-        """, device_id, name, _now())
+        """, device_id, name)
     else:
         await DB.execute("""
             INSERT INTO devices (id, user_name, created_at)
@@ -467,10 +465,16 @@ async def debug_register_test():
         return {"errors": errors}
     try:
         uid = str(uuid.uuid4())
-        await DB.execute(
-            "INSERT INTO users (id, name, email, password_hash, created_at) VALUES (?, ?, ?, ?, ?)",
-            uid, "디버그", "debug@test.com", "hash", _now(),
-        )
+        if _USE_PG:
+            await DB.execute(
+                "INSERT INTO users (id, name, email, password_hash, created_at) VALUES ($1, $2, $3, $4, NOW())",
+                uid, "디버그", "debug@test.com", "hash",
+            )
+        else:
+            await DB.execute(
+                "INSERT INTO users (id, name, email, password_hash, created_at) VALUES (?, ?, ?, ?, ?)",
+                uid, "디버그", "debug@test.com", "hash", _now(),
+            )
         errors.append(f"step2_ok: inserted {uid}")
         await DB.execute("DELETE FROM users WHERE id = ?", uid)
     except Exception as e:
@@ -488,12 +492,20 @@ async def social_auth(data: SocialAuthReq):
 
     if user is None:
         user_id = str(uuid.uuid4())
-        await DB.execute(
-            "INSERT INTO users (id, provider, social_id, name, email, profile_image_url, created_at)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?)",
-            user_id, data.provider, data.social_id, data.name,
-            data.email, data.profile_image_url, _now(),
-        )
+        if _USE_PG:
+            await DB.execute(
+                "INSERT INTO users (id, provider, social_id, name, email, profile_image_url, created_at)"
+                " VALUES ($1, $2, $3, $4, $5, $6, NOW())",
+                user_id, data.provider, data.social_id, data.name,
+                data.email, data.profile_image_url,
+            )
+        else:
+            await DB.execute(
+                "INSERT INTO users (id, provider, social_id, name, email, profile_image_url, created_at)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                user_id, data.provider, data.social_id, data.name,
+                data.email, data.profile_image_url, _now(),
+            )
     else:
         user_id = user["id"]
         await DB.execute(
@@ -518,11 +530,16 @@ async def email_register(data: EmailRegisterReq):
         raise HTTPException(status_code=400, detail="이미 사용 중인 이메일이에요")
 
     user_id = str(uuid.uuid4())
-    await DB.execute(
-        "INSERT INTO users (id, name, email, password_hash, created_at)"
-        " VALUES (?, ?, ?, ?, ?)",
-        user_id, data.name, data.email, _hash_pw(data.password), _now(),
-    )
+    if _USE_PG:
+        await DB.execute(
+            "INSERT INTO users (id, name, email, password_hash, created_at) VALUES ($1, $2, $3, $4, NOW())",
+            user_id, data.name, data.email, _hash_pw(data.password),
+        )
+    else:
+        await DB.execute(
+            "INSERT INTO users (id, name, email, password_hash, created_at) VALUES (?, ?, ?, ?, ?)",
+            user_id, data.name, data.email, _hash_pw(data.password), _now(),
+        )
 
     device_secret = str(uuid.uuid4())
     await _upsert_device_secret(data.device_id, device_secret, user_id)
@@ -636,10 +653,16 @@ async def create_family(data: FamilyCreateReq):
         return {"family_id": family["id"], "family_name": family["name"]}
 
     family_id = str(uuid.uuid4())
-    await DB.execute(
-        "INSERT INTO families (id, name, host_device_id, created_at) VALUES (?, ?, ?, ?)",
-        family_id, data.family_name, data.device_id, _now(),
-    )
+    if _USE_PG:
+        await DB.execute(
+            "INSERT INTO families (id, name, host_device_id, created_at) VALUES ($1, $2, $3, NOW())",
+            family_id, data.family_name, data.device_id,
+        )
+    else:
+        await DB.execute(
+            "INSERT INTO families (id, name, host_device_id, created_at) VALUES (?, ?, ?, ?)",
+            family_id, data.family_name, data.device_id, _now(),
+        )
     await DB.execute("UPDATE devices SET family_id = ? WHERE id = ?", family_id, data.device_id)
     return {"family_id": family_id, "family_name": data.family_name}
 
@@ -669,28 +692,28 @@ async def create_invite_code(device_id: str):
     family_id = await _require_family(device)
     code = "".join(random.choices(string.digits, k=6))
     expires_dt = datetime.now() + timedelta(hours=24)
-    expires_at = expires_dt if _USE_PG else expires_dt.isoformat()
     if _USE_PG:
         await DB.execute("""
             INSERT INTO invite_codes (code, family_id, created_by, created_at, expires_at, is_used)
-            VALUES (?, ?, ?, ?, ?, 0)
+            VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '24 hours', 0)
             ON CONFLICT (code) DO UPDATE SET
                 family_id = EXCLUDED.family_id, created_by = EXCLUDED.created_by,
                 created_at = EXCLUDED.created_at, expires_at = EXCLUDED.expires_at, is_used = 0
-        """, code, family_id, device_id, _now(), expires_at)
+        """, code, family_id, device_id)
     else:
         await DB.execute("""
             INSERT OR REPLACE INTO invite_codes (code, family_id, created_by, created_at, expires_at, is_used)
             VALUES (?, ?, ?, ?, ?, 0)
-        """, code, family_id, device_id, _now(), expires_at)
+        """, code, family_id, device_id, _now(), expires_dt.isoformat())
     return {"code": code, "expires_at": expires_dt.isoformat()}
 
 
 @app.post("/api/family/join")
 async def join_family(data: JoinReq):
     invite = await DB.fetchrow(
-        "SELECT * FROM invite_codes WHERE code = ? AND is_used = 0 AND expires_at > ?",
-        data.code, _now(),
+        "SELECT * FROM invite_codes WHERE code = ? AND is_used = 0 AND expires_at > NOW()" if _USE_PG
+        else "SELECT * FROM invite_codes WHERE code = ? AND is_used = 0 AND expires_at > ?",
+        *([data.code] if _USE_PG else [data.code, _now()]),
     )
     if not invite:
         raise HTTPException(status_code=404, detail="유효하지 않은 초대 코드예요")
@@ -700,19 +723,32 @@ async def join_family(data: JoinReq):
         raise HTTPException(status_code=400, detail="이미 이 가족 그룹에 속해 있어요")
 
     if not device:
-        await DB.execute(
-            "INSERT INTO devices (id, user_name, created_at) VALUES (?, ?, ?)",
-            data.device_id, data.device_name, _now(),
-        )
+        if _USE_PG:
+            await DB.execute(
+                "INSERT INTO devices (id, user_name, created_at) VALUES ($1, $2, NOW())",
+                data.device_id, data.device_name,
+            )
+        else:
+            await DB.execute(
+                "INSERT INTO devices (id, user_name, created_at) VALUES (?, ?, ?)",
+                data.device_id, data.device_name, _now(),
+            )
     else:
         await DB.execute("UPDATE devices SET user_name = ? WHERE id = ?", data.device_name, data.device_id)
 
     request_id = str(uuid.uuid4())
-    await DB.execute(
-        "INSERT INTO join_requests (id, family_id, requester_device_id, requester_name, created_at)"
-        " VALUES (?, ?, ?, ?, ?)",
-        request_id, invite["family_id"], data.device_id, data.device_name, _now(),
-    )
+    if _USE_PG:
+        await DB.execute(
+            "INSERT INTO join_requests (id, family_id, requester_device_id, requester_name, created_at)"
+            " VALUES ($1, $2, $3, $4, NOW())",
+            request_id, invite["family_id"], data.device_id, data.device_name,
+        )
+    else:
+        await DB.execute(
+            "INSERT INTO join_requests (id, family_id, requester_device_id, requester_name, created_at)"
+            " VALUES (?, ?, ?, ?, ?)",
+            request_id, invite["family_id"], data.device_id, data.device_name, _now(),
+        )
     return {"request_id": request_id, "status": "pending"}
 
 
