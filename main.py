@@ -429,7 +429,7 @@ async def _get_family_members(family_id: str):
 
 @app.get("/api/ping")
 async def ping():
-    return {"status": "ok", "message": "오늘우리집 서버 정상 동작 중"}
+    return {"status": "ok", "message": "오늘우리집 서버 정상 동작 중", "build": "v4-fix-15"}
 
 
 @app.get("/api/debug/db")
