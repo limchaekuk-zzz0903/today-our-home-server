@@ -251,7 +251,7 @@ async def startup():
 
 # ── 인증 미들웨어 ─────────────────────────────────────────────────────────────
 
-_NO_AUTH_PATHS = {"/api/ping", "/api/debug/db", "/api/auth/social", "/api/auth/email/register", "/api/auth/email/login"}
+_NO_AUTH_PATHS = {"/api/ping", "/api/debug/db", "/api/debug/register-test", "/api/auth/social", "/api/auth/email/register", "/api/auth/email/login"}
 
 
 @app.middleware("http")
@@ -430,12 +430,40 @@ async def ping():
 
 @app.get("/api/debug/db")
 async def debug_db():
-    """임시 디버그: DB 연결 상태 확인"""
+    """임시 디버그: DB 연결 상태 확인 및 테이블 컬럼 조회"""
     try:
         row = await DB.fetchrow("SELECT 1 AS val")
-        return {"db": "ok", "val": row, "use_pg": _USE_PG, "db_url_prefix": _DB_URL[:30] if _DB_URL else ""}
+        cols = await DB.fetch(
+            "SELECT column_name FROM information_schema.columns WHERE table_name='users' ORDER BY ordinal_position"
+        ) if _USE_PG else []
+        return {"db": "ok", "val": row, "use_pg": _USE_PG, "users_columns": [r["column_name"] for r in cols]}
     except Exception as e:
-        return {"db": "error", "error": str(e), "use_pg": _USE_PG, "db_url_prefix": _DB_URL[:30] if _DB_URL else ""}
+        return {"db": "error", "error": str(e), "use_pg": _USE_PG}
+
+
+@app.post("/api/debug/register-test")
+async def debug_register_test():
+    """임시 디버그: 이메일 회원가입 과정별 에러 확인"""
+    errors = []
+    try:
+        existing = await DB.fetchrow(
+            "SELECT id FROM users WHERE email = ? AND social_provider IS NULL", "debug@test.com"
+        )
+        errors.append(f"step1_ok: {existing}")
+    except Exception as e:
+        errors.append(f"step1_fail: {e}")
+        return {"errors": errors}
+    try:
+        uid = str(uuid.uuid4())
+        await DB.execute(
+            "INSERT INTO users (id, name, email, password_hash, created_at) VALUES (?, ?, ?, ?, ?)",
+            uid, "디버그", "debug@test.com", "hash", _now(),
+        )
+        errors.append(f"step2_ok: inserted {uid}")
+        await DB.execute("DELETE FROM users WHERE id = ?", uid)
+    except Exception as e:
+        errors.append(f"step2_fail: {e}")
+    return {"errors": errors}
 
 
 @app.post("/api/auth/social")
