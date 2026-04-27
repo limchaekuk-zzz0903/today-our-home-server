@@ -761,6 +761,14 @@ async def create_invite_code(device_id: str):
 
 @app.post("/api/family/join")
 async def join_family(data: JoinReq):
+    try:
+     return await _join_family_impl(data)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"join error: {str(e)}")
+
+async def _join_family_impl(data: JoinReq):
     invite = await DB.fetchrow(
         "SELECT * FROM invite_codes WHERE code = ? AND used = FALSE AND expires_at > NOW()" if _USE_PG
         else "SELECT * FROM invite_codes WHERE code = ? AND used = 0 AND expires_at > ?",
