@@ -477,7 +477,7 @@ async def debug_register_test():
     errors = []
     try:
         existing = await DB.fetchrow(
-            "SELECT id FROM users WHERE email = ? AND provider IS NULL", "debug@test.com"
+            "SELECT id FROM users WHERE email = ? AND (provider IS NULL OR provider = 'email')", "debug@test.com"
         )
         errors.append(f"step1_ok: {existing}")
     except Exception as e:
@@ -558,7 +558,7 @@ async def social_auth(data: SocialAuthReq):
 async def email_register(data: EmailRegisterReq):
     """이메일 회원가입"""
     existing = await DB.fetchrow(
-        "SELECT id FROM users WHERE email = ? AND provider IS NULL", data.email
+        "SELECT id FROM users WHERE email = ? AND (provider IS NULL OR provider = 'email')", data.email
     )
     if existing:
         raise HTTPException(status_code=400, detail="이미 사용 중인 이메일이에요")
@@ -566,12 +566,12 @@ async def email_register(data: EmailRegisterReq):
     user_id = str(uuid.uuid4())
     if _USE_PG:
         await DB.execute(
-            "INSERT INTO users (id, name, email, password_hash, created_at) VALUES ($1, $2, $3, $4, NOW())",
+            "INSERT INTO users (id, name, email, password_hash, provider, created_at) VALUES ($1, $2, $3, $4, 'email', NOW())",
             user_id, data.name, data.email, _hash_pw(data.password),
         )
     else:
         await DB.execute(
-            "INSERT INTO users (id, name, email, password_hash, created_at) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO users (id, name, email, password_hash, provider, created_at) VALUES (?, ?, ?, ?, 'email', ?)",
             user_id, data.name, data.email, _hash_pw(data.password), _now(),
         )
 
@@ -586,7 +586,7 @@ async def email_register(data: EmailRegisterReq):
 async def email_login(data: EmailLoginReq):
     """이메일 로그인"""
     user = await DB.fetchrow(
-        "SELECT * FROM users WHERE email = ? AND password_hash = ? AND provider IS NULL",
+        "SELECT * FROM users WHERE email = ? AND password_hash = ? AND (provider IS NULL OR provider = 'email')",
         data.email, _hash_pw(data.password),
     )
     if not user:
