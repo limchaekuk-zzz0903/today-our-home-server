@@ -438,13 +438,16 @@ async def debug_db():
         cols = await DB.fetch(
             "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='users' ORDER BY ordinal_position"
         ) if _USE_PG else []
-        shared = await DB.fetch(
-            "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='shared_events' ORDER BY ordinal_position"
-        ) if _USE_PG else []
+        ts_cols = await DB.fetch("""
+            SELECT table_name, column_name, data_type
+            FROM information_schema.columns
+            WHERE data_type LIKE '%timestamp%'
+            ORDER BY table_name, ordinal_position
+        """) if _USE_PG else []
         return {
-            "db": "ok", "val": row, "use_pg": _USE_PG,
+            "db": "ok", "use_pg": _USE_PG,
             "users_cols": {r["column_name"]: r["data_type"] for r in cols},
-            "shared_events_cols": {r["column_name"]: r["data_type"] for r in shared},
+            "timestamp_columns": [f"{r['table_name']}.{r['column_name']}" for r in ts_cols],
         }
     except Exception as e:
         return {"db": "error", "error": str(e), "use_pg": _USE_PG}
