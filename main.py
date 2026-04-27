@@ -432,7 +432,7 @@ async def ping():
     return {"status": "ok", "message": "오늘우리집 서버 정상 동작 중", "build": "v4-fix-15"}
 
 
-@app.get("/api/debug/db")
+@app.get("/api/debug/db", include_in_schema=False)
 async def debug_db():
     """임시 디버그: DB 연결 상태 확인 및 테이블 컬럼 조회"""
     try:
@@ -467,7 +467,7 @@ async def debug_db():
         return {"db": "error", "error": str(e), "use_pg": _USE_PG}
 
 
-@app.get("/api/debug/user")
+@app.get("/api/debug/user", include_in_schema=False)
 async def debug_user(email: str, pw: Optional[str] = None):
     """임시 디버그: 특정 이메일 사용자 조회"""
     rows = await DB.fetch("SELECT id, email, provider, password_hash FROM users WHERE email = ?", email)
@@ -486,7 +486,7 @@ async def debug_user(email: str, pw: Optional[str] = None):
     return result
 
 
-@app.post("/api/debug/register-test")
+@app.post("/api/debug/register-test", include_in_schema=False)
 async def debug_register_test():
     """임시 디버그: 이메일 회원가입 과정별 에러 확인"""
     errors = []
@@ -737,41 +737,28 @@ async def get_my_families(device_id: str):
 
 @app.post("/api/family/invite-code")
 async def create_invite_code(device_id: str):
-    try:
-        device = await _get_device(device_id)
-        family_id = await _require_family(device)
-        code = "".join(random.choices(string.digits, k=6))
-        expires_dt = datetime.now() + timedelta(hours=24)
-        if _USE_PG:
-            await DB.execute("""
-                INSERT INTO invite_codes (code, family_id, created_by, expires_at, used)
-                VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours', FALSE)
-                ON CONFLICT (code) DO UPDATE SET
-                    family_id = EXCLUDED.family_id, created_by = EXCLUDED.created_by,
-                    expires_at = EXCLUDED.expires_at, used = FALSE
-            """, code, family_id, device_id)
-        else:
-            await DB.execute("""
-                INSERT OR REPLACE INTO invite_codes (code, family_id, created_by, created_at, expires_at, used)
-                VALUES (?, ?, ?, ?, ?, 0)
-            """, code, family_id, device_id, _now(), expires_dt.isoformat())
-        return {"code": code, "expires_at": expires_dt.isoformat()}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"invite_code error: {str(e)}")
+    device = await _get_device(device_id)
+    family_id = await _require_family(device)
+    code = "".join(random.choices(string.digits, k=6))
+    expires_dt = datetime.now() + timedelta(hours=24)
+    if _USE_PG:
+        await DB.execute("""
+            INSERT INTO invite_codes (code, family_id, created_by, expires_at, used)
+            VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours', FALSE)
+            ON CONFLICT (code) DO UPDATE SET
+                family_id = EXCLUDED.family_id, created_by = EXCLUDED.created_by,
+                expires_at = EXCLUDED.expires_at, used = FALSE
+        """, code, family_id, device_id)
+    else:
+        await DB.execute("""
+            INSERT OR REPLACE INTO invite_codes (code, family_id, created_by, created_at, expires_at, used)
+            VALUES (?, ?, ?, ?, ?, 0)
+        """, code, family_id, device_id, _now(), expires_dt.isoformat())
+    return {"code": code, "expires_at": expires_dt.isoformat()}
 
 
 @app.post("/api/family/join")
 async def join_family(data: JoinReq):
-    try:
-     return await _join_family_impl(data)
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"join error: {str(e)}")
-
-async def _join_family_impl(data: JoinReq):
     invite = await DB.fetchrow(
         "SELECT * FROM invite_codes WHERE code = ? AND used = FALSE AND expires_at > NOW()" if _USE_PG
         else "SELECT * FROM invite_codes WHERE code = ? AND used = 0 AND expires_at > ?",
@@ -842,21 +829,16 @@ async def confirm_join(data: ConfirmReq):
 
 @app.get("/api/family/pending-requests")
 async def get_pending_requests(device_id: str, family_id: Optional[str] = None):
-    try:
-        device = await _get_device(device_id)
-        fid = family_id or device["family_id"]
-        if not fid:
-            return {"requests": []}
-        rows = await DB.fetch(
-            "SELECT id, device_id, device_name AS requester_name, status"
-            " FROM join_requests WHERE family_id = ? AND status = 'pending'",
-            fid,
-        )
-        return {"requests": rows}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"pending-requests error: {str(e)}")
+    device = await _get_device(device_id)
+    fid = family_id or device["family_id"]
+    if not fid:
+        return {"requests": []}
+    rows = await DB.fetch(
+        "SELECT id, device_id, device_name AS requester_name, status"
+        " FROM join_requests WHERE family_id = ? AND status = 'pending'",
+        fid,
+    )
+    return {"requests": rows}
 
 
 @app.get("/api/family/join-status")
