@@ -354,8 +354,10 @@ class SharedEventReq(BaseModel):
 
 # ── 헬퍼 ─────────────────────────────────────────────────────────────────────
 
-def _now() -> str:
-    return datetime.now().isoformat()
+def _now():
+    """PostgreSQL은 datetime 객체, SQLite는 ISO 문자열을 사용"""
+    n = datetime.now()
+    return n if _USE_PG else n.isoformat()
 
 
 def _hash_pw(pw: str) -> str:
@@ -434,9 +436,16 @@ async def debug_db():
     try:
         row = await DB.fetchrow("SELECT 1 AS val")
         cols = await DB.fetch(
-            "SELECT column_name FROM information_schema.columns WHERE table_name='users' ORDER BY ordinal_position"
+            "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='users' ORDER BY ordinal_position"
         ) if _USE_PG else []
-        return {"db": "ok", "val": row, "use_pg": _USE_PG, "users_columns": [r["column_name"] for r in cols]}
+        shared = await DB.fetch(
+            "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='shared_events' ORDER BY ordinal_position"
+        ) if _USE_PG else []
+        return {
+            "db": "ok", "val": row, "use_pg": _USE_PG,
+            "users_cols": {r["column_name"]: r["data_type"] for r in cols},
+            "shared_events_cols": {r["column_name"]: r["data_type"] for r in shared},
+        }
     except Exception as e:
         return {"db": "error", "error": str(e), "use_pg": _USE_PG}
 
@@ -656,7 +665,8 @@ async def create_invite_code(device_id: str):
     device = await _get_device(device_id)
     family_id = await _require_family(device)
     code = "".join(random.choices(string.digits, k=6))
-    expires_at = (datetime.now() + timedelta(hours=24)).isoformat()
+    expires_dt = datetime.now() + timedelta(hours=24)
+    expires_at = expires_dt if _USE_PG else expires_dt.isoformat()
     if _USE_PG:
         await DB.execute("""
             INSERT INTO invite_codes (code, family_id, created_by, created_at, expires_at, is_used)
@@ -670,7 +680,7 @@ async def create_invite_code(device_id: str):
             INSERT OR REPLACE INTO invite_codes (code, family_id, created_by, created_at, expires_at, is_used)
             VALUES (?, ?, ?, ?, ?, 0)
         """, code, family_id, device_id, _now(), expires_at)
-    return {"code": code, "expires_at": expires_at}
+    return {"code": code, "expires_at": expires_dt.isoformat()}
 
 
 @app.post("/api/family/join")
