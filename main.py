@@ -465,10 +465,22 @@ async def debug_db():
 
 
 @app.get("/api/debug/user")
-async def debug_user(email: str):
+async def debug_user(email: str, pw: Optional[str] = None):
     """임시 디버그: 특정 이메일 사용자 조회"""
     rows = await DB.fetch("SELECT id, email, provider, password_hash FROM users WHERE email = ?", email)
-    return {"count": len(rows), "rows": [dict(r) for r in rows]}
+    result = {"count": len(rows), "rows": [dict(r) for r in rows]}
+    if pw and rows:
+        hashed = _hash_pw(pw)
+        result["input_hash"] = hashed
+        result["db_hash"] = rows[0].get("password_hash")
+        result["hash_match"] = hashed == rows[0].get("password_hash")
+        # direct query test
+        match = await DB.fetchrow(
+            "SELECT id FROM users WHERE email = ? AND password_hash = ? AND (provider IS NULL OR provider = 'email')",
+            email, hashed
+        )
+        result["direct_login_result"] = dict(match) if match else None
+    return result
 
 
 @app.post("/api/debug/register-test")
