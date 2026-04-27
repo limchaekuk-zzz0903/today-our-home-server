@@ -479,6 +479,20 @@ async def debug_register_test():
         await DB.execute("DELETE FROM users WHERE id = ?", uid)
     except Exception as e:
         errors.append(f"step2_fail: {e}")
+        return {"errors": errors}
+    try:
+        await _upsert_device_secret("debug-dev", "debug-sec", "debug-uid")
+        errors.append("step3_device_secret: ok")
+        await DB.execute("DELETE FROM device_secrets WHERE device_id = ?", "debug-dev")
+    except Exception as e:
+        errors.append(f"step3_device_secret_fail: {e}")
+        return {"errors": errors}
+    try:
+        await _upsert_device("debug-dev", "디버그디바이스")
+        errors.append("step4_device: ok")
+        await DB.execute("DELETE FROM devices WHERE id = ?", "debug-dev")
+    except Exception as e:
+        errors.append(f"step4_device_fail: {e}")
     return {"errors": errors}
 
 
