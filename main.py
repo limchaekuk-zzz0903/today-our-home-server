@@ -182,8 +182,8 @@ _INIT_STMTS = [
     """CREATE TABLE IF NOT EXISTS join_requests (
         id                   TEXT PRIMARY KEY,
         family_id            TEXT NOT NULL,
-        requester_device_id  TEXT NOT NULL,
-        requester_name       TEXT NOT NULL,
+        device_id  TEXT NOT NULL,
+        device_name       TEXT NOT NULL,
         status               TEXT DEFAULT 'pending',
         created_at           TEXT NOT NULL
     )""",
@@ -801,14 +801,14 @@ async def _join_family_impl(data: JoinReq):
     request_id = str(uuid.uuid4())
     if _USE_PG:
         await DB.execute(
-            "INSERT INTO join_requests (id, family_id, requester_device_id, requester_name, created_at)"
-            " VALUES ($1, $2, $3, $4, NOW())",
+            "INSERT INTO join_requests (id, family_id, device_id, device_name, status, created_at)"
+            " VALUES ($1, $2, $3, $4, 'pending', NOW())",
             request_id, invite["family_id"], data.device_id, data.device_name,
         )
     else:
         await DB.execute(
-            "INSERT INTO join_requests (id, family_id, requester_device_id, requester_name, created_at)"
-            " VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO join_requests (id, family_id, device_id, device_name, status, created_at)"
+            " VALUES (?, ?, ?, ?, 'pending', ?)",
             request_id, invite["family_id"], data.device_id, data.device_name, _now(),
         )
     return {"request_id": request_id, "status": "pending"}
@@ -833,7 +833,7 @@ async def confirm_join(data: ConfirmReq):
         await DB.execute("UPDATE join_requests SET status = 'confirmed' WHERE id = ?", data.request_id)
         await DB.execute(
             "UPDATE devices SET family_id = ? WHERE id = ?",
-            request["family_id"], request["requester_device_id"],
+            request["family_id"], request["device_id"],
         )
     else:
         await DB.execute("UPDATE join_requests SET status = 'rejected' WHERE id = ?", data.request_id)
@@ -848,7 +848,7 @@ async def get_pending_requests(device_id: str, family_id: Optional[str] = None):
         if not fid:
             return {"requests": []}
         rows = await DB.fetch(
-            "SELECT id, requester_device_id AS device_id, requester_name, status"
+            "SELECT id, device_id, device_name AS requester_name, status"
             " FROM join_requests WHERE family_id = ? AND status = 'pending'",
             fid,
         )
