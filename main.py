@@ -168,7 +168,7 @@ _INIT_STMTS = [
     """CREATE TABLE IF NOT EXISTS families (
         id              TEXT PRIMARY KEY,
         name            TEXT NOT NULL,
-        host_device_id  TEXT NOT NULL,
+        created_by  TEXT NOT NULL,
         created_at      TEXT NOT NULL
     )""",
     """CREATE TABLE IF NOT EXISTS invite_codes (
@@ -177,7 +177,7 @@ _INIT_STMTS = [
         created_by  TEXT NOT NULL,
         created_at  TEXT NOT NULL,
         expires_at  TEXT NOT NULL,
-        is_used     INTEGER DEFAULT 0
+        used     INTEGER DEFAULT 0
     )""",
     """CREATE TABLE IF NOT EXISTS join_requests (
         id                   TEXT PRIMARY KEY,
@@ -419,7 +419,7 @@ async def _get_family_members(family_id: str):
         {
             "device_id": m["id"],
             "user_name": m["user_name"],
-            "is_creator": m["id"] == family["host_device_id"],
+            "is_creator": m["id"] == family["created_by"],
         }
         for m in members_raw
     ]
@@ -682,12 +682,12 @@ async def create_family(data: FamilyCreateReq):
     family_id = str(uuid.uuid4())
     if _USE_PG:
         await DB.execute(
-            "INSERT INTO families (id, name, host_device_id, created_at) VALUES ($1, $2, $3, NOW())",
+            "INSERT INTO families (id, name, created_by, created_at) VALUES ($1, $2, $3, NOW())",
             family_id, data.family_name, data.device_id,
         )
     else:
         await DB.execute(
-            "INSERT INTO families (id, name, host_device_id, created_at) VALUES (?, ?, ?, ?)",
+            "INSERT INTO families (id, name, created_by, created_at) VALUES (?, ?, ?, ?)",
             family_id, data.family_name, data.device_id, _now(),
         )
     await DB.execute("UPDATE devices SET family_id = ? WHERE id = ?", family_id, data.device_id)
@@ -708,7 +708,7 @@ async def get_my_families(device_id: str):
     return {"families": [{
         "family_id": family["id"],
         "family_name": family["name"],
-        "created_by": family["host_device_id"],
+        "created_by": family["created_by"],
         "member_count": member_count or 0,
     }]}
 
@@ -721,15 +721,15 @@ async def create_invite_code(device_id: str):
     expires_dt = datetime.now() + timedelta(hours=24)
     if _USE_PG:
         await DB.execute("""
-            INSERT INTO invite_codes (code, family_id, created_by, created_at, expires_at, is_used)
-            VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '24 hours', 0)
+            INSERT INTO invite_codes (code, family_id, created_by, expires_at, used)
+            VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours', 0)
             ON CONFLICT (code) DO UPDATE SET
                 family_id = EXCLUDED.family_id, created_by = EXCLUDED.created_by,
-                created_at = EXCLUDED.created_at, expires_at = EXCLUDED.expires_at, is_used = 0
+                expires_at = EXCLUDED.expires_at, used = 0
         """, code, family_id, device_id)
     else:
         await DB.execute("""
-            INSERT OR REPLACE INTO invite_codes (code, family_id, created_by, created_at, expires_at, is_used)
+            INSERT OR REPLACE INTO invite_codes (code, family_id, created_by, created_at, expires_at, used)
             VALUES (?, ?, ?, ?, ?, 0)
         """, code, family_id, device_id, _now(), expires_dt.isoformat())
     return {"code": code, "expires_at": expires_dt.isoformat()}
@@ -738,8 +738,8 @@ async def create_invite_code(device_id: str):
 @app.post("/api/family/join")
 async def join_family(data: JoinReq):
     invite = await DB.fetchrow(
-        "SELECT * FROM invite_codes WHERE code = ? AND is_used = 0 AND expires_at > NOW()" if _USE_PG
-        else "SELECT * FROM invite_codes WHERE code = ? AND is_used = 0 AND expires_at > ?",
+        "SELECT * FROM invite_codes WHERE code = ? AND used = 0 AND expires_at > NOW()" if _USE_PG
+        else "SELECT * FROM invite_codes WHERE code = ? AND used = 0 AND expires_at > ?",
         *([data.code] if _USE_PG else [data.code, _now()]),
     )
     if not invite:
@@ -838,7 +838,7 @@ async def get_family_members(device_id: str):
     return {
         "family_id": device["family_id"],
         "family_name": family["name"] if family else None,
-        "created_by": family["host_device_id"] if family else None,
+        "created_by": family["created_by"] if family else None,
         "members": members,
     }
 
@@ -853,7 +853,7 @@ async def get_family_members_v2(device_id: str, family_id: Optional[str] = None)
     return {
         "family_id": fid,
         "family_name": family["name"] if family else None,
-        "created_by": family["host_device_id"] if family else None,
+        "created_by": family["created_by"] if family else None,
         "members": members,
     }
 
@@ -933,7 +933,7 @@ async def delete_family(device_id: str):
     device = await _get_device(device_id)
     family_id = await _require_family(device)
     family = await DB.fetchrow("SELECT * FROM families WHERE id = ?", family_id)
-    if not family or family["host_device_id"] != device_id:
+    if not family or family["created_by"] != device_id:
         raise HTTPException(status_code=403, detail="방장만 가족 그룹을 삭제할 수 있어요")
 
     await DB.execute("UPDATE devices SET family_id = NULL WHERE family_id = ?", family_id)
@@ -952,7 +952,7 @@ async def update_member_name(member_device_id: str, data: UpdateNameReq):
     if requester["family_id"] != target["family_id"]:
         raise HTTPException(status_code=403, detail="같은 가족이 아니에요")
     family = await DB.fetchrow("SELECT * FROM families WHERE id = ?", requester["family_id"])
-    is_admin = family and family["host_device_id"] == data.device_id
+    is_admin = family and family["created_by"] == data.device_id
     if data.device_id != member_device_id and not is_admin:
         raise HTTPException(status_code=403, detail="이름 수정 권한이 없어요")
     await DB.execute("UPDATE devices SET user_name = ? WHERE id = ?", data.name, member_device_id)
@@ -966,7 +966,7 @@ async def remove_member(member_device_id: str, device_id: str):
     if requester["family_id"] != target["family_id"]:
         raise HTTPException(status_code=403, detail="같은 가족이 아니에요")
     family = await DB.fetchrow("SELECT * FROM families WHERE id = ?", requester["family_id"])
-    is_admin = family and family["host_device_id"] == device_id
+    is_admin = family and family["created_by"] == device_id
     if device_id != member_device_id and not is_admin:
         raise HTTPException(status_code=403, detail="제거 권한이 없어요")
     await DB.execute("UPDATE devices SET family_id = NULL WHERE id = ?", member_device_id)
