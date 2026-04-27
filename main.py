@@ -446,6 +446,7 @@ async def debug_db():
             "db": "ok", "use_pg": _USE_PG,
             "users_cols": {r["column_name"]: r["data_type"] for r in cols},
             "timestamp_columns": [f"{r['table_name']}.{r['column_name']}" for r in ts_cols],
+            "all_tables": await DB.fetch("SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name") if _USE_PG else [],
         }
     except Exception as e:
         return {"db": "error", "error": str(e), "use_pg": _USE_PG}
