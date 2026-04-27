@@ -734,24 +734,29 @@ async def get_my_families(device_id: str):
 
 @app.post("/api/family/invite-code")
 async def create_invite_code(device_id: str):
-    device = await _get_device(device_id)
-    family_id = await _require_family(device)
-    code = "".join(random.choices(string.digits, k=6))
-    expires_dt = datetime.now() + timedelta(hours=24)
-    if _USE_PG:
-        await DB.execute("""
-            INSERT INTO invite_codes (code, family_id, created_by, expires_at, used)
-            VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours', FALSE)
-            ON CONFLICT (code) DO UPDATE SET
-                family_id = EXCLUDED.family_id, created_by = EXCLUDED.created_by,
-                expires_at = EXCLUDED.expires_at, used = FALSE
-        """, code, family_id, device_id)
-    else:
-        await DB.execute("""
-            INSERT OR REPLACE INTO invite_codes (code, family_id, created_by, created_at, expires_at, used)
-            VALUES (?, ?, ?, ?, ?, 0)
-        """, code, family_id, device_id, _now(), expires_dt.isoformat())
-    return {"code": code, "expires_at": expires_dt.isoformat()}
+    try:
+        device = await _get_device(device_id)
+        family_id = await _require_family(device)
+        code = "".join(random.choices(string.digits, k=6))
+        expires_dt = datetime.now() + timedelta(hours=24)
+        if _USE_PG:
+            await DB.execute("""
+                INSERT INTO invite_codes (code, family_id, created_by, expires_at, used)
+                VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours', FALSE)
+                ON CONFLICT (code) DO UPDATE SET
+                    family_id = EXCLUDED.family_id, created_by = EXCLUDED.created_by,
+                    expires_at = EXCLUDED.expires_at, used = FALSE
+            """, code, family_id, device_id)
+        else:
+            await DB.execute("""
+                INSERT OR REPLACE INTO invite_codes (code, family_id, created_by, created_at, expires_at, used)
+                VALUES (?, ?, ?, ?, ?, 0)
+            """, code, family_id, device_id, _now(), expires_dt.isoformat())
+        return {"code": code, "expires_at": expires_dt.isoformat()}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"invite_code error: {str(e)}")
 
 
 @app.post("/api/family/join")
