@@ -831,16 +831,21 @@ async def confirm_join(data: ConfirmReq):
 
 @app.get("/api/family/pending-requests")
 async def get_pending_requests(device_id: str, family_id: Optional[str] = None):
-    device = await _get_device(device_id)
-    fid = family_id or device["family_id"]
-    if not fid:
-        return {"requests": []}
-    rows = await DB.fetch(
-        "SELECT id, requester_device_id AS device_id, requester_name, status, created_at"
-        " FROM join_requests WHERE family_id = ? AND status = 'pending'",
-        fid,
-    )
-    return {"requests": rows}
+    try:
+        device = await _get_device(device_id)
+        fid = family_id or device["family_id"]
+        if not fid:
+            return {"requests": []}
+        rows = await DB.fetch(
+            "SELECT id, requester_device_id AS device_id, requester_name, status"
+            " FROM join_requests WHERE family_id = ? AND status = 'pending'",
+            fid,
+        )
+        return {"requests": rows}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"pending-requests error: {str(e)}")
 
 
 @app.get("/api/family/join-status")
