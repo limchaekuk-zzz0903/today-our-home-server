@@ -145,7 +145,7 @@ def _sqlite_fetch(sql: str, args=()) -> List[dict]:
 _INIT_STMTS = [
     """CREATE TABLE IF NOT EXISTS users (
         id               TEXT PRIMARY KEY,
-        social_provider  TEXT,
+        provider  TEXT,
         social_id        TEXT,
         name             TEXT,
         email            TEXT,
@@ -447,7 +447,7 @@ async def debug_register_test():
     errors = []
     try:
         existing = await DB.fetchrow(
-            "SELECT id FROM users WHERE email = ? AND social_provider IS NULL", "debug@test.com"
+            "SELECT id FROM users WHERE email = ? AND provider IS NULL", "debug@test.com"
         )
         errors.append(f"step1_ok: {existing}")
     except Exception as e:
@@ -470,14 +470,14 @@ async def debug_register_test():
 async def social_auth(data: SocialAuthReq):
     """소셜 로그인 처리: 사용자 upsert + 기기 시크릿 발급"""
     user = await DB.fetchrow(
-        "SELECT * FROM users WHERE social_provider = ? AND social_id = ?",
+        "SELECT * FROM users WHERE provider = ? AND social_id = ?",
         data.provider, data.social_id,
     )
 
     if user is None:
         user_id = str(uuid.uuid4())
         await DB.execute(
-            "INSERT INTO users (id, social_provider, social_id, name, email, profile_image_url, created_at)"
+            "INSERT INTO users (id, provider, social_id, name, email, profile_image_url, created_at)"
             " VALUES (?, ?, ?, ?, ?, ?, ?)",
             user_id, data.provider, data.social_id, data.name,
             data.email, data.profile_image_url, _now(),
@@ -500,7 +500,7 @@ async def social_auth(data: SocialAuthReq):
 async def email_register(data: EmailRegisterReq):
     """이메일 회원가입"""
     existing = await DB.fetchrow(
-        "SELECT id FROM users WHERE email = ? AND social_provider IS NULL", data.email
+        "SELECT id FROM users WHERE email = ? AND provider IS NULL", data.email
     )
     if existing:
         raise HTTPException(status_code=400, detail="이미 사용 중인 이메일이에요")
@@ -523,7 +523,7 @@ async def email_register(data: EmailRegisterReq):
 async def email_login(data: EmailLoginReq):
     """이메일 로그인"""
     user = await DB.fetchrow(
-        "SELECT * FROM users WHERE email = ? AND password_hash = ? AND social_provider IS NULL",
+        "SELECT * FROM users WHERE email = ? AND password_hash = ? AND provider IS NULL",
         data.email, _hash_pw(data.password),
     )
     if not user:
@@ -562,7 +562,7 @@ async def auth_restore(user_id: str, device_id: Optional[str] = None):
         "user_id": user["id"],
         "name": user["name"],
         "email": user.get("email"),
-        "provider": user.get("social_provider") or "email",
+        "provider": user.get("provider") or "email",
         "profile_image_url": user.get("profile_image_url"),
         "family_id": family_id,
         "family_name": family_name,
