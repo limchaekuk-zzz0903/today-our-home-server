@@ -741,10 +741,10 @@ async def create_invite_code(device_id: str):
     if _USE_PG:
         await DB.execute("""
             INSERT INTO invite_codes (code, family_id, created_by, expires_at, used)
-            VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours', 0)
+            VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours', FALSE)
             ON CONFLICT (code) DO UPDATE SET
                 family_id = EXCLUDED.family_id, created_by = EXCLUDED.created_by,
-                expires_at = EXCLUDED.expires_at, used = 0
+                expires_at = EXCLUDED.expires_at, used = FALSE
         """, code, family_id, device_id)
     else:
         await DB.execute("""
@@ -757,7 +757,7 @@ async def create_invite_code(device_id: str):
 @app.post("/api/family/join")
 async def join_family(data: JoinReq):
     invite = await DB.fetchrow(
-        "SELECT * FROM invite_codes WHERE code = ? AND used = 0 AND expires_at > NOW()" if _USE_PG
+        "SELECT * FROM invite_codes WHERE code = ? AND used = FALSE AND expires_at > NOW()" if _USE_PG
         else "SELECT * FROM invite_codes WHERE code = ? AND used = 0 AND expires_at > ?",
         *([data.code] if _USE_PG else [data.code, _now()]),
     )
