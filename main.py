@@ -226,9 +226,13 @@ async def init_db():
 
     # ALTER TABLE 마이그레이션 (기존 컬럼 없는 경우 추가)
     for alter in [
+        # users 컬럼 추가 (기존 DB 호환)
         "ALTER TABLE users ADD COLUMN email TEXT",
         "ALTER TABLE users ADD COLUMN password_hash TEXT",
         "ALTER TABLE users ADD COLUMN profile_image_url TEXT",
+        # devices 컬럼 추가 (구 서버 스키마엔 family_id/created_at 없음)
+        "ALTER TABLE devices ADD COLUMN family_id TEXT",
+        "ALTER TABLE devices ADD COLUMN created_at TEXT",
     ]:
         try:
             await DB.execute(alter)
@@ -449,8 +453,11 @@ async def debug_db():
             "devices_cols": {r["column_name"]: r["data_type"] for r in (await DB.fetch(
                 "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='devices' ORDER BY ordinal_position"
             ) if _USE_PG else [])},
-            "device_secrets_cols": {r["column_name"]: r["data_type"] for r in (await DB.fetch(
-                "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='device_secrets' ORDER BY ordinal_position"
+            "families_cols": {r["column_name"]: r["data_type"] for r in (await DB.fetch(
+                "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='families' ORDER BY ordinal_position"
+            ) if _USE_PG else [])},
+            "invite_codes_cols": {r["column_name"]: r["data_type"] for r in (await DB.fetch(
+                "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='invite_codes' ORDER BY ordinal_position"
             ) if _USE_PG else [])},
         }
     except Exception as e:
