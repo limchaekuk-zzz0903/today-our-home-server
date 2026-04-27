@@ -459,6 +459,9 @@ async def debug_db():
             "invite_codes_cols": {r["column_name"]: r["data_type"] for r in (await DB.fetch(
                 "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='invite_codes' ORDER BY ordinal_position"
             ) if _USE_PG else [])},
+            "join_requests_cols": {r["column_name"]: r["data_type"] for r in (await DB.fetch(
+                "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='join_requests' ORDER BY ordinal_position"
+            ) if _USE_PG else [])},
         }
     except Exception as e:
         return {"db": "error", "error": str(e), "use_pg": _USE_PG}
