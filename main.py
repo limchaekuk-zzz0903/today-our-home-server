@@ -428,6 +428,16 @@ async def ping():
     return {"status": "ok", "message": "오늘우리집 서버 정상 동작 중"}
 
 
+@app.get("/api/debug/db")
+async def debug_db():
+    """임시 디버그: DB 연결 상태 확인"""
+    try:
+        row = await DB.fetchrow("SELECT 1 AS val")
+        return {"db": "ok", "val": row, "use_pg": _USE_PG, "db_url_prefix": _DB_URL[:30] if _DB_URL else ""}
+    except Exception as e:
+        return {"db": "error", "error": str(e), "use_pg": _USE_PG, "db_url_prefix": _DB_URL[:30] if _DB_URL else ""}
+
+
 @app.post("/api/auth/social")
 async def social_auth(data: SocialAuthReq):
     """소셜 로그인 처리: 사용자 upsert + 기기 시크릿 발급"""
