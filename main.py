@@ -255,7 +255,7 @@ async def startup():
 
 # ── 인증 미들웨어 ─────────────────────────────────────────────────────────────
 
-_NO_AUTH_PATHS = {"/api/ping", "/api/debug/db", "/api/debug/register-test", "/api/auth/social", "/api/auth/email/register", "/api/auth/email/login"}
+_NO_AUTH_PATHS = {"/api/ping", "/api/debug/db", "/api/debug/register-test", "/api/debug/user", "/api/auth/social", "/api/auth/email/register", "/api/auth/email/login"}
 
 
 @app.middleware("http")
@@ -462,6 +462,13 @@ async def debug_db():
         }
     except Exception as e:
         return {"db": "error", "error": str(e), "use_pg": _USE_PG}
+
+
+@app.get("/api/debug/user")
+async def debug_user(email: str):
+    """임시 디버그: 특정 이메일 사용자 조회"""
+    rows = await DB.fetch("SELECT id, email, provider, password_hash FROM users WHERE email = ?", email)
+    return {"count": len(rows), "rows": [dict(r) for r in rows]}
 
 
 @app.post("/api/debug/register-test")
