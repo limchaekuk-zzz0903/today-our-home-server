@@ -323,6 +323,82 @@ button.grp{cursor:pointer}
 .circ .c{fill:var(--narr);stroke:var(--line);stroke-width:3}
 .circ line{stroke:var(--castle);stroke-width:3}
 .circ text{fill:var(--ink);font-family:var(--f-display);font-size:14px;text-anchor:middle}
+/* worksheets */
+.sheet-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.sheet-tools .row{gap:8px}
+.seg-tabs{display:inline-flex;border:3px solid var(--line);border-radius:12px;overflow:hidden}
+.seg-tabs a{font-family:var(--f-display);padding:.45em 1em;text-decoration:none;color:var(--ink);background:var(--panel)}
+.seg-tabs a.on{background:var(--sun);color:var(--onsun)}
+.sheet{background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:16px;color:var(--ink)}
+.sheet-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-end;border-bottom:3px solid var(--line);padding-bottom:12px}
+.sheet-h h1{font-size:1.6rem}
+.sheet-h .lbl{font-family:var(--f-display);color:var(--ink2)}
+.sheet-meta{display:flex;flex-wrap:wrap;gap:14px;font-family:var(--f-display)}
+.sheet-meta span{display:inline-flex;gap:6px;align-items:flex-end}
+.sheet-meta i{display:inline-block;width:5.5em;border-bottom:2px solid var(--line);height:1.2em}
+.sheet-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.sheet-list.keys{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sq{display:flex;gap:10px;border:2px solid var(--paper2);border-radius:10px;padding:12px;min-width:0;break-inside:avoid;page-break-inside:avoid}
+.sq-n{font-family:var(--f-display);font-size:1.15rem;min-width:1.8em;height:1.8em;border-radius:50%;background:var(--paper2);display:flex;align-items:center;justify-content:center;flex:none}
+.sq-b{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1;font-size:1rem}
+.sq-b .big{font-family:var(--f-display);font-size:1.35rem}
+.sq-b .viz{justify-content:flex-start}
+.sq-b svg{max-width:100%;height:auto}
+.sq-b .qwho{font-size:1.05rem}
+.sq-b .qwho .ch{width:40px;height:40px}
+.sq-b .vm{font-size:1.5rem;margin:0}
+.sq-opts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--f-display)}
+.sq-opts li{display:flex;align-items:center;gap:4px}
+.sq-opts li b{font-weight:400;color:var(--ink2)}
+.sq-a{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end;font-family:var(--f-display);margin-top:auto}
+.box{display:inline-block;width:3.6em;height:1.9em;border:2px solid var(--line);border-radius:6px;vertical-align:middle}
+.box.sm{width:2.2em}
+.fbox{display:inline-flex;flex-direction:column;align-items:center;gap:3px;vertical-align:middle}
+.fbox hr{width:100%;border:0;border-top:2px solid var(--line);margin:0}
+.ans-line{border-top:2px dashed var(--paper2);padding-top:8px;display:flex;flex-direction:column;gap:4px}
+.ans-line b{font-family:var(--f-display);font-weight:400;color:var(--castle)}
+.sheet-foot{display:flex;justify-content:space-between;gap:10px;font-family:var(--f-display);color:var(--ink2);font-size:.9rem;border-top:2px solid var(--paper2);padding-top:10px}
+.print-note{font-size:.92rem;color:var(--ink2)}
+.stop.sheetlink{background:var(--paper2)}
+@media (max-width:640px){.sheet{padding:14px}.sheet-list{grid-template-columns:minmax(0,1fr)}}
+@page{size:A4;margin:12mm}
+@media print{
+  :root,:root[data-theme="dark"]{--paper:#fff!important;--paper2:#ECEEF5!important;--panel:#fff!important;--ink:#111!important;--ink2:#444!important;--line:#111!important;--shadow:#111!important;--bubble:#fff!important;--slice:#fff!important;--narr:#FFF4C2!important;--trickbg:#F3EEFF!important;color-scheme:light}
+  body{background:#fff!important;font-size:12pt}
+  body::before,.top,.ask-fab,.ask,.no-print,.crumb,.burst{display:none!important}
+  .wrap{padding:0!important;max-width:none;gap:0}
+  .sheet{border:0;padding:0;box-shadow:none}
+  .sheet-list{gap:10px}
+  .sq{border-color:#ccc}
+  .pn{animation:none}
+}
+/* parent features */
+body{word-break:keep-all;overflow-wrap:break-word}
+.wrap{padding-bottom:120px}
+.lg-short{display:none}
+@media (max-width:460px){.lg-full{display:none}.lg-short{display:inline}.stat{gap:7px}.stat .lv{font-size:.78rem;padding:0 7px}}
+.top-in>.logo{flex:none}
+.stat{flex-wrap:wrap;justify-content:flex-end;min-width:0;row-gap:4px}
+body.low .bub{font-family:var(--f-body);font-weight:400;font-size:1.12rem;line-height:1.6}
+.pn{position:relative}
+.say{position:absolute;right:6px;bottom:6px;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--panel);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.say svg{width:18px;height:18px}
+.pn .bub{margin-bottom:22px}
+.qtop .say{position:static}
+.no-tts .say,.no-tts .tts-only{display:none!important}
+.sec-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+.stop.next{outline:3px solid var(--sun);outline-offset:2px}
+.missed{background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:12px 16px;margin-top:14px}
+.missed summary{font-family:var(--f-display);font-size:1.1rem;cursor:pointer}
+.missed .sheet-list{margin-top:12px}
+.prof-in{font:inherit;border:3px solid var(--line);border-radius:12px;padding:.45em .8em;background:var(--panel);color:var(--ink);width:9em}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.kpis div{background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.kpis b{font-family:var(--f-display);font-weight:400;font-size:1.8rem;font-variant-numeric:tabular-nums}
+.kpis span{color:var(--ink2);font-size:.92rem}
+.bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;height:160px;align-items:end;background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:12px}
+.bar-c{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;font-family:var(--f-display);font-size:.9rem;color:var(--ink2)}
+.bar-c i{display:block;width:70%;background:var(--sun);border:2px solid var(--line);border-radius:6px 6px 0 0;min-height:2px}
 /* ask 셈이 */
 .askq{font-family:var(--f-display);font-size:.95rem;border:2.5px solid var(--line);background:var(--robot);color:var(--onsun);border-radius:999px;padding:4px 12px 4px 6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
 .askq svg{width:26px;height:26px}
@@ -379,8 +455,21 @@ const reduceMotion=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: r
 
 /* ---------- progress (this browser only) ---------- */
 const PKEY='math3-adventure-v1';
-const blank=()=>({stars:{},crystals:{},name:''});
-let P=(()=>{try{return Object.assign(blank(),JSON.parse(localStorage.getItem(PKEY)||'{}'));}catch(e){return blank();}})();
+const blank=()=>({stars:{},crystals:{},name:'',wrong:[],log:[]});
+const lsGet=k=>{try{return localStorage.getItem(k);}catch(e){return null;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
+/* one record per child on this device: p1 keeps the original key so existing progress stays */
+let PROFILES=(()=>{try{const v=JSON.parse(lsGet('math3-profiles'));return Array.isArray(v)&&v.length?v:[{id:'p1',name:'아이 1'}];}catch(e){return [{id:'p1',name:'아이 1'}];}})();
+let PROF=lsGet('math3-profile')||'p1';if(!PROFILES.some(x=>x.id===PROF))PROF=PROFILES[0].id;
+const keyOf=id=>id==='p1'?PKEY:PKEY+':'+id;
+const loadP=()=>{try{const v=Object.assign(blank(),JSON.parse(lsGet(keyOf(PROF))||'{}'));if(!Array.isArray(v.wrong))v.wrong=[];if(!Array.isArray(v.log))v.log=[];return v;}catch(e){return blank();}};
+let P=loadP();
+const profName=()=>(PROFILES.find(x=>x.id===PROF)||{}).name||'';
+function switchProfile(id){PROF=id;lsSet('math3-profile',id);P=loadP();route();}
+function addProfile(name){const id='p'+Date.now().toString(36);PROFILES.push({id,name:String(name).trim().slice(0,10)||`아이 ${PROFILES.length+1}`});lsSet('math3-profiles',JSON.stringify(PROFILES));switchProfile(id);}
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+function addWrong(id,p){const snap={type:p.type,q:p.q,a:p.a,opts:p.opts,labels:p.labels,hint:p.hint,ex:p.ex,show:p.show,strict:p.strict};P.wrong=P.wrong.filter(w=>w.p.q!==p.q);P.wrong.push({id,at:today(),p:snap});if(P.wrong.length>60)P.wrong=P.wrong.slice(-60);}
+function addLog(id,f,n,sec){P.log.push({d:today(),id,f,n,s:Math.min(3600,Math.round(sec))});if(P.log.length>400)P.log=P.log.slice(-400);}
 /* Server sync: only when served by the 오늘우리집 server (/learn/), which answers api/progress for a signed-in member. */
 const SYNC={on:false,name:'',timer:null,reset:false};
 function pushProgress(){
@@ -391,7 +480,7 @@ function pushProgress(){
     fetch('api/progress',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});
   },600);
 }
-const save=()=>{try{localStorage.setItem(PKEY,JSON.stringify(P));}catch(e){}pushProgress();};
+const save=()=>{lsSet(keyOf(PROF),JSON.stringify(P));pushProgress();};
 async function syncInit(){
   if(!/^https?:$/.test(location.protocol)||!/\/learn\/?$/.test(location.pathname))return;
   try{
@@ -429,8 +518,32 @@ function face(who,f='happy'){
   const mouth={happy:`<path d="M39 68 Q50 80 61 68Z" fill="var(--feat)"/>`,think:`<path d="M42 71 Q52 73 60 67" ${F}/>`,wow:`<ellipse cx="50" cy="72" rx="4" ry="5" fill="var(--feat)"/>`,oops:`<path d="M40 72 Q45 68 50 72 Q55 76 60 72" ${F}/>`}[f];
   return `<svg class="ch" viewBox="0 0 100 100" aria-hidden="true"><path d="M21 48 L25 11 L46 32Z" fill="var(--trick)" ${S}/><path d="M79 48 L75 11 L54 32Z" fill="var(--trick)" ${S}/><path d="M27 25 L28.5 17 L37 28Z" fill="var(--cheek)"/><path d="M73 25 L71.5 17 L63 28Z" fill="var(--cheek)"/><ellipse cx="50" cy="57" rx="32" ry="28" fill="var(--trick)" ${S}/><ellipse cx="50" cy="69" rx="17" ry="12" fill="var(--muzzle)"/>${eyes}<ellipse cx="50" cy="63" rx="4" ry="3" fill="var(--feat)"/>${mouth}</svg>`;
 }
-const H=(f,t)=>({w:'haru',f,t}), S=(f,t)=>({w:'semi',f,t}), T=(f,t)=>({w:'ttung',f,t});
-const N=t=>({narr:t}), SC=(scene,cap)=>({scene,cap});
+/* Korean particles: pick 이/가, 은/는, 을/를, 과/와, 으로/로, 이에요/예요 from the word or number before them. */
+const JOSA_RE=/(<span class="fr"><span>([^<]*)<\/span><span>[^<]*<\/span><\/span>(?:<\/span>)?|[가-힣0-9A-Za-z.%²³□]+)((?:<\/(?:b|span)>)*)(\(이\)에요|이\(가\)|가\(이\)|은\(는\)|는\(은\)|을\(를\)|를\(을\)|와\(과\)|과\(와\)|\(으\)로|이에요)/g;
+function endSound(t){
+  const c=t.slice(-1),code=c.charCodeAt(0)-0xAC00;
+  if(code>=0&&code<11172){const j=code%28;return [j>0,j===8];}
+  const m=/[\d.]+$/.exec(t);if(!m)return [false,false];
+  const d=m[0];if(d.includes('.')||!/0$/.test(d)||/^0+$/.test(d)){const k=+d.slice(-1);return [[1,1,0,1,0,0,1,1,1,0][k]===1,[0,1,0,0,0,0,0,1,1,0][k]===1];}
+  const z=/0+$/.exec(d)[0].length;return z<4?[true,false]:[Math.floor(z/4)<3,false];
+}
+function fixJosa(h){
+  if(typeof h!=='string')return h;
+  return h.replace(JOSA_RE,(all,tok,num,tags,j)=>{
+    const [has,rieul]=endSound(num!==undefined?num:tok);
+    const pick={'이(가)':has?'이':'가','가(이)':has?'이':'가','은(는)':has?'은':'는','는(은)':has?'은':'는','을(를)':has?'을':'를','를(을)':has?'을':'를','와(과)':has?'과':'와','과(와)':has?'과':'와','(으)로':has&&!rieul?'으로':'로','이에요':has?'이에요':'예요','(이)에요':has?'이에요':'예요'}[j];
+    return tok+tags+pick;
+  }).replace(NUM_JOSA_RE,(all,tok,num,tags,j)=>{
+    const [has,rieul]=endSound(num!==undefined?num:tok);
+    const k={'이에요':'e','예요':'e','으로':'r','로':'r','을':'o','를':'o','은':'n','는':'n','이':'i','가':'i','과':'w','와':'w'}[j];
+    const pick={e:has?'이에요':'예요',r:has&&!rieul?'으로':'로',o:has?'을':'를',n:has?'은':'는',i:has?'이':'가',w:has?'과':'와'}[k];
+    return tok+tags+pick;
+  });
+}
+// hard-coded particles right after a number or fraction ("7를", "18가", "1예요"), only when the particle ends the word
+const NUM_JOSA_RE=/(<span class="fr"><span>([^<]*)<\/span><span>[^<]*<\/span><\/span>(?:<\/span>)?|(?<![A-Za-z가-힣])\d[\d.]*)((?:<\/(?:b|span)>)*)(이에요|예요|으로|을|를|은|는|이|가|과|와|로)(?![가-힣])/g;
+const H=(f,t)=>({w:'haru',f,t:fixJosa(t)}), S=(f,t)=>({w:'semi',f,t:fixJosa(t)}), T=(f,t)=>({w:'ttung',f,t:fixJosa(t)});
+const N=t=>({narr:fixJosa(t)}), SC=(scene,cap)=>({scene,cap:fixJosa(cap)});
 
 /* ---------- pictures ---------- */
 function pie(d,on,o={}){
@@ -479,6 +592,7 @@ function areaModel(a,b){
   const cell=(x,y,c)=>`<div class="cell ${c}">${x}×${y}<b>${x*y}</b></div>`;
   return `<div class="area" style="grid-template-columns:auto minmax(64px,${a1}fr) minmax(64px,${a0}fr);grid-template-rows:auto minmax(54px,${b1}fr) minmax(54px,${b0}fr)"><div></div><div class="lab">${a1}</div><div class="lab">${a0}</div><div class="lab">${b1}</div>${cell(a1,b1,'c1')}${cell(a0,b1,'c2')}<div class="lab">${b0}</div>${cell(a1,b0,'c3')}${cell(a0,b0,'c4')}</div>`;
 }
+const SPEAKER='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const STAR=on=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.6L12 17.2l-5.9 3.2 1.3-6.6L2.5 9.3l6.6-.8z" fill="${on?'var(--sun)':'none'}" stroke="${on?'var(--line)':'currentColor'}" stroke-width="1.8" stroke-linejoin="round" opacity="${on?1:.45}"/></svg>`;
 const CRYSTAL=(col,on)=>`<svg viewBox="0 0 100 120" aria-hidden="true"><path d="M50 4 L88 38 L70 114 L30 114 L12 38Z" fill="${on?col:'none'}" stroke="${on?'var(--line)':'currentColor'}" stroke-width="5" stroke-linejoin="round" ${on?'':'stroke-dasharray="9 7" opacity=".55"'}/>${on?'<path d="M12 38 L88 38 M50 4 L38 38 L50 114 L62 38 Z" fill="none" stroke="var(--line)" stroke-width="3" stroke-linejoin="round" opacity=".55"/><path d="M30 30 L40 18" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7"/>':''}</svg>`;
 function tower(){
@@ -497,20 +611,21 @@ function tower(){
 }
 
 /* ---------- problem builders ---------- */
-const num=(q,a,hint,ex)=>({type:'num',q,a,hint,ex,show:String(a)});
-const frq=(q,n,d,hint,ex)=>({type:'frac',q,a:[n,d],hint,ex,show:fr(n,d)});
-const mxq=(q,w,n,d,hint,ex)=>({type:'mixed',q,a:[w,n,d],hint,ex,show:mixed(w,n,d)});
-const qrq=(q,qq,r,hint,ex)=>({type:'qr',q,a:[qq,r],hint,ex,show:`몫 ${qq}, 나머지 ${r}`});
+const JX=o=>{o.q=fixJosa(o.q);o.hint=fixJosa(o.hint);o.ex=fixJosa(o.ex);if(o.opts)o.opts=o.opts.map(fixJosa);if(typeof o.show==='string')o.show=fixJosa(o.show);return o;};
+const num=(q,a,hint,ex)=>JX({type:'num',q,a,hint,ex,show:String(a)});
+const frq=(q,n,d,hint,ex)=>JX({type:'frac',q,a:[n,d],hint,ex,show:fr(n,d),strict:/기약분수/.test(q)});
+const mxq=(q,w,n,d,hint,ex)=>JX({type:'mixed',q,a:[w,n,d],hint,ex,show:mixed(w,n,d),strict:/기약분수/.test(q)});
+const qrq=(q,qq,r,hint,ex)=>JX({type:'qr',q,a:[qq,r],hint,ex,show:`몫 ${qq}, 나머지 ${r}`});
 const fmt=x=>String(Math.round(x*1e6)/1e6);
-const decq=(q,a,hint,ex)=>({type:'dec',q,a:Math.round(a*1e6)/1e6,hint,ex,show:fmt(a)});
-const mlq=(q,labels,a,hint,ex,show)=>({type:'multi',q,labels,a,hint,ex,show:show||a.map((x,i)=>x+(labels[i]||'')).join(' ')});
+const decq=(q,a,hint,ex)=>JX({type:'dec',q,a:Math.round(a*1e6)/1e6,hint,ex,show:fmt(a)});
+const mlq=(q,labels,a,hint,ex,show)=>JX({type:'multi',q,labels,a,hint,ex,show:show||a.map((x,i)=>x+(labels[i]||'')).join(' ')});
 const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
 const lcm=(a,b)=>a/gcd(a,b)*b;
 const red=(n,d)=>{const g=gcd(n,d);return [n/g,d/g];};
 function mc(q,correct,wrongs,hint,ex,fixed){
   const ws=[...new Set(wrongs)].filter(w=>w!==correct);
   const opts=fixed?fixed:shuffle([correct,...ws]);
-  return {type:'choice',q,opts,a:opts.indexOf(correct),hint,ex,show:correct};
+  return JX({type:'choice',q,opts,a:opts.indexOf(correct),hint,ex,show:correct});
 }
 const sgnQ=(q,correct,hint,ex)=>mc(q,correct,[],hint,ex,['&gt;','&lt;','=']);
 const SG=(x,y)=>x>y?'&gt;':x<y?'&lt;':'=';
@@ -615,7 +730,7 @@ const LESSONS=[
   const a=()=>{const b=ri(2,9),q=ri(2,9);return num(`<p class="big">${b*q} ÷ ${b} = □</p>`,q,`${b}단에서 ${b*q}가 나오는 곳을 찾아봐.`,`${b} × ${q} = ${b*q}이므로 ${b*q} ÷ ${b} = ${q}`);};
   const b=()=>{const n=ri(2,5),q=ri(2,6);return num(`${gemsHtml(n*q)}<p>보석 ${n*q}개를 친구 ${n}명에게 똑같이 나누어 주면, 한 명에게 몇 개씩일까요?</p>`,q,'한 명에게 하나씩 차례로 나눠 준다고 생각해 봐.',`${n*q} ÷ ${n} = ${q}`);};
   const c=()=>{const s=ri(2,6),q=ri(2,8);return num(`<p>구슬 ${s*q}개를 한 주머니에 ${s}개씩 담으면, 주머니가 몇 개 필요할까요?</p>`,q,`${s*q}에서 ${s}씩 몇 번 덜어 낼 수 있을까?`,`${s*q} ÷ ${s} = ${q}`);};
-  const d=()=>{const b=ri(2,6),q=ri(2,6),t=b*q;return mc(`<p><b>${t} ÷ ${b}</b>의 뜻으로 알맞은 것은?</p>`,`${t}개를 ${b}명에게 똑같이 나눈 한 명의 몫`,[`${t}에서 ${b}를 한 번 뺀 수`,`${t}를 ${b}번 더한 수`],'나눗셈은 "똑같이 나누기"야.',`${t} ÷ ${b}는 ${t}개를 ${b}명에게 똑같이 나눌 때 한 명이 받는 수예요. 답은 ${q}`);};
+  const d=()=>{const b=ri(2,6),q=ri(2,6),t=b*q,share=Math.random()<.5;return mc(`<p><b>${t} ÷ ${b}</b>의 뜻으로 알맞은 것은?</p>`,share?`${t}개를 ${b}명에게 똑같이 나눈 한 명의 몫`:`${t}에서 ${b}씩 몇 번 덜어 낼 수 있는지`,[`${t}에서 ${b}를 한 번 뺀 수`,`${t}와 ${b}를 더한 수`,`${b}를 ${t}번 더한 수`],'나눗셈은 "똑같이 나누기" 또는 "몇 번 덜어 내기"야.',share?`${t}개를 ${b}명에게 똑같이 나누면 한 명이 ${q}개씩 받아요.`:`${t}에서 ${b}씩 ${q}번 덜어 낼 수 있어요.`);};
   return [a(),b(),c(),d(),a()];}},
 {id:'div-2',r:'div',t:'곱셈구구로 몫 찾기',goal:'곱셈과 나눗셈의 관계를 이용해 몫을 빠르게 구해요.',
  comic:[N('동굴 문에 자물쇠가 걸려 있어요. "24 ÷ 6 = ?"'),
@@ -630,7 +745,7 @@ const LESSONS=[
   const a=()=>{const b=ri(3,9),q=ri(3,9),t=b*q;return num(`<p>${b} × ${q} = ${t}</p><p class="big">${t} ÷ ${q} = □</p>`,b,'곱셈식의 세 수는 한 가족! 곱셈식 안에서 찾아봐.',`${b} × ${q} = ${t} → ${t} ÷ ${q} = ${b}`);};
   const b=()=>{const n=ri(3,9),q=ri(3,9),t=n*q;return num(`<p class="big">${t} ÷ □ = ${n}</p>`,q,`${n} × □ = ${t}를 생각해 봐.`,`${n} × ${q} = ${t}이므로 ${t} ÷ ${q} = ${n}`);};
   const c=()=>{const n=ri(4,9),q=ri(3,9),t=n*q;return num(`${ttungSays(`${t} ÷ ${n} = ${t-n}! ${t}에서 ${n}을 뺐지롱.`)}<p>바른 몫은 얼마일까요?</p>`,q,`${n}단에서 ${t}를 찾아봐.`,`${n} × ${q} = ${t}이므로 ${t} ÷ ${n} = ${q}`);};
-  const d=()=>{const n=ri(2,4),tq=ri(1,Math.floor(9/n)),oq=ri(0,Math.floor(9/n)),q=tq*10+oq,t=n*q;return num(`<p class="big">${t} ÷ ${n} = □</p>`,q,`${t}를 ${tq*n*10}과 ${oq*n}으로 쪼개서 각각 ${n}로 나눠 봐.`,`${tq*n*10} ÷ ${n} = ${tq*10}, ${oq*n} ÷ ${n} = ${oq}, 합치면 ${q}`);};
+  const d=()=>{const n=ri(2,4),tq=ri(1,Math.floor(9/n)),oq=ri(1,Math.floor(9/n)),q=tq*10+oq,t=n*q;return num(`<p class="big">${t} ÷ ${n} = □</p>`,q,`${t}를 ${tq*n*10}과 ${oq*n}으로 쪼개서 각각 ${n}로 나눠 봐.`,`${tq*n*10} ÷ ${n} = ${tq*10}, ${oq*n} ÷ ${n} = ${oq}, 합치면 ${q}`);};
   return [a(),b(),c(),d(),b()];}},
 {id:'div-3',r:'div',t:'나머지와 검산',goal:'나머지가 있는 나눗셈을 하고, 곱셈으로 맞는지 확인(검산)해요.',
  comic:[N('동굴 깊은 곳. 빛나는 구슬 17개를 상자 5개에 똑같이 넣어야 해요.'),
@@ -720,7 +835,8 @@ const LESSONS=[
   const b=()=>{const d=ri(2,6),w=ri(1,3),r=ri(1,d-1),n=w*d+r;return mxq(`${pies(n,d,84)}<p class="big">${fr(n,d)}를 대분수로 나타내면?</p>`,w,r,d,`${d}조각이 모이면 피자 한 판! ${n}조각으로 한 판을 몇 번 채울 수 있을까?`,`${n} ÷ ${d} = ${w} … ${r} → ${mixed(w,r,d)}`);};
   const c=()=>{const d=ri(2,6),w=ri(1,3),r=ri(1,d-1);return frq(`<p class="big">${mixed(w,r,d)}</p><p>이 대분수를 가분수로 나타내면?</p>`,w*d+r,d,`한 판은 ${fr(d,d)}! ${w}판은 몇 조각일까?`,`${w}판 = ${w*d}조각, 여기에 ${r}조각을 더하면 ${w*d+r}조각 → ${fr(w*d+r,d)}`);};
   const d=()=>{const d=ri(3,5),n=ri(d+1,2*d-1);return frq(`${pies(n,d,100)}<p>색칠한 부분을 가분수로 나타내면?</p>`,n,d,`한 조각은 ${fr(1,d)}이야. 색칠한 조각이 모두 몇 개일까?`,`${fr(1,d)}이 ${n}개니까 ${fr(n,d)}`);};
-  return [a(),d(),b(),c(),a()];}},
+  const e=()=>{const d=ri(2,7),w=ri(1,3),r=ri(1,d-1);return mc(`<p class="big">${mixed(w,r,d)}</p><p>이 분수는 어떤 분수일까요?</p>`,'대분수',['진분수','가분수'],'자연수와 진분수가 함께 있는 분수를 무엇이라고 할까?',`자연수 ${w}과(와) 진분수 ${fr(r,d)}가 함께 있으니 대분수예요.`,['진분수','가분수','대분수']);};
+  return [a(),d(),b(),c(),e()];}},
 {id:'frac-6',r:'frac',t:'분수의 덧셈과 뺄셈',preview:true,goal:'분모가 같은 분수끼리 더하고 빼요. (4학년 내용 미리보기)',
  comic:[N(`성의 꼭대기. 분수 크리스탈 앞에 마지막 문제가 있어요. "${fr(1,4)} + ${fr(2,4)}"`),
   T('happy',`분자끼리 더하고 분모끼리 더하면 ${fr(3,8)}! 이번엔 확실해!`),
@@ -776,6 +892,7 @@ function vcol(a,b,op,step){
   return `<table class="vm" aria-label="${a} ${op==='+'?'더하기':'빼기'} ${b} 세로셈"><tbody>${row(top,'cr')}${row([' ',...A])}${row([op==='+'?'+':'−',...B])}${row(rr,'line')}</tbody></table>`;
 }
 const UNITS4=['','만','억','조'];
+const PLACE_NAMES=['일','십','백','천','만','십만','백만','천만','억','십억','백억','천억','조','십조','백조','천조'];
 function groups4(s){const g=[];for(let i=s.length;i>0;i-=4)g.unshift(s.slice(Math.max(0,i-4),i));return g;}
 function korean4(d){const D=['','일','이','삼','사','오','육','칠','팔','구'],U=['천','백','십',''],s=String(d).padStart(4,'0');let r='';for(let i=0;i<4;i++){const x=+s[i];if(x)r+=(x===1&&i<3?'':D[x])+U[i];}return r;}
 function koreanNum(n){const s=String(n);if(/^0+$/.test(s))return '영';const g=groups4(s);return g.map((d,i)=>{const u=UNITS4[g.length-1-i];let k=korean4(d);if(!k)return '';if(k==='일'&&u)k='';return k+u;}).filter(Boolean).join(' ');}
@@ -809,11 +926,12 @@ LESSONS.push(
   S('happy','10개씩 묶어서 세면 안 헷갈려! 10개씩 묶음 2개와 낱개 3개면 23이야.'),
   SC(tensHtml(2,3),'10개씩 묶음 2개, 낱개 3개'),
   H('think','그럼 23과 32 중에서 어느 수가 더 클까?'),
-  H('happy','10개씩 묶음이 더 많은 32가 더 커! 묶음 수부터 비교하면 돼.')],
+  T('happy','23이 더 크지! 3이 2보다 크잖아.'),
+  S('oops','삐빅! 10개씩 묶음부터 비교해야 해. 32는 묶음이 3개라서 23보다 커.')],
  widget:'blocks2',
  quiz:()=>{
   const a=()=>{const t=ri(1,4),o=ri(0,9);return num(`${tensHtml(t,o)}<p>모두 몇 개일까요?</p>`,t*10+o,'10개씩 묶음은 10, 20, 30…으로 세고, 낱개를 더해 봐.',`10개씩 묶음 ${t}개는 ${t*10}, 낱개 ${o}개를 더하면 ${t*10+o}`);};
-  const b=()=>{const t=ri(1,4),o=ri(0,9);return num(`<p>10개씩 묶음 <b>${t}개</b>와 낱개 <b>${o}개</b>는 얼마일까요?</p>`,t*10+o,'10개씩 묶음의 수가 십의 자리, 낱개의 수가 일의 자리야.',`${t}${o} → ${t*10+o}`);};
+  const b=()=>{const t=ri(1,4),o=ri(0,9);return num(`<p>10개씩 묶음 <b>${t}개</b>와 낱개 <b>${o}개</b>는 얼마일까요?</p>`,t*10+o,'10개씩 묶음의 수가 십의 자리, 낱개의 수가 일의 자리야.',`10개씩 묶음 ${t}개는 ${t*10}, 낱개 ${o}개를 더하면 ${t*10+o}`);};
   const c=()=>{const x=ri(10,50);let y=ri(10,50);while(y===x)y=ri(10,50);return sgnQ(`<p class="big">${x} ○ ${y}</p><p>○ 안에 알맞은 것은?</p>`,SG(x,y),'10개씩 묶음의 수를 먼저 비교하고, 같으면 낱개를 비교해.',`${Math.max(x,y)}이(가) 더 커요.`);};
   const d=()=>{const x=ri(11,48),k=pick([1,-1]);return num(`<p><b>${x}</b>보다 1 ${k>0?'큰':'작은'} 수는?</p>`,x+k,`수를 순서대로 세어 봐. ${x} 바로 ${k>0?'뒤':'앞'}의 수야.`,`${x}보다 1 ${k>0?'큰':'작은'} 수는 ${x+k}`);};
   return [a(),b(),c(),d(),c()];}},
@@ -870,7 +988,7 @@ LESSONS.push(
  widget:'chart100',
  quiz:()=>{
   const a=()=>{const t=ri(5,9),o=ri(0,9);return num(`<p>10개씩 묶음 <b>${t}개</b>와 낱개 <b>${o}개</b>는 얼마일까요?</p>`,t*10+o,'10개씩 묶음 수가 십의 자리야.',`${t*10} + ${o} = ${t*10+o}`);};
-  const b=()=>{const n=ri(21,99);return num(`<p class="big">${nativeNum(n)}</p><p>위의 말을 숫자로 쓰면?</p>`,n,'열, 스물, 서른, 마흔, 쉰, 예순, 일흔, 여든, 아흔으로 십의 자리를 찾아봐.',`${nativeNum(n)}은(는) ${n}이에요.`);};
+  const b=()=>{const n=ri(21,99);return num(`<p class="big">${nativeNum(n)}</p><p>이 수를 숫자로 쓰면?</p>`,n,'열, 스물, 서른, 마흔, 쉰, 예순, 일흔, 여든, 아흔으로 십의 자리를 찾아봐.',`${nativeNum(n)}은(는) ${n}이에요.`);};
   const c=()=>{const n=ri(20,89),k=pick([10,-10]);return num(`<p><b>${n}</b>보다 10 ${k>0?'큰':'작은'} 수는?</p>`,n+k,'10씩 커지거나 작아지면 십의 자리 숫자만 바뀌어.',`${n} → ${n+k}`);};
   const d=()=>{const x=ri(50,99);let y=ri(50,99);while(y===x)y=ri(50,99);return sgnQ(`<p class="big">${x} ○ ${y}</p><p>○ 안에 알맞은 것은?</p>`,SG(x,y),'십의 자리부터 비교해.',`${Math.max(x,y)}이(가) 더 커요.`);};
   return [a(),b(),c(),d(),b()];}},
@@ -886,7 +1004,8 @@ LESSONS.push(
   const a=()=>{const h=ri(1,12);return num(`${clockSvg(h,0)}<p>시계가 나타내는 시각은 몇 시일까요?</p>`,h,'긴바늘이 12에 있을 때, 짧은바늘이 가리키는 숫자가 "몇 시"야.',`짧은바늘이 ${h}을(를) 가리키니까 ${h}시`);};
   const b=()=>{const h=ri(1,12);return mlq(`${clockSvg(h,30)}<p>시계가 나타내는 시각은?</p>`,['시','분'],[h,30],'긴바늘이 6을 가리키면 30분이야. 짧은바늘은 어느 두 숫자 사이에 있을까?',`짧은바늘이 ${h}와(과) ${h%12+1} 사이, 긴바늘이 6 → ${h}시 30분`);};
   const c=()=>{const h=ri(1,11);return mc(`<p><b>${h}시 30분</b>을 나타낸 시계는?</p>`,clockSvg(h,30,96),[clockSvg(h,0,96),clockSvg(h+1,30,96),clockSvg(6,h*5%60||0,96)],'긴바늘은 6, 짧은바늘은 숫자 사이에 있어야 해.',`${h}시 30분은 짧은바늘이 ${h}와(과) ${h+1} 사이, 긴바늘이 6이에요.`);};
-  return [a(),b(),a(),c(),b()];}},
+  const e=()=>{const h=ri(1,12);return num(`<p>긴바늘이 <b>12</b>를 가리키고, 짧은바늘이 <b>${h}</b>을(를) 가리켜요. 몇 시일까요?</p>`,h,'긴바늘이 12에 있으면 짧은바늘이 가리키는 숫자가 "몇 시"야.',`${h}시`);};
+  return [a(),b(),e(),c(),b()];}},
 /* ===== 2학년 · 받아올림 강 ===== */
 {id:'river-1',r:'river',t:'세 자리 수',goal:'백, 십, 일의 자리를 알고 세 자리 수를 읽고 쓰고, 뛰어 세기를 해요.',
  comic:[N('받아올림 강에 100원, 10원, 1원짜리 동전 배가 떠 있어요.'),
@@ -913,9 +1032,9 @@ LESSONS.push(
  quiz:()=>{
   const pair=()=>{let a,b;do{a=ri(15,69);b=ri(12,29);}while((a%10)+(b%10)<10||a+b>=100);return [a,b];};
   const ex=(a,b)=>`일의 자리 ${a%10} + ${b%10} = ${a%10+b%10} → ${(a+b)%10}을 쓰고 1을 올려요. 십의 자리 ${Math.floor(a/10)} + ${Math.floor(b/10)} + 1 = ${Math.floor((a+b)/10)}. 답은 ${a+b}`;
-  const a=()=>{const [x,y]=pair();return num(vcol(x,y,'+',0),x+y,`일의 자리부터! ${x%10} + ${y%10}이 10보다 크면 받아올림해.`,ex(x,y));};
+  const a=()=>{const [x,y]=pair();return num(vcol(x,y,'+',0),x+y,`일의 자리부터! ${x%10} + ${y%10}이 10이거나 10보다 크면 받아올림해.`,ex(x,y));};
   const b=()=>{const [x,y]=pair();return num(`<p>도서관에 동화책이 <b>${x}권</b>, 위인전이 <b>${y}권</b> 있어요. 모두 몇 권일까요?</p>`,x+y,`${x} + ${y}를 세로셈으로 써 봐.`,ex(x,y));};
-  const c=()=>{const [x,y]=pair();return num(`${ttungSays(`${x} + ${y} = ${Math.floor(x/10)+Math.floor(y/10)}${x%10+y%10}! 자리끼리 더해서 붙였지!`)}<p>바르게 계산하면?</p>`,x+y,'일의 자리 합이 10을 넘으면 1을 십의 자리로 올려야 해.',ex(x,y));};
+  const c=()=>{const [x,y]=pair();return num(`${ttungSays(`${x} + ${y} = ${Math.floor(x/10)+Math.floor(y/10)}${x%10+y%10}! 자리끼리 더해서 붙였지!`)}<p>바르게 계산하면?</p>`,x+y,'일의 자리 합이 10이거나 10보다 크면 1을 십의 자리로 올려야 해.',ex(x,y));};
   return [a(),a(),b(),c(),a()];}},
 {id:'river-3',r:'river',t:'받아내림이 있는 뺄셈',goal:'받아내림이 있는 (두 자리 수)−(두 자리 수)를 세로셈으로 계산해요.',
  comic:[N('강가 상점에 사탕이 52개 있었는데 27개가 팔렸어요.'),
@@ -975,7 +1094,9 @@ LESSONS.push(
   const b=()=>{const k=ri(1,11);return num(`<p>긴바늘이 숫자 <b>${k}</b>을(를) 가리키면 몇 분일까요?</p>`,k*5,'숫자 한 칸은 5분이야.',`${k} × 5 = ${k*5}분`);};
   const c=()=>{const h=ri(1,2),m=ri(1,5)*10;return num(`<p><b>${h}시간 ${m}분</b>은 몇 분일까요?</p>`,h*60+m,'1시간은 60분이야.',`${h*60} + ${m} = ${h*60+m}분`);};
   const d=()=>{const h=ri(1,10),m=ri(1,11)*5,add=pick([20,30,40]);const tm=h*60+m+add;return mlq(`<p><b>${h}시 ${m}분</b>에서 <b>${add}분</b> 뒤는 몇 시 몇 분일까요?</p>`,['시','분'],[Math.floor(tm/60),tm%60],'분끼리 더해서 60분이 넘으면 1시간으로 바꿔.',`${m} + ${add} = ${m+add}분${m+add>=60?` → 1시간 ${m+add-60}분`:''}, 그래서 ${Math.floor(tm/60)}시 ${tm%60}분`);};
-  return [a(),b(),a(),c(),d()];}},
+  const e=()=>{const h=ri(1,12);let m=ri(1,58);while(m%5===0)m=ri(1,58);return mlq(`${clockSvg(h,m)}<p>시계가 나타내는 시각은? (작은 눈금 한 칸은 1분)</p>`,['시','분'],[h,m],`긴바늘이 ${Math.floor(m/5)}에서 작은 눈금 몇 칸 더 갔는지 세어 봐.`,`${Math.floor(m/5)*5}분에서 ${m%5}칸 더 갔으니 ${m}분 → ${h}시 ${m}분`);};
+  const f=()=>{const h=ri(2,12),b=pick([5,10,15]);return mlq(`<p><b>${h}시 ${b}분 전</b>은 몇 시 몇 분일까요?</p>`,['시','분'],[h-1,60-b],`${h}시보다 ${b}분 이른 시각이야. ${h-1}시 60분에서 ${b}분을 빼 봐.`,`${h}시 ${b}분 전 = ${h-1}시 ${60-b}분`);};
+  return [a(),e(),b(),c(),pick([d,f])()];}},
 /* ===== 4학년 · 큰 수 항구 ===== */
 {id:'port-1',r:'port',t:'만, 억, 조: 큰 수 읽기',goal:'네 자리씩 끊어 만, 억, 조 단위의 수를 읽고 자릿값을 알아요.',
  comic:[N('큰 수 항구에 컨테이너 배가 들어왔어요. 짐표에 "35000000"이라고 적혀 있어요.'),
@@ -989,7 +1110,7 @@ LESSONS.push(
   const big=()=>{const len=ri(6,13);let s=String(ri(1,9));for(let i=1;i<len;i++)s+=Math.random()<.45?'0':String(ri(1,9));return s;};
   const a=()=>{const s=big(),ok=koreanNum(s);const w1=koreanNum(s+'0'),w2=koreanNum(s.slice(0,-1)||'1'),w3=koreanNum(s.length>1?s.slice(1,2)+s.slice(0,1)+s.slice(2):s+'1');return mc(`<div class="viz">${placeChart(s)}</div><p class="big" style="font-size:1.5rem">${s}</p><p>바르게 읽은 것은?</p>`,ok,[w1,w2,w3],'오른쪽부터 네 자리씩 끊고, 왼쪽 덩어리부터 조·억·만을 붙여 읽어.',`${s}는 "${ok}"라고 읽어요.`);};
   const b=()=>{const k=ri(12,980),u=pick([['만',10000],['억',100000000]]);return num(`<p><b>1${u[0]}</b>이 <b>${k}개</b>인 수는?</p>`,k*u[1],`1${u[0]}은 ${u[1]}이야. 뒤에 0을 ${String(u[1]).length-1}개 붙여 봐.`,`${k} × ${u[1]} = ${k*u[1]}`);};
-  const c=()=>{let s=big();while(!/[1-9]/.test(s.slice(1)))s=big();const idxs=[...s].map((ch,i)=>i).filter(i=>i>0&&s[i]!=='0');const i=pick(idxs),place=s.length-1-i,val=Number(s[i])*10**place;return num(`<p class="big" style="font-size:1.5rem">${s}</p><p>왼쪽에서 <b>${i+1}번째</b> 숫자 <b>${s[i]}</b>이(가) 나타내는 값은? (숫자로 쓰기)</p>`,val,'그 숫자 뒤에 숫자가 몇 개 있는지 세어 봐. 그만큼 0을 붙이면 돼.',`${s[i]} 뒤에 숫자가 ${place}개 있으니 ${val}`);};
+  const c=()=>{let s=big();while(!/[1-9]/.test(s.slice(1)))s=big();const idxs=[...s].map((ch,i)=>i).filter(i=>i>0&&s[i]!=='0');const i=pick(idxs),place=s.length-1-i,val=Number(s[i])*10**place;return num(`<p class="big" style="font-size:1.5rem">${s}</p><p><b>${PLACE_NAMES[place]}의 자리</b> 숫자 <b>${s[i]}</b>이(가) 나타내는 값은? (숫자로 쓰기)</p>`,val,'네 자리씩 끊어서 그 자리가 어디인지 찾아봐. 그 자리의 값만큼 0을 붙이면 돼.',`${PLACE_NAMES[place]}의 자리 숫자 ${s[i]}은(는) ${val}`);};
   const d=()=>{const x=ri(10,90)*10000000,st=10000000,k=ri(2,4);return num(`<p><b>${koreanNum(x)}</b>에서 1000만씩 ${k}번 뛰어 세면? (숫자로 쓰기)</p>`,x+st*k,'1000만씩 뛰어 세면 천만의 자리 숫자가 1씩 커져.',`${koreanNum(x)} → ${koreanNum(x+st*k)} = ${x+st*k}`);};
   return [a(),b(),c(),d(),a()];}},
 {id:'port-2',r:'port',t:'(세 자리)×(두 자리)',goal:'(세 자리 수)×(두 자리 수)를 나누어 곱한 뒤 더해서 계산해요.',
@@ -1001,7 +1122,7 @@ LESSONS.push(
   SC('<p class="eq">125 × 24 = 500 + 2500 = <b>3000</b></p>','나누어 곱하고 더하기')],
  widget:'partial',
  quiz:()=>{
-  const pr=()=>[ri(102,499),ri(12,39)];
+  const pr=()=>{let y=ri(12,39);while(y%10===0)y=ri(12,39);return [ri(102,499),y];};
   const ex=(a,b)=>`${a} × ${b%10} = ${a*(b%10)}, ${a} × ${b-b%10} = ${a*(b-b%10)}, 더하면 ${a*b}`;
   const a=()=>{const [x,y]=pr();return num(`<p class="big">${x} × ${y} = □</p>`,x*y,`${y}를 ${y-y%10}과 ${y%10}(으)로 나눠서 곱해 봐.`,ex(x,y));};
   const b=()=>{const [x,y]=pr();return num(`<p>상자 하나에 귤이 <b>${x}개</b>씩 들어 있어요. <b>${y}상자</b>에는 귤이 모두 몇 개일까요?</p>`,x*y,`${x} × ${y}를 계산해.`,ex(x,y));};
@@ -1050,9 +1171,10 @@ LESSONS.push(
   const a=()=>{const k=ri(5,95);return decq(`<div class="viz">${decGrid(k)}</div><p>전체가 1일 때 색칠한 부분을 소수로 나타내면?</p>`,k/100,'100칸 중 1칸은 0.01이야.',`100칸 중 ${k}칸 → ${decStr(k,2)}`);};
   const b=()=>{let n=ri(101,999);while(n%10===0)n=ri(101,999);const D=['영','일','이','삼','사','오','육','칠','팔','구'],s=decStr(n,2),ip=Math.floor(n/100),d1=Math.floor(n/10)%10,d2=n%10;const ok=`${D[ip]} 점 ${D[d1]}${D[d2]}`;return mc(`<p class="big">${s}</p><p>바르게 읽은 것은?</p>`,ok,[`${D[ip]} 점 ${koreanNum(n%100)}`,koreanNum(n),`${D[ip]} 점 ${D[d2]}${D[d1]}`],'소수점 아래는 숫자를 하나씩 읽어.',`${s}는 "${ok}"라고 읽어요.`);};
   const c=()=>{const n=ri(101,999);if(n%10===0)return c();const s=decStr(n,2);return decq(`<p class="big">${s}</p><p>소수 둘째 자리 숫자가 나타내는 수는?</p>`,(n%10)/100,'소수 둘째 자리는 0.01이 몇 개인지 나타내.',`${n%10} × 0.01 = ${decStr(n%10,2)}`);};
-  const d=()=>{const x=ri(1,99);let y=ri(1,99);while(y===x||y%10===0)y=ri(1,99);const xs=x%10===0?decStr(x/10,1):decStr(x,2);return sgnQ(`<p class="big">${xs} ○ ${decStr(y,2)}</p><p>○ 안에 알맞은 것은?</p>`,SG(x,y),'자리 수를 맞추려면 끝에 0을 붙여 봐.',`${xs}는 0.${String(x).padStart(2,'0')}, ${decStr(y,2)}와 비교하면 ${x>y?xs:decStr(y,2)}가 더 커요.`);};
+  const d=()=>{const x=ri(1,99);let y=ri(1,99);while(y===x||y%10===0)y=ri(1,99);const xs=x%10===0?decStr(x/10,1):decStr(x,2);return sgnQ(`<p class="big">${xs} ○ ${decStr(y,2)}</p><p>○ 안에 알맞은 것은?</p>`,SG(x,y),'자리 수를 맞추려면 끝에 0을 붙여 봐.',`${x%10===0?`${xs}을(를) 0.${String(x).padStart(2,'0')}(으)로 바꿔서 `:''}소수 둘째 자리까지 비교하면 ${x>y?xs:decStr(y,2)}이(가) 더 커요.`);};
   const e=()=>{const k=ri(11,350);return decq(`<p>0.01이 <b>${k}개</b>인 수는?</p>`,k/100,'0.01이 100개면 1이야.',`0.01 × ${k} = ${decStr(k,2)}`);};
-  return [a(),b(),c(),d(),e()];}},
+  const f=()=>{let k=ri(101,2999);while(k%10===0)k=ri(101,2999);return decq(`<p>0.001이 <b>${k}개</b>인 수는?</p>`,k/1000,'0.001이 10개면 0.01, 100개면 0.1, 1000개면 1이야.',`0.001 × ${k} = ${decStr(k,3)}`);};
+  return [a(),b(),c(),d(),pick([e,f])()];}},
 {id:'light-3',r:'light',t:'소수의 덧셈과 뺄셈',goal:'소수점을 맞추어 소수의 덧셈과 뺄셈을 해요.',
  comic:[N('등대 매점에서 우유 0.75 L와 주스 0.5 L를 샀어요.'),
   T('happy','75 + 5 = 80이니까 0.8 L!'),
@@ -1079,7 +1201,7 @@ LESSONS.push(
  quiz:()=>{
   const a=()=>{const e=mixedExpr();return num(`<p class="big">${e.steps[0]} = □</p>`,e.ans,e.hint,e.steps.join(' = '));};
   const b=()=>{const x=ri(2,9),y=ri(2,9),z=ri(2,9);return num(`${ttungSays(`${x} + ${y} × ${z} = ${(x+y)*z}! 앞에서부터 계산했지!`)}<p>바르게 계산하면?</p>`,x+y*z,'곱셈을 먼저 계산해야 해.',`${x} + ${y} × ${z} = ${x} + ${y*z} = ${x+y*z}`);};
-  const c=()=>{const x=ri(10,30),y=ri(2,9),z=ri(2,5);const ex=`${x} − ${y} × ${z}`;return mc(`<p class="big">(${x} + ${y}) × ${z} − ${y}</p><p>가장 먼저 계산해야 하는 부분은?</p>`,`${x} + ${y}`,[`${y} × ${z}`,`${z} − ${y}`],'괄호가 있으면 괄호 안이 먼저야.','괄호 안의 덧셈을 가장 먼저 계산해요.');};
+  const c=()=>{const x=ri(10,30),y=ri(2,9),z=ri(2,5);const ex=`${x} − ${y} × ${z}`;return mc(`<p class="big">(${x} + ${y}) × ${z} − ${y}</p><p>가장 먼저 계산해야 하는 부분은?</p>`,`${x} + ${y}`,[`${z} − ${y}`,'맨 앞의 수부터 차례로'],'괄호가 있으면 괄호 안이 먼저야.','괄호 안의 덧셈을 가장 먼저 계산해요.');};
   return [a(),a(),b(),c(),a()];}},
 {id:'jungle-2',r:'jungle',t:'약수와 배수',goal:'약수와 배수를 알고, 최대공약수와 최소공배수를 구해요.',
  comic:[N('밀림의 원숭이들이 바나나 12개를 똑같이 나누려고 해요.'),
@@ -1095,7 +1217,8 @@ LESSONS.push(
   const c=()=>{const g=ri(2,9),x=g*ri(2,5);let y=g*ri(2,6);while(y===x)y=g*ri(2,6);const G=gcd(x,y);return num(`<p><b>${x}</b>과(와) <b>${y}</b>의 최대공약수는?</p>`,G,'두 수의 약수를 각각 써 보고, 공통인 약수 중 가장 큰 수를 찾아.',`공약수: ${factorsOf(G).join(', ')} → 최대공약수 ${G}`);};
   const d=()=>{const x=ri(3,9);let y=ri(4,12);while(y===x)y=ri(4,12);const L=lcm(x,y);return num(`<p><b>${x}</b>과(와) <b>${y}</b>의 최소공배수는?</p>`,L,`${Math.max(x,y)}의 배수를 차례로 쓰면서 ${Math.min(x,y)}로도 나누어떨어지는 첫 수를 찾아.`,`${x}과(와) ${y}의 공배수 중 가장 작은 수는 ${L}`);};
   const e=()=>{const x=ri(3,12),k=ri(4,9);return num(`<p><b>${x}</b>의 배수를 작은 수부터 쓸 때, <b>${k}번째</b> 수는?</p>`,x*k,`${x}에 1, 2, 3…을 곱한 수가 ${x}의 배수야.`,`${x} × ${k} = ${x*k}`);};
-  return [a(),b(),c(),d(),e()];}},
+  const f=()=>{if(Math.random()<.5){const g=ri(3,8),x=g*ri(2,5);let y=g*ri(2,6);while(y===x)y=g*ri(2,6);const G=gcd(x,y);return num(`<p>사탕 <b>${x}개</b>와 초콜릿 <b>${y}개</b>를 최대한 많은 친구에게 남김없이 똑같이 나누어 주려고 해요. 몇 명에게 나누어 줄 수 있을까요?</p>`,G,`${x}과(와) ${y}을(를) 모두 나누어떨어지게 하는 가장 큰 수를 찾아.`,`${x}과(와) ${y}의 최대공약수는 ${G}이므로 ${G}명`);}const x=pick([4,6,8,9,10,12]);let y=pick([6,8,9,10,12,15]);while(y===x||lcm(x,y)>90)y=pick([6,8,9,10,12,15]);const L=lcm(x,y);return num(`<p>버스 두 대가 각각 <b>${x}분</b>, <b>${y}분</b>마다 출발해요. 오전 9시에 함께 출발했다면, 다음에 함께 출발하는 것은 몇 분 뒤일까요?</p>`,L,`${x}과(와) ${y}의 공배수 중 가장 작은 수를 찾아.`,`${x}과(와) ${y}의 최소공배수는 ${L}이므로 ${L}분 뒤`);};
+  return [a(),b(),c(),d(),pick([e,f,f])()];}},
 {id:'jungle-3',r:'jungle',t:'약분과 통분',goal:'크기가 같은 분수를 만들고, 약분과 통분으로 분수의 크기를 비교해요.',
  comic:[N(`밀림 과일 가게. 수박을 ${fr(2,4)}통만큼과 ${fr(1,2)}통만큼 샀어요.`),
   T('happy',`${fr(2,4)}가 더 많지! 숫자가 더 크잖아.`),
@@ -1124,7 +1247,10 @@ LESSONS.push(
   const a=()=>{const [n1,d1,n2,d2]=pick2(true),L=lcm(d1,d2),s=n1*L/d1+n2*L/d2,[rn,rd]=red(s,L);return frq(`<p class="big">${fr(n1,d1)} + ${fr(n2,d2)} = □</p><p>기약분수로 나타내세요.</p>`,rn,rd,`${d1}과(와) ${d2}의 최소공배수 ${L}(으)로 통분해 봐.`,`${fr(n1*L/d1,L)} + ${fr(n2*L/d2,L)} = ${fr(s,L)}${rd!==L?` = ${fr(rn,rd)}`:''}`);};
   const b=()=>{const [n1,d1,n2,d2]=pick2(false),L=lcm(d1,d2),s=n1*L/d1-n2*L/d2,[rn,rd]=red(s,L);return frq(`<p class="big">${fr(n1,d1)} − ${fr(n2,d2)} = □</p><p>기약분수로 나타내세요.</p>`,rn,rd,`먼저 ${L}(으)로 통분해.`,`${fr(n1*L/d1,L)} − ${fr(n2*L/d2,L)} = ${fr(s,L)}${rd!==L?` = ${fr(rn,rd)}`:''}`);};
   const c=()=>{const [n1,d1,n2,d2]=pick2(true),L=lcm(d1,d2),s=n1*L/d1+n2*L/d2,[rn,rd]=red(s,L);return frq(`${ttungSays(`${fr(n1,d1)} + ${fr(n2,d2)} = ${fr(n1+n2,d1+d2)}! 분자끼리, 분모끼리!`)}<p>바르게 계산해서 기약분수로 나타내면?</p>`,rn,rd,'분모가 다르면 먼저 통분해야 해.',`${fr(n1*L/d1,L)} + ${fr(n2*L/d2,L)} = ${fr(rn,rd)}`);};
-  return [a(),b(),c(),a(),b()];}},
+  const fracs=()=>{let d1,d2,n1,n2;do{d1=ri(2,6);d2=ri(2,6);n1=ri(1,d1-1);n2=ri(1,d2-1);}while(d1===d2||gcd(n1,d1)!==1||gcd(n2,d2)!==1);return [n1,d1,n2,d2];};
+  const e=()=>{let n1,d1,n2,d2,L,s;do{[n1,d1,n2,d2]=fracs();L=lcm(d1,d2);s=n1*L/d1+n2*L/d2;}while(s<=L);const w1=ri(1,3),w2=ri(1,3),[rn,rd]=red(s-L,L);return mxq(`<p class="big">${mixed(w1,n1,d1)} + ${mixed(w2,n2,d2)} = □</p><p>대분수로 나타내세요. (기약분수로)</p>`,w1+w2+1,rn,rd,`${L}(으)로 통분한 다음, 분수끼리 더한 값이 1보다 크면 자연수로 1을 올려.`,`${w1}과 ${fr(n1*L/d1,L)} + ${w2}과 ${fr(n2*L/d2,L)} = ${w1+w2}과 ${fr(s,L)} = ${mixed(w1+w2+1,rn,rd)}`);};
+  const f=()=>{let n1,d1,n2,d2,L,a,b;do{[n1,d1,n2,d2]=fracs();L=lcm(d1,d2);a=n1*L/d1;b=n2*L/d2;}while(a>=b);const w1=ri(3,5),w2=ri(1,w1-2),[rn,rd]=red(L+a-b,L);return mxq(`<p class="big">${mixed(w1,n1,d1)} − ${mixed(w2,n2,d2)} = □</p><p>대분수로 나타내세요. (기약분수로)</p>`,w1-w2-1,rn,rd,`${L}(으)로 통분했을 때 분수 부분을 뺄 수 없으면 자연수에서 1을 빌려 와.`,`${mixed(w1,a,L)} − ${mixed(w2,b,L)} = ${mixed(w1-1,L+a,L)} − ${mixed(w2,b,L)} = ${mixed(w1-w2-1,rn,rd)}`);};
+  return [a(),b(),c(),e(),f()];}},
 {id:'volcano-2',r:'volcano',t:'분수의 곱셈',goal:'(분수)×(자연수), (분수)×(분수)를 계산하고 약분해요.',
  comic:[N(`화산 쿠키 공장. 쿠키 반죽이 한 판에 ${fr(3,4)} kg씩, 2판 필요해요.`),
   H('think',`${fr(3,4)} × 2는 ${fr(3,4)} + ${fr(3,4)}이니까 ${fr(6,4)}, ${mixed(1,1,2)}!`),
@@ -1134,10 +1260,11 @@ LESSONS.push(
   SC(fracMulGrid(2,3,1,2),`${fr(2,3)}의 ${fr(1,2)}`)],
  widget:'fracmul',
  quiz:()=>{
-  const a=()=>{let n1,d1,n2,d2;do{d1=ri(2,9);d2=ri(2,9);n1=ri(1,d1-1);n2=ri(1,d2-1);}while(gcd(n1,d1)!==1||gcd(n2,d2)!==1);const [rn,rd]=red(n1*n2,d1*d2);return frq(`<p class="big">${fr(n1,d1)} × ${fr(n2,d2)} = □</p><p>기약분수로 나타내세요.</p>`,rn,rd,'분자끼리, 분모끼리 곱한 다음 약분해.',`${fr(n1*n2,d1*d2)}${rd!==d1*d2?` = ${fr(rn,rd)}`:''}`);};
-  const b=()=>{let d,n,k;do{d=ri(4,12);n=ri(1,d-1);k=ri(2,5);}while(gcd(n,d)!==1||n*k>=d);const [rn,rd]=red(n*k,d);return frq(`<p class="big">${fr(n,d)} × ${k} = □</p><p>기약분수로 나타내세요.</p>`,rn,rd,'분자에 자연수를 곱해.',`${fr(n*k,d)}${rd!==d?` = ${fr(rn,rd)}`:''}`);};
+  const a=()=>{let n1,d1,n2,d2;do{d1=ri(2,9);d2=ri(2,9);n1=ri(1,d1-1);n2=ri(1,d2-1);}while(gcd(n1,d1)!==1||gcd(n2,d2)!==1);const [rn,rd]=red(n1*n2,d1*d2);return frq(`<p class="big">${fr(n1,d1)} × ${fr(n2,d2)} = □</p><p>기약분수로 나타내세요.</p>`,rn,rd,'분자끼리, 분모끼리 곱한 다음 약분해.',`${fr(`${n1} × ${n2}`,`${d1} × ${d2}`)} = ${fr(n1*n2,d1*d2)}${rd!==d1*d2?` = ${fr(rn,rd)} (분모와 분자를 ${gcd(n1*n2,d1*d2)}(으)로 약분)`:''}`);};
+  const b=()=>{let d,n,k;do{d=ri(4,12);n=ri(1,d-1);k=ri(2,5);}while(gcd(n,d)!==1||n*k>=d);const [rn,rd]=red(n*k,d);return frq(`<p class="big">${fr(n,d)} × ${k} = □</p><p>기약분수로 나타내세요.</p>`,rn,rd,'분자에 자연수를 곱해.',`${fr(`${n} × ${k}`,d)} = ${fr(n*k,d)}${rd!==d?` = ${fr(rn,rd)} (${gcd(n*k,d)}(으)로 약분)`:''}`);};
   const c=()=>{const d=pick([2,3,4,5,6]),n=ri(1,d-1),t=d*ri(2,8);return num(`<p><b>${t}</b>의 ${fr(n,d)}는 얼마일까요?</p>`,t/d*n,`${t}을(를) ${d}(으)로 나눈 것 중 ${n}개야.`,`${t} × ${fr(n,d)} = ${t/d*n}`);};
-  return [a(),b(),c(),a(),c()];}},
+  const f=()=>{let w,n,d,p,q;do{d=ri(2,5);w=ri(1,2);n=ri(1,d-1);q=ri(2,6);p=ri(1,q-1);}while(gcd(n,d)!==1||gcd(p,q)!==1);const N=w*d+n,[rn,rd]=red(N*p,d*q);if(rd===1)return num(`<p class="big">${mixed(w,n,d)} × ${fr(p,q)} = □</p>`,rn,`대분수를 가분수 ${fr(N,d)}(으)로 바꾼 다음 곱해.`,`${fr(N,d)} × ${fr(p,q)} = ${fr(N*p,d*q)} = ${rn}`);return frq(`<p class="big">${mixed(w,n,d)} × ${fr(p,q)} = □</p><p>가분수 또는 진분수로, 기약분수로 나타내세요.</p>`,rn,rd,`대분수를 가분수 ${fr(N,d)}(으)로 바꾼 다음 곱해.`,`${fr(N,d)} × ${fr(p,q)} = ${fr(N*p,d*q)}${rd!==d*q?` = ${fr(rn,rd)}`:''}`);};
+  return [a(),b(),f(),c(),a()];}},
 {id:'volcano-3',r:'volcano',t:'소수의 곱셈',goal:'(소수)×(자연수), (소수)×(소수)를 계산하고 소수점 위치를 정해요.',
  comic:[N('화산 마을 공방에서 리본을 0.6 m씩 4개 잘라요.'),
   H('think','6 × 4 = 24니까 24 m?'),
@@ -1164,7 +1291,7 @@ LESSONS.push(
  quiz:()=>{
   const a=()=>{let n,d,k;do{d=ri(3,9);n=ri(1,d-1);k=ri(2,5);}while(gcd(n,d)!==1);const [rn,rd]=red(n,d*k);return frq(`<p class="big">${fr(n,d)} ÷ ${k} = □</p><p>기약분수로 나타내세요.</p>`,rn,rd,`÷ ${k}는 × ${fr(1,k)}과 같아.`,`${fr(n,d)} × ${fr(1,k)} = ${fr(n,d*k)}${rd!==d*k?` = ${fr(rn,rd)}`:''}`);};
   const b=()=>{const d=ri(5,12),y=ri(1,4),q=ri(2,Math.floor((d-1)/y));return num(`<p class="big">${fr(y*q,d)} ÷ ${fr(y,d)} = □</p>`,q,`분모가 같으면 분자끼리 나눠: ${y*q} ÷ ${y}`,`${y*q} ÷ ${y} = ${q}`);};
-  const c=()=>{let n1,d1,n2,d2;do{d1=ri(2,9);d2=ri(2,9);n1=ri(1,d1-1);n2=ri(1,d2-1);}while(gcd(n1,d1)!==1||gcd(n2,d2)!==1||d1===d2);const [rn,rd]=red(n1*d2,d1*n2);if(rd===1)return num(`<p class="big">${fr(n1,d1)} ÷ ${fr(n2,d2)} = □</p>`,rn,`나누는 분수 ${fr(n2,d2)}를 ${fr(d2,n2)}로 뒤집어 곱해.`,`${fr(n1,d1)} × ${fr(d2,n2)} = ${fr(n1*d2,d1*n2)} = ${rn}`);return frq(`<p class="big">${fr(n1,d1)} ÷ ${fr(n2,d2)} = □</p><p>기약분수로 나타내세요. (가분수 그대로 써도 돼요)</p>`,rn,rd,`나누는 분수 ${fr(n2,d2)}를 ${fr(d2,n2)}로 뒤집어 곱해.`,`${fr(n1,d1)} × ${fr(d2,n2)} = ${fr(n1*d2,d1*n2)}${rd!==d1*n2||rn!==n1*d2?` = ${fr(rn,rd)}`:''}`);};
+  const c=()=>{let n1,d1,n2,d2;do{d1=ri(2,9);d2=ri(2,9);n1=ri(1,d1-1);n2=ri(1,d2-1);}while(gcd(n1,d1)!==1||gcd(n2,d2)!==1||d1===d2);const [rn,rd]=red(n1*d2,d1*n2);if(rd===1)return num(`<p class="big">${fr(n1,d1)} ÷ ${fr(n2,d2)} = □</p>`,rn,`나누는 분수 ${fr(n2,d2)}를 ${fr(d2,n2)}로 뒤집어 곱해.`,`${fr(n1,d1)} × ${fr(d2,n2)} = ${fr(n1*d2,d1*n2)} = ${rn}`);return frq(`<p class="big">${fr(n1,d1)} ÷ ${fr(n2,d2)} = □</p><p>기약분수로 나타내세요. (1보다 크면 가분수로 쓰세요)</p>`,rn,rd,`나누는 분수 ${fr(n2,d2)}를 ${fr(d2,n2)}로 뒤집어 곱해.`,`${fr(n1,d1)} × ${fr(d2,n2)} = ${fr(n1*d2,d1*n2)}${rd!==d1*n2||rn!==n1*d2?` = ${fr(rn,rd)}`:''}`);};
   return [a(),b(),c(),a(),c()];}},
 {id:'canyon-2',r:'canyon',t:'소수의 나눗셈',goal:'(소수)÷(자연수), (소수)÷(소수)를 계산해요.',
  comic:[N('협곡 다리 공사. 길이 7.2 m 밧줄을 3도막으로 똑같이 잘라요.'),
@@ -1179,17 +1306,19 @@ LESSONS.push(
   const b=()=>{const y=ri(2,9),q=ri(2,12);return num(`<p class="big">${decStr(y*q,1)} ÷ 0.${y} = □</p>`,q,'두 수에 똑같이 10을 곱해 봐.',`${y*q} ÷ ${y} = ${q}`);};
   const c=()=>{const y=ri(12,45),q=ri(2,9);if(y%10===0)return c();return num(`<p class="big">${decStr(y*q,2)} ÷ ${decStr(y,2)} = □</p>`,q,'두 수에 똑같이 100을 곱해 봐.',`${y*q} ÷ ${y} = ${q}`);};
   const d=()=>{const k=ri(3,8),q=ri(12,40);if(q%10===0)return d();return decq(`<p>주스 <b>${decStr(k*q,1)} L</b>를 <b>${k}명</b>이 똑같이 나누어 마시면 한 명이 몇 L씩 마실까요?</p>`,q/10,`${decStr(k*q,1)} ÷ ${k}를 계산해.`,`${decStr(k*q,1)} ÷ ${k} = ${decStr(q,1)}`);};
-  return [a(),b(),c(),a(),d()];}},
+  const e=()=>{let k,q,x;do{k=ri(2,9);q=ri(12,98);x=k*q;}while(q%10===0||x%10!==0||x>=1000);return decq(`<p class="big">${decStr(x,2)} ÷ ${k} = □</p>`,q/100,`몫이 1보다 작으면 일의 자리에 0을 써. 나누어떨어지지 않으면 끝에 0을 붙여서 계속 나눠.`,`${decStr(x,2)}를 ${(x/100).toFixed(2)}로 보고 ${x} ÷ ${k} = ${q} → ${decStr(q,2)}`);};
+  const f=()=>{const d=pick([2,4,5,8]);let n=ri(d+1,9*d);while(n%d===0)n=ri(d+1,9*d);return decq(`<p class="big">${n} ÷ ${d} = □</p><p>몫을 소수로 나타내세요.</p>`,n/d,'나누어떨어지지 않으면 소수점을 찍고 0을 붙여서 계속 나눠.',`${n} ÷ ${d} = ${fmt(n/d)}`);};
+  return [a(),e(),pick([b,c])(),f(),d()];}},
 {id:'canyon-3',r:'canyon',t:'비와 비율, 백분율',goal:'두 수를 비로 나타내고, 비율을 분수·소수·백분율로 나타내요.',
  comic:[N('협곡 주스 가게. 레몬즙 2컵에 물 3컵을 섞어요.'),
   S('happy','레몬즙과 물의 비는 2 : 3이야. "2 대 3"이라고 읽어.'),
   T('happy','그럼 3 : 2랑 같은 거지?'),
   H('oops','순서가 바뀌면 뜻이 달라져! 2 : 3은 물 3을 기준으로 레몬즙 2를 비교한 거야.'),
-  S('happy',`기준량에 대한 비교하는 양의 크기를 비율이라고 해. 2 : 5의 비율은 ${fr(2,5)} = 0.4 = 40%!`),
-  SC(decGrid(40),'40%: 100칸 중 40칸')],
+  S('happy',`기준량에 대한 비교하는 양의 크기를 비율이라고 해. 레몬즙 2컵과 물 3컵을 섞으면 주스는 모두 5컵이지? 레몬즙 : 전체 주스 = 2 : 5, 비율은 ${fr(2,5)} = 0.4 = 40%!`),
+  SC(decGrid(40),'레몬즙 : 전체 주스 = 2 : 5 → 40%')],
  widget:'percent',
  quiz:()=>{
-  const a=()=>{const x=ri(2,9),y=ri(2,9);return mlq(`<p>사과가 <b>${x}개</b>, 배가 <b>${y}개</b> 있어요. 사과 수와 배 수의 비는?</p>`,[' :',''],[x,y],'"사과 수와 배 수의 비"는 사과 수 : 배 수 순서야.',`${x} : ${y}`,`${x} : ${y}`);};
+  const a=()=>{const x=ri(2,9),y=ri(2,9);return mlq(`<p>사과가 <b>${x}개</b>, 배가 <b>${y}개</b> 있어요. 사과의 수와 배의 수의 비는?</p>`,[' :',''],[x,y],'"사과의 수와 배의 수의 비"는 사과의 수 : 배의 수 순서야.',`${x} : ${y}`,`${x} : ${y}`);};
   const b=()=>{const base=pick([4,5,10,20,25,50]),k=ri(1,base-1);return num(`<p>비 <b>${k} : ${base}</b>의 비율을 백분율로 나타내면 몇 %일까요?</p>`,k*100/base,'비율에 100을 곱하면 백분율이야.',`${fr(k,base)} × 100 = ${k*100/base}%`);};
   const c=()=>{const base=pick([2,4,5,10,20,25]),k=ri(1,base-1);return decq(`<p>비 <b>${k} : ${base}</b>의 비율을 소수로 나타내면?</p>`,k/base,`${k} ÷ ${base}를 계산해.`,`${k} ÷ ${base} = ${fmt(k/base)}`);};
   const d=()=>{const tot=pick([20,25,40,50,200]),p=pick([10,20,25,40,60,75]);if((tot*p)%100)return d();return num(`<p>반 학생 <b>${tot}명</b> 중 <b>${p}%</b>가 안경을 써요. 안경을 쓴 학생은 몇 명일까요?</p>`,tot*p/100,`${p}%는 ${fr(p,100)}이야.`,`${tot} × ${fr(p,100)} = ${tot*p/100}명`);};
@@ -1206,9 +1335,10 @@ LESSONS.push(
  quiz:()=>{
   const a=()=>{let x=ri(1,9),y=ri(2,9);while(gcd(x,y)!==1||x===y)y=ri(2,9);const k=ri(2,6);return num(`<p class="big">${x} : ${y} = ${x*k} : □</p>`,y*k,`${x}에 몇을 곱하면 ${x*k}이(가) 될까? 후항에도 같은 수를 곱해.`,`${x} × ${k} = ${x*k}, ${y} × ${k} = ${y*k}`);};
   const b=()=>{let x=ri(1,6),y=ri(2,7);while(x===y)y=ri(2,7);const k=ri(3,8),t=(x+y)*k;return mlq(`<p>구슬 <b>${t}개</b>를 하루와 셈이가 <b>${x} : ${y}</b>로 나누어 가지려고 해요. 각각 몇 개씩일까요?</p>`,['개(하루)','개(셈이)'],[x*k,y*k],`전체를 ${x} + ${y} = ${x+y}묶음으로 나눠 봐.`,`하루: ${t} × ${fr(x,x+y)} = ${x*k}, 셈이: ${t} × ${fr(y,x+y)} = ${y*k}`,`하루 ${x*k}개, 셈이 ${y*k}개`);};
-  const c=()=>{const x=ri(2,9),y=ri(2,9),k=ri(2,5);return num(`<p>비례식 <b>${x} : ${y} = ${x*k} : ${y*k}</b>에서 외항의 곱은?</p>`,x*y*k,'바깥쪽에 있는 두 수가 외항이야.',`외항 ${x}과(와) ${y*k}: ${x} × ${y*k} = ${x*y*k}`);};
+  const c=()=>{const x=ri(2,9),k=ri(2,5);let y=ri(2,9);while(y===x)y=ri(2,9);return num(`<p>비례식 <b>${x} : ${y} = ${x*k} : ${y*k}</b>에서 외항의 곱은?</p>`,x*y*k,'바깥쪽에 있는 두 수가 외항이야.',`외항 ${x}과(와) ${y*k}: ${x} × ${y*k} = ${x*y*k}`);};
   const d=()=>{const m=ri(2,5),k=ri(3,9);return num(`<p>지도에서 <b>1 cm</b>가 실제로 <b>${m} km</b>예요. 지도에서 <b>${k} cm</b>인 거리는 실제로 몇 km일까요?</p>`,m*k,`1 : ${m} = ${k} : □`,`1 : ${m} = ${k} : ${m*k}`);};
-  return [a(),b(),c(),a(),d()];}},
+  const e=()=>{const p=ri(2,4),m=ri(3,9),k=ri(2,5);return num(`<p>지도에서 <b>${p} cm</b>가 실제로 <b>${m} km</b>예요. 지도에서 <b>${p*k} cm</b>인 거리는 실제로 몇 km일까요?</p>`,m*k,`${p} : ${m} = ${p*k} : □`,`${p} : ${m} = ${p*k} : ${m*k} (전항과 후항에 ${k}을(를) 곱함)`);};
+  return [a(),b(),c(),e(),d()];}},
 {id:'observ-2',r:'observ',t:'원주와 원의 넓이',goal:'원주율(3.14)을 이용해 원주와 원의 넓이를 구해요.',
  comic:[N('천문대 둥근 지붕의 반지름은 5 m예요.'),
   H('think','원 둘레는 어떻게 재지?'),
@@ -1222,7 +1352,8 @@ LESSONS.push(
   const b=()=>{const r=ri(2,10);return decq(`<p>반지름이 <b>${r} cm</b>인 원의 원주는 몇 cm일까요? (원주율 3.14)</p>`,r*2*314/100,'지름은 반지름의 2배야.',`${r*2} × 3.14 = ${fmt(r*2*314/100)}`);};
   const c=()=>{const r=ri(2,10);return decq(`${circleSvg(r)}<p>반지름이 <b>${r} cm</b>인 원의 넓이는 몇 cm²일까요? (원주율 3.14)</p>`,r*r*314/100,'원의 넓이 = 반지름 × 반지름 × 원주율',`${r} × ${r} × 3.14 = ${fmt(r*r*314/100)}`);};
   const d=()=>{const dd=ri(3,15);return num(`<p>원주가 <b>${fmt(dd*314/100)} cm</b>인 원의 지름은 몇 cm일까요? (원주율 3.14)</p>`,dd,'지름 = 원주 ÷ 원주율',`${fmt(dd*314/100)} ÷ 3.14 = ${dd}`);};
-  return [a(),b(),c(),d(),c()];}},
+  const e=()=>{const r=ri(2,10);return num(`<p>넓이가 <b>${fmt(r*r*3.14)} cm²</b>인 원의 반지름은 몇 cm일까요? (원주율 3.14)</p>`,r,'반지름 × 반지름 = 넓이 ÷ 3.14',`${fmt(r*r*3.14)} ÷ 3.14 = ${r*r} = ${r} × ${r}`);};
+  return [a(),b(),c(),d(),e()];}},
 {id:'observ-3',r:'observ',t:'직육면체의 겉넓이와 부피',goal:'직육면체와 정육면체의 겉넓이와 부피를 구해요.',
  comic:[N('천문대 창고의 상자: 가로 4 cm, 세로 3 cm, 높이 2 cm'),
   H('think','쌓기나무가 몇 개 들어갈까? 한 층에 4 × 3 = 12개, 2층이니까 24개!'),
@@ -1245,10 +1376,125 @@ function mixedExpr(){
     ()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return {steps:[`(${a} + ${b}) × ${c}`,`${a+b} × ${c}`,`${(a+b)*c}`],ans:(a+b)*c,hint:'괄호 안을 먼저 계산해.'};},
     ()=>{const c=ri(2,9),q=ri(2,9),b=c*q,a=ri(q+1,40);return {steps:[`${a} − ${b} ÷ ${c}`,`${a} − ${q}`,`${a-q}`],ans:a-q,hint:'나눗셈을 먼저 계산해.'};},
     ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,5),d=ri(2,5);if(a*b<=c*d)return {steps:[`${c} × ${d} + ${a} × ${b}`,`${c*d} + ${a*b}`,`${c*d+a*b}`],ans:c*d+a*b,hint:'곱셈 두 개를 먼저 계산해.'};return {steps:[`${a} × ${b} − ${c} × ${d}`,`${a*b} − ${c*d}`,`${a*b-c*d}`],ans:a*b-c*d,hint:'곱셈 두 개를 먼저 계산해.'};},
+    ()=>{const b=ri(2,6),q=ri(2,9),c=ri(2,5),a=b*q;return {steps:[`${a} ÷ ${b} × ${c}`,`${q} × ${c}`,`${q*c}`],ans:q*c,hint:'곱셈과 나눗셈만 있으면 앞에서부터 차례로 계산해.'};},
+    ()=>{const a=ri(15,40),b=ri(2,a-5),c=ri(2,20);return {steps:[`${a} − ${b} + ${c}`,`${a-b} + ${c}`,`${a-b+c}`],ans:a-b+c,hint:'덧셈과 뺄셈만 있으면 앞에서부터 차례로 계산해.'};},
     ()=>{const c=ri(2,6),q=ri(2,8),b=ri(1,15),a=b+c*q,d=ri(1,20);return {steps:[`(${a} − ${b}) ÷ ${c} + ${d}`,`${a-b} ÷ ${c} + ${d}`,`${q} + ${d}`,`${q+d}`],ans:q+d,hint:'괄호 → 나눗셈 → 덧셈 순서야.'};}
   ];
   return pick(T)();
 }
+
+/* ---------- lessons added after review (curriculum gaps) ---------- */
+function insertLesson(beforeId,lesson){const i=LESSONS.findIndex(l=>l.id===beforeId);LESSONS.splice(i<0?LESSONS.length:i,0,lesson);}
+function insertLessonAfter(afterId,lesson){const i=LESSONS.findIndex(l=>l.id===afterId);LESSONS.splice(i+1,0,lesson);}
+insertLesson('seed-1',{id:'seed-0',r:'seed',t:'9까지의 수',goal:'1부터 9까지의 수를 세고, 순서와 크기를 알아요.',
+ comic:[N('새싹 마을에 아침이 밝았어요. 병아리들이 줄을 서 있어요.'),
+  H('happy','하나, 둘, 셋, 넷, 다섯! 병아리가 다섯 마리야.'),
+  SC(tenFrame(5),'병아리 5마리'),
+  T('happy','맨 앞 병아리가 다섯째지?'),
+  S('oops','삐빅! 맨 앞은 첫째야. 앞에서부터 첫째, 둘째, 셋째, 넷째, 다섯째로 세어.'),
+  H('think','수를 셀 때는 "다섯", 순서를 말할 때는 "다섯째"구나!')],
+ widget:'tenframe',
+ quiz:()=>{
+  const a=()=>{const n=ri(1,9);return num(`${tenFrame(n)}<p>구슬은 모두 몇 개일까요?</p>`,n,'하나씩 손가락으로 짚으며 세어 봐.',`하나, 둘, … 모두 ${n}개`);};
+  const b=()=>{const n=ri(2,8),k=pick([1,-1]);return num(`<p><b>${n}</b>보다 1 ${k>0?'큰':'작은'} 수는?</p>`,n+k,`1부터 9까지 순서대로 세어 봐. ${n} 바로 ${k>0?'뒤':'앞'}의 수야.`,`${n}보다 1 ${k>0?'큰':'작은'} 수는 ${n+k}`);};
+  const c=()=>{const x=ri(1,9);let y=ri(1,9);while(y===x)y=ri(1,9);return sgnQ(`<p class="big">${x} ○ ${y}</p><p>○ 안에 알맞은 것은?</p>`,SG(x,y),'수를 순서대로 셀 때 뒤에 나오는 수가 더 커.',`${Math.max(x,y)}이(가) 더 커요.`);};
+  const d=()=>{const seq=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,5),k=ri(2,5),ORD=['첫째','둘째','셋째','넷째','다섯째'];return num(`<p class="big">${seq.join(', ')}</p><p>앞에서부터 <b>${ORD[k-1]}</b>에 있는 수는?</p>`,seq[k-1],'왼쪽부터 첫째, 둘째, 셋째… 하고 짚어 봐.',`${ORD[k-1]} 수는 ${seq[k-1]}`);};
+  return [a(),b(),c(),d(),a()];}});
+insertLessonAfter('hill-2',{id:'hill-4',r:'hill',t:'짝수와 홀수, 몇십몇의 덧셈과 뺄셈',goal:'짝수와 홀수를 알고, 받아올림·받아내림이 없는 (몇십몇)±(몇십몇)을 계산해요.',
+ comic:[N('시계 언덕의 놀이터. 아이들이 둘씩 짝을 지어 줄을 서요.'),
+  T('happy','7명이면 둘씩 짝을 지어도 딱 맞지!'),
+  H('think','둘씩 짝을 지으면 3쌍이고 1명이 남는데?'),
+  S('happy','둘씩 짝을 지을 때 남는 수가 없으면 짝수, 하나가 남으면 홀수야. 7은 홀수!'),
+  SC(tensHtml(3,4),'34'),
+  H('happy','34 + 25는 십의 자리끼리 3 + 2 = 5, 일의 자리끼리 4 + 5 = 9. 그래서 59!')],
+ widget:'blocks2',
+ quiz:()=>{
+  const a=()=>{const n=ri(2,30),ev=n%2===0;return mc(`<p class="big">${n}</p><p>이 수는 짝수일까요, 홀수일까요?</p>`,ev?'짝수':'홀수',[ev?'홀수':'짝수'],'둘씩 짝을 지었을 때 남는 것이 있는지 생각해 봐. 일의 자리 숫자를 보면 알 수 있어.',`${n}의 일의 자리 숫자 ${n%10}은(는) ${ev?'짝수':'홀수'}예요.`,['짝수','홀수']);};
+  const b=()=>{let x,y;do{x=ri(11,78);y=ri(10,88-x);}while((x%10)+(y%10)>=10||x+y>99);return num(`<p class="big">${x} + ${y} = □</p>`,x+y,'십의 자리끼리, 일의 자리끼리 더해.',`십의 자리 ${Math.floor(x/10)} + ${Math.floor(y/10)} = ${Math.floor(x/10)+Math.floor(y/10)}, 일의 자리 ${x%10} + ${y%10} = ${x%10+y%10} → ${x+y}`);};
+  const c=()=>{let x,y;do{x=ri(25,99);y=ri(11,x-10);}while((x%10)<(y%10));return num(`<p class="big">${x} − ${y} = □</p>`,x-y,'십의 자리끼리, 일의 자리끼리 빼.',`십의 자리 ${Math.floor(x/10)} − ${Math.floor(y/10)} = ${Math.floor(x/10)-Math.floor(y/10)}, 일의 자리 ${x%10} − ${y%10} = ${x%10-y%10} → ${x-y}`);};
+  const d=()=>{const evens=[2,4,6,8,10,12,14,16,18],odds=[1,3,5,7,9,11,13,15,17],want=pick(['짝수','홀수']),ok=pick(want==='짝수'?evens:odds),ws=shuffle(want==='짝수'?odds:evens).slice(0,3);return mc(`<p>다음 중 <b>${want}</b>는 어느 것일까요?</p>`,String(ok),ws.map(String),'일의 자리 숫자가 0, 2, 4, 6, 8이면 짝수, 1, 3, 5, 7, 9이면 홀수야.',`${ok}은(는) ${want}예요.`);};
+  return [a(),b(),c(),d(),pick([b,c])()];}});
+insertLessonAfter('gugu-1',{id:'gugu-5',r:'gugu',t:'몇의 몇 배',goal:'"몇의 몇 배"를 곱셈식으로 나타내요.',
+ comic:[N('구구단 언덕의 블록 탑. 하루는 블록 3개, 셈이는 블록 12개를 쌓았어요.'),
+  T('happy','셈이 블록이 9개 더 많으니까 9배!'),
+  S('oops','삐빅! "몇 배"는 몇 번 묶을 수 있는지야. 3개씩 묶으면 12개는 4묶음이야.'),
+  SC(apples(3,4),'3개씩 4묶음 = 3의 4배'),
+  H('think','그래서 12는 3의 4배구나! 3 × 4 = 12.'),
+  S('happy','맞아. "3의 4배"는 3 × 4와 같아.')],
+ widget:'array',
+ quiz:()=>{
+  const a=()=>{const x=ri(2,9),k=ri(2,6);return num(`<p><b>${x}</b>의 <b>${k}배</b>는 얼마일까요?</p>`,x*k,`${x}의 ${k}배는 ${x} × ${k}야.`,`${x} × ${k} = ${x*k}`);};
+  const b=()=>{const x=ri(2,5),k=ri(2,5);return num(`${apples(x,1)}${apples(x,k)}<p>아래 사과는 위 사과의 몇 배일까요?</p>`,k,`위 사과 ${x}개씩 묶으면 아래는 몇 묶음이 될까?`,`${x*k}은(는) ${x}씩 ${k}묶음이니까 ${k}배`);};
+  const c=()=>{const x=ri(2,9),k=ri(2,6);return mc(`<p><b>${x}의 ${k}배</b>를 곱셈식으로 나타낸 것은?</p>`,`${x} × ${k}`,[`${x} + ${k}`,`${x} × ${k+1}`,`${k} + ${k}`],'"몇의 몇 배"는 "몇 × 몇"이야.',`${x}의 ${k}배 = ${x} × ${k} = ${x*k}`);};
+  const d=()=>{const x=ri(2,8),k=ri(2,5);return num(`<p>연필이 <b>${x}자루</b> 있어요. 색연필은 연필의 <b>${k}배</b>만큼 있어요. 색연필은 몇 자루일까요?</p>`,x*k,`${x}의 ${k}배를 구해.`,`${x} × ${k} = ${x*k}자루`);};
+  return [a(),b(),c(),d(),a()];}});
+insertLessonAfter('gugu-2',{id:'gugu-4',r:'gugu',t:'네 자리 수',goal:'천의 자리를 알고 네 자리 수를 읽고 쓰고, 크기를 비교해요.',
+ comic:[N('구구단 언덕 매표소. 입장권이 1000원짜리 3장, 100원짜리 5개, 10원짜리 2개, 1원짜리 7개예요.'),
+  T('happy','3527원? 삼오이칠 원!'),
+  S('happy','네 자리 수는 천의 자리부터 읽어. "삼천오백이십칠"이야.'),
+  SC(placeChart('3527'),'천의 자리 3, 백의 자리 5, 십의 자리 2, 일의 자리 7'),
+  H('think','1000이 10개면 10000이 되겠네!'),
+  S('happy','맞아. 그건 다음에 배울 "만"이야.')],
+ widget:'blocks4',
+ quiz:()=>{
+  const a=()=>{const n=ri(1001,9999);return num(`<p class="big">${koreanNum(n)}</p><p>이 수를 숫자로 쓰면?</p>`,n,'천, 백, 십, 일의 자리 숫자를 차례로 써. 읽지 않은 자리에는 0을 써.',`${koreanNum(n)} → ${n}`);};
+  const b=()=>{const n=ri(1000,9999),pl=pick([['천',1000],['백',100],['십',10]]),dg=Math.floor(n/pl[1])%10;if(!dg)return b();return num(`<p class="big">${n}</p><p>${pl[0]}의 자리 숫자 <b>${dg}</b>이(가) 나타내는 값은?</p>`,dg*pl[1],`${pl[0]}의 자리 숫자는 ${pl[1]}이 몇 개인지 나타내.`,`${dg} × ${pl[1]} = ${dg*pl[1]}`);};
+  const c=()=>{const x=ri(1000,9999);let y=ri(1000,9999);while(y===x)y=ri(1000,9999);return sgnQ(`<p class="big">${x} ○ ${y}</p><p>○ 안에 알맞은 것은?</p>`,SG(x,y),'천의 자리부터 차례로 비교해.',`${Math.max(x,y)}이(가) 더 커요.`);};
+  const d=()=>{const x=ri(1000,8000),st=pick([1000,100,10]),k=ri(2,4);return num(`<p><b>${x}</b>에서 ${st}씩 ${k}번 뛰어 세면?</p>`,x+st*k,`${st}씩 뛰어 세면 ${st===1000?'천':st===100?'백':'십'}의 자리 숫자가 1씩 커져.`,Array.from({length:k+1},(_,i)=>x+st*i).join(' → '));};
+  return [a(),b(),c(),d(),pick([a,c])()];}});
+insertLesson('mul-1',{id:'mul-0',r:'mul',t:'세 자리 수의 덧셈과 뺄셈',goal:'받아올림·받아내림이 있는 (세 자리 수)±(세 자리 수)를 계산해요.',
+ comic:[N('곱셈 숲 입구 매표소. 어제 입장객 457명, 오늘 368명이 왔어요.'),
+  T('happy','7 + 8 = 15, 5 + 6 = 11, 4 + 3 = 7. 붙이면 71115명!'),
+  H('wow','숲이 넘치겠다! 받아올림을 해야지.'),
+  S('happy','일의 자리 15 → 5를 쓰고 1을 올려. 십의 자리 5 + 6 + 1 = 12 → 2를 쓰고 1을 올려. 백의 자리 4 + 3 + 1 = 8. 답은 825명!'),
+  H('think','뺄셈도 일의 자리부터, 모자라면 윗자리에서 10을 빌려 오면 되지?'),
+  S('happy','맞아. 457 − 368은 89야. 자리가 하나 늘었을 뿐 방법은 2학년 때와 같아.')],
+ widget:'coladd',
+ quiz:()=>{
+  const a=()=>{let x,y;do{x=ri(125,689);y=ri(115,899-x);}while((x%10)+(y%10)<10);return num(`<p class="big">${x} + ${y} = □</p>`,x+y,'일의 자리부터 더하고, 10이 넘으면 윗자리로 1을 올려.',`${x} + ${y} = ${x+y}`);};
+  const b=()=>{let x,y;do{x=ri(412,987);y=ri(108,x-100);}while((x%10)>=(y%10));return num(`<p class="big">${x} − ${y} = □</p>`,x-y,'일의 자리부터 빼고, 뺄 수 없으면 윗자리에서 10을 빌려 와.',`${x} − ${y} = ${x-y}`);};
+  const c=()=>{let x,y;do{x=ri(215,598);y=ri(186,489);}while(x+y>999);return num(`<p>숲에 소나무가 <b>${x}그루</b>, 참나무가 <b>${y}그루</b> 있어요. 나무는 모두 몇 그루일까요?</p>`,x+y,`${x} + ${y}를 세로셈으로 계산해.`,`${x} + ${y} = ${x+y}`);};
+  const d=()=>{let x,y;do{x=ri(512,960);y=ri(205,x-50);}while((x%10)>=(y%10));return num(`<p>도토리가 <b>${x}개</b> 있었는데 다람쥐가 <b>${y}개</b>를 가져갔어요. 남은 도토리는 몇 개일까요?</p>`,x-y,`${x} − ${y}를 계산해.`,`${x} − ${y} = ${x-y}`);};
+  const e=()=>{let x,y;do{x=ri(412,987);y=ri(108,x-100);}while((x%10)>=(y%10));return num(`<p>${x} − ${y} = ${x-y}입니다. 덧셈으로 확인하면</p><p class="big">${x-y} + ${y} = □</p>`,x,'뺄셈의 답에 뺀 수를 더하면 처음 수가 돼.',`${x-y} + ${y} = ${x}`);};
+  return [a(),b(),c(),d(),e()];}});
+insertLesson('frac-6',{id:'frac-7',r:'frac',t:'분수와 소수',goal:'분모가 10인 분수를 소수로 나타내고, 소수 한 자리 수를 읽고 써요.',
+ comic:[N('분수 성의 리본 가게. 1 m 리본을 똑같이 10칸으로 나눴어요.'),
+  S('happy',`10칸 중 1칸은 ${fr(1,10)} m야. 이걸 0.1 m라고도 쓰고 "영 점 일"이라고 읽어.`),
+  SC(bar(10,3,{w:280,h:40}),`${fr(3,10)} = 0.3`),
+  T('happy','그럼 3칸은 0.03이지?'),
+  H('oops',`0.1이 3개니까 0.3이야! ${fr(3,10)} = 0.3.`),
+  S('happy','1 m와 7칸이면 1.7 m, "일 점 칠"이라고 읽어. 점을 소수점이라고 해.')],
+ widget:'tenths',
+ quiz:()=>{
+  const a=()=>{const k=ri(1,9);return decq(`${bar(10,k,{w:260,h:40})}<p>전체가 1일 때 색칠한 부분을 소수로 나타내면?</p>`,k/10,'10칸 중 1칸이 0.1이야.',`10칸 중 ${k}칸 → ${fr(k,10)} = ${decStr(k,1)}`);};
+  const b=()=>{const k=ri(1,9);return decq(`<p class="big">${fr(k,10)}</p><p>소수로 나타내면?</p>`,k/10,`${fr(1,10)}은 0.1이야.`,`${fr(k,10)} = ${decStr(k,1)}`);};
+  const c=()=>{const k=ri(11,59);if(k%10===0)return c();return decq(`<p>0.1이 <b>${k}개</b>인 수는?</p>`,k/10,'0.1이 10개면 1이야.',`0.1이 ${k}개 → ${decStr(k,1)}`);};
+  const d=()=>{let x=ri(1,49);while(x%10===0)x=ri(1,49);let y=ri(1,49);while(y===x||y%10===0)y=ri(1,49);return sgnQ(`<p class="big">${decStr(x,1)} ○ ${decStr(y,1)}</p><p>○ 안에 알맞은 것은?</p>`,SG(x,y),'자연수 부분을 먼저 비교하고, 같으면 소수 첫째 자리를 비교해.',`${decStr(Math.max(x,y),1)}이(가) 더 커요.`);};
+  const e=()=>{const w=ri(1,5),k=ri(1,9);return decq(`<p><b>${w} cm ${k} mm</b>는 몇 cm일까요?</p>`,w+k/10,'1 mm는 0.1 cm야.',`${k} mm = ${decStr(k,1)} cm, 그래서 ${decStr(w*10+k,1)} cm`);};
+  return [a(),b(),c(),d(),e()];}});
+insertLessonAfter('volcano-1',{id:'volcano-4',r:'volcano',t:'수의 범위와 어림',goal:'이상·이하·초과·미만으로 수의 범위를 나타내고, 올림·버림·반올림을 해요.',
+ comic:[N('분수 화산 놀이기구 앞. "키 130 cm 이상 탈 수 있어요"라고 쓰여 있어요.'),
+  T('happy','나는 130 cm니까 못 타겠네…'),
+  S('happy','"이상"은 그 수를 포함해. 130 cm도 탈 수 있어! "초과"는 그 수를 포함하지 않아.'),
+  H('think','"미만"은 그 수보다 작은 것, "이하"는 그 수까지 포함하는 거구나.'),
+  S('happy','어림도 해 보자. 3482를 반올림해서 백의 자리까지 나타내면, 십의 자리 숫자 8이 5 이상이라 올려서 3500!'),
+  T('oops','버림이면 3400, 올림이면 3500이구나…')],
+ widget:'rounding',
+ quiz:()=>{
+  const a=()=>{const lo=ri(10,40),hi=lo+ri(5,12),lk=pick(['이상','초과']),hk=pick(['이하','미만']);const cnt=(hk==='이하'?hi:hi-1)-(lk==='이상'?lo:lo+1)+1;return num(`<p><b>${lo} ${lk} ${hi} ${hk}</b>인 자연수는 모두 몇 개일까요?</p>`,cnt,'"이상·이하"는 그 수를 포함하고, "초과·미만"은 포함하지 않아.',`${lk==='이상'?lo:lo+1}부터 ${hk==='이하'?hi:hi-1}까지 ${cnt}개`);};
+  const b=()=>{const n=ri(1001,9999),pl=pick([[10,'십'],[100,'백'],[1000,'천']]),m=pl[0],r=Math.round(n/m)*m;return num(`<p class="big">${n}</p><p>반올림하여 <b>${pl[1]}의 자리까지</b> 나타내면?</p>`,r,`${pl[1]}의 자리 바로 아래 자리 숫자가 5 이상이면 올리고, 4 이하면 버려.`,`바로 아래 자리 숫자가 ${Math.floor(n/(m/10))%10}이므로 ${r}`);};
+  const c=()=>{const n=ri(101,999),up=Math.random()<.5,m=up?Math.ceil(n/100)*100:Math.floor(n/100)*100;if(n%100===0)return c();return num(`<p class="big">${n}</p><p><b>${up?'올림':'버림'}</b>하여 백의 자리까지 나타내면?</p>`,m,up?'백의 자리 아래 수가 조금이라도 있으면 백의 자리를 1 올려.':'백의 자리 아래 수를 모두 0으로 버려.',`${n} → ${m}`);};
+  const d=()=>{const per=pick([10,20,30,40]),n=ri(per+3,per*9);if(n%per===0)return d();const k=Math.ceil(n/per);return num(`<p>학생 <b>${n}명</b>이 버스를 타려고 해요. 버스 한 대에 <b>${per}명</b>까지 탈 수 있다면, 버스는 적어도 몇 대 필요할까요?</p>`,k,'남는 학생도 버스를 타야 하니까 올림을 해.',`${n} ÷ ${per} = ${Math.floor(n/per)} … ${n%per}, 남는 ${n%per}명도 타야 하니 ${k}대`);};
+  const e=()=>{const n=ri(12,98)*100+ri(1,99);return num(`<p>동전 <b>${n}원</b>을 1000원짜리 지폐로 바꾸면 최대 몇 장까지 바꿀 수 있을까요?</p>`,Math.floor(n/1000),'1000원이 안 되는 돈은 지폐로 바꿀 수 없으니 버림을 해.',`${n}원 → 버림하면 ${Math.floor(n/1000)*1000}원, ${Math.floor(n/1000)}장`);};
+  return [a(),b(),c(),d(),e()];}});
+R.mul.desc='세 자리 수의 덧셈·뺄셈부터 두 자리 곱셈까지, 배운 계산을 다시 단단하게!';
+R.seed.desc='9까지의 수, 50까지의 수, 모으기와 가르기, 10까지의 덧셈과 뺄셈';
+R.hill.desc='10을 만들어 더하기, 100까지의 수, 짝수와 홀수, 시계 보기';
+R.gugu.desc='곱셈의 뜻, 몇의 몇 배, 곱셈구구, 네 자리 수, 시각과 시간';
+R.frac.desc='분수가 뭘까? 똑같이 나누기부터 분수와 소수, 분수 덧셈까지 차근차근!';
+R.volcano.desc='분모가 다른 분수의 계산, 수의 범위와 어림, 분수의 곱셈, 소수의 곱셈';
+/* one set never repeats the same problem: a duplicate is regenerated from the same slot */
+LESSONS.forEach(L=>{const gen=L.quiz;L.quiz=()=>{const ps=gen(),seen=new Set();for(let i=0;i<ps.length;i++){let k=0;while(seen.has(ps[i].q)&&k++<15)ps[i]=gen()[i];seen.add(ps[i].q);}return ps;};});
 
 /* ---------- interactive widgets ---------- */
 const stp=(k,label,v)=>`<div class="stp"><span>${label}</span><button type="button" data-k="${k}" data-d="-1" aria-label="${label} 줄이기">−</button><output aria-live="polite">${v}</output><button type="button" data-k="${k}" data-d="1" aria-label="${label} 늘리기">+</button></div>`;
@@ -1435,9 +1681,24 @@ Object.assign(WIDGETS,{
     step:(k,d,s)=>{s[k]=clamp(s[k]+d,1,6);}}
 });
 
+Object.assign(WIDGETS,{
+  blocks4:{intro:'천, 백, 십, 일의 자리 숫자를 바꿔 보세요. 네 자리 수와 읽는 법이 함께 바뀌어요.',
+    init:()=>({th:3,h:5,t:2,o:7}),
+    view:s=>{const n=s.th*1000+s.h*100+s.t*10+s.o;return `<div class="stps">${stp('th','천',s.th)}${stp('h','백',s.h)}${stp('t','십',s.t)}${stp('o','일',s.o)}</div><div class="place">${[['천',s.th],['백',s.h],['십',s.t],['일',s.o]].map(([u,d])=>`<div class="grp4"><b>${d}</b><span>${u}의 자리</span></div>`).join('')}</div><p class="eq"><b>${n}</b> (${koreanNum(n)})</p><p class="note">${s.th*1000} + ${s.h*100} + ${s.t*10} + ${s.o} = ${n}</p>`;},
+    step:(k,d,s)=>{s[k]=clamp(s[k]+d,k==='th'?1:0,9);}},
+  tenths:{intro:'칸 수를 바꿔 보세요. 10칸 중 1칸이 0.1이고, 10칸이 모이면 1이에요.',
+    init:()=>({k:3}),
+    view:s=>`<div class="stps">${stp('k','색칠한 칸',s.k)}</div><div class="cmp-side">${bar(10,Math.min(s.k,10),{w:300,h:40})}${s.k>10?bar(10,s.k-10,{w:300,h:40}):''}</div><p class="eq">${s.k<10?fr(s.k,10)+' = ':''}<b>${decStr(s.k,1)}</b></p><p class="note">0.1이 ${s.k}개예요.${s.k>=10?` 10칸이 모이면 1이에요.`:''}</p>`,
+    step:(k,d,s)=>{s.k=clamp(s.k+d,0,19);}},
+  rounding:{intro:'수와 자리를 바꿔 보세요. 올림, 버림, 반올림 결과를 한눈에 비교할 수 있어요.',
+    init:()=>({n:3482,pi:1}),
+    view:s=>{const PL=[[10,'십'],[100,'백'],[1000,'천']],[m,u]=PL[s.pi];return `<div class="stps">${stp('n','수',s.n)}${stp('pi','자리',u)}</div><p class="eq"><b>${s.n}</b>을(를) ${u}의 자리까지</p><ul class="eqs"><li>올림 → ${Math.ceil(s.n/m)*m}</li><li>버림 → ${Math.floor(s.n/m)*m}</li><li>반올림 → <b>${Math.round(s.n/m)*m}</b></li></ul><p class="note">반올림은 ${u}의 자리 바로 아래 자리 숫자(${Math.floor(s.n/(m/10))%10})가 5 이상이면 올리고, 4 이하면 버려요.</p>`;},
+    step:(k,d,s)=>{if(k==='pi')s.pi=clamp(s.pi+d,0,2);else s.n=clamp(s.n+d*(s.pi===0?1:s.pi===1?7:73),1000,9999);}}
+});
+
 function mountWidget(root,spec){
   const st=spec.init();
-  const render=focusSel=>{root.innerHTML=spec.view(st);if(focusSel){const el=root.querySelector(focusSel);if(el&&!el.disabled)el.focus({preventScroll:true});}};
+  const render=focusSel=>{root.innerHTML=fixJosa(spec.view(st));if(focusSel){const el=root.querySelector(focusSel);if(el&&!el.disabled)el.focus({preventScroll:true});}};
   root.addEventListener('click',e=>{
     const b=e.target.closest('[data-k]');
     if(b&&root.contains(b)){spec.step(b.dataset.k,+b.dataset.d,st);render(`[data-k="${b.dataset.k}"][data-d="${b.dataset.d}"]`);return;}
@@ -1466,6 +1727,8 @@ function readAns(p,root){
   const ids=p.type==='multi'?p.labels.map((_,i)=>'am'+i):{num:['ans'],frac:['an','ad'],mixed:['aw','an','ad'],qr:['aq','ar']}[p.type];
   const vals=ids.map(v);
   if(vals.some(isNaN))return null;
+  if(p.type==='frac'&&!p.strict)return vals[1]>0&&vals[0]*p.a[1]===vals[1]*p.a[0];
+  if(p.type==='mixed'&&!p.strict)return vals[2]>0&&vals[1]<vals[2]&&(vals[0]*vals[2]+vals[1])*p.a[2]===(p.a[0]*p.a[2]+p.a[1])*vals[2];
   return p.type==='num'?vals[0]===p.a:vals.every((x,i)=>x===p.a[i]);
 }
 function burst(anchor){
@@ -1475,13 +1738,13 @@ function burst(anchor){
   for(let i=0;i<10;i++){const s=document.createElement('i');const a=Math.random()*Math.PI*2,d=50+Math.random()*60;s.style.setProperty('--x',Math.cos(a)*d+'px');s.style.setProperty('--y',Math.sin(a)*d+'px');b.appendChild(s);}
   document.body.appendChild(b);setTimeout(()=>b.remove(),900);
 }
-function runQuiz(root,problems,onDone){
-  const st={i:0,tries:0,first:0,solved:0,locked:false};
+function runQuiz(root,problems,onDone,ctx={}){
+  const st={i:0,tries:0,first:0,solved:0,locked:false,missed:[],t0:Date.now()};
   const draw=()=>{
-    if(st.i>=problems.length){CUR.p=null;refreshAsk();onDone(st,problems.length);return;}
+    if(st.i>=problems.length){CUR.p=null;refreshAsk();if(ctx.id){addLog(ctx.id,st.first,problems.length,(Date.now()-st.t0)/1000);save();}onDone(st,problems.length);return;}
     const p=problems[st.i];
     Object.assign(CUR,{p,idx:st.i+1,total:problems.length,tries:0,locked:false});refreshAsk();
-    root.innerHTML=`<div class="qcard" id="qcard"><div class="qtop"><span>문제 ${st.i+1} / ${problems.length}</span><button type="button" class="askq" data-ask>${face('semi','happy')}셈이에게 물어보기</button><span class="pips">${problems.map((_,j)=>`<i class="${j<st.i?'done':j===st.i?'now':''}"></i>`).join('')}</span></div><div class="qtext">${p.q}</div><form class="qans" id="qform" autocomplete="off">${ansHtml(p)}</form><div class="fb" id="fb" aria-live="polite"></div><div class="row" id="qnext"></div></div>`;
+    root.innerHTML=`<div class="qcard" id="qcard"><div class="qtop"><span>문제 ${st.i+1} / ${problems.length}</span><button type="button" class="say" data-say="q" aria-label="문제 읽어 주기">${SPEAKER}</button><button type="button" class="askq" data-ask>${face('semi','happy')}셈이에게 물어보기</button><span class="pips">${problems.map((_,j)=>`<i class="${j<st.i?'done':j===st.i?'now':''}"></i>`).join('')}</span></div><div class="qtext">${p.q}</div><form class="qans" id="qform" autocomplete="off">${ansHtml(p)}</form><div class="fb" id="fb" aria-live="polite"></div><div class="row" id="qnext"></div></div>`;
     $('#qform',root).addEventListener('submit',e=>{e.preventDefault();submit();});
     root.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>submit(+b.dataset.i,b)));
     $('[data-ask]',root).addEventListener('click',()=>openAsk());
@@ -1505,6 +1768,8 @@ function runQuiz(root,problems,onDone){
   }
   function finish(){
     CUR.tries=st.tries;CUR.locked=true;refreshAsk();
+    const p=problems[st.i];
+    if(ctx.id){if(st.tries>0){st.missed.push(p);if(!ctx.review)addWrong(ctx.id,p);}else if(ctx.review){P.wrong=P.wrong.filter(w=>w.p.q!==p.q);}save();}
     root.querySelectorAll('#qform input, #qform button').forEach(x=>x.disabled=true);
     const b=document.createElement('button');b.type='button';b.className='btn';
     b.textContent=st.i===problems.length-1?'결과 보기':'다음 문제';
@@ -1518,16 +1783,17 @@ function runQuiz(root,problems,onDone){
 const app=$('#app');
 const lessonsOf=k=>LESSONS.filter(l=>l.r===k);
 const totalStars=()=>Object.values(P.stars).reduce((a,b)=>a+b,0);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function comicHtml(panels){
   return `<div class="comic">${panels.map((p,i)=>{
-    if(p.narr)return `<div class="pn narr" style="--i:${i}"><p>${p.narr}</p></div>`;
+    if(p.narr)return `<div class="pn narr" style="--i:${i}"><p>${p.narr}</p><button type="button" class="say" data-say="pn" aria-label="읽어 주기">${SPEAKER}</button></div>`;
     if(p.scene)return `<figure class="pn scene" style="--i:${i}"><div class="viz">${p.scene}</div>${p.cap?`<figcaption>${p.cap}</figcaption>`:''}</figure>`;
-    return `<div class="pn ${p.w}" style="--i:${i}"><div class="av">${face(p.w,p.f)}<span class="who">${NAMES[p.w]}</span></div><p class="bub">${p.t}</p></div>`;
+    return `<div class="pn ${p.w}" style="--i:${i}"><div class="av">${face(p.w,p.f)}<span class="who">${NAMES[p.w]}</span></div><p class="bub">${p.t}</p><button type="button" class="say" data-say="pn" aria-label="${NAMES[p.w]}의 말 읽어 주기">${SPEAKER}</button></div>`;
   }).join('')}</div>`;
 }
 function updateHeader(){
   const have=crystalCount(),tot=Object.keys(R).length;
-  $('#topbar').innerHTML=`<a href="#home" class="logo">${CRYSTAL('var(--sun)',true)}숫자섬 수학 탐험대</a><div class="stat">${P.grade?`<a class="lv" href="#g${P.grade}" style="text-decoration:none">Lv.${P.grade} · ${P.grade}학년</a>`:''}<span class="st" aria-label="크리스탈 ${tot}개 중 ${have}개"><span class="crs">${CRYSTAL('var(--sky)',have>0)}</span>${have}/${tot}</span><span class="st" aria-label="별 ${totalStars()}개">${STAR(true)}${totalStars()}</span></div>`;
+  $('#topbar').innerHTML=`<a href="#home" class="logo">${CRYSTAL('var(--sun)',true)}<span class="lg-full">숫자섬 수학 탐험대</span><span class="lg-short">숫자섬</span></a><div class="stat">${!SYNC.on&&PROFILES.length>1?`<a class="lv" href="#home" style="text-decoration:none">${esc(profName())}</a>`:''}${P.grade?`<a class="lv" href="#g${P.grade}" style="text-decoration:none">Lv.${P.grade} · ${P.grade}학년</a>`:''}<span class="st" aria-label="크리스탈 ${tot}개 중 ${have}개"><span class="crs">${CRYSTAL('var(--sky)',have>0)}</span>${have}/${tot}</span><span class="st" aria-label="별 ${totalStars()}개">${STAR(true)}${totalStars()}</span></div>`;
 }
 const gradeOf=k=>R[k].g;
 const lessonsOfGrade=g=>regionsOf(g).flatMap(lessonsOf);
@@ -1539,8 +1805,9 @@ function nextTarget(g){
 }
 function regionCard(k,idx){
   const r=R[k];
-  const stops=lessonsOf(k).map((l,i)=>`<a class="stop" href="#${l.id}"><span class="no">${i+1}화${l.preview?' · 4학년 미리보기':''}</span><span class="tt">${l.t}</span><span class="ss" aria-label="별 ${P.stars[l.id]||0}개">${[1,2,3].map(n=>STAR((P.stars[l.id]||0)>=n)).join('')}</span></a>`).join('');
-  return `${idx?'<div class="path-dash" aria-hidden="true"></div>':''}<article class="rg" style="--rc:${r.color}"><div class="rg-h"><div><span class="tag ${r.tag==='처음 배우기'?'new':''}">${r.tag?`${r.sem} · ${r.tag}`:r.sem}</span><h3>${r.name}</h3><p>${r.desc}</p></div><span class="crys" title="${r.crystal}">${CRYSTAL('var(--sun)',!!P.crystals[k])}</span></div><div class="stops">${stops}<a class="stop boss" href="#${k}-boss"><span class="no">대장 문제</span><span class="tt">${P.crystals[k]?r.crystal+' 획득!':'뚱땅이의 도전장'}</span><span class="ss">${CRYSTAL(r.color,!!P.crystals[k]).replace('<svg','<svg style="width:18px;height:22px"')}</span></a></div></article>`;
+  const nx=nextTarget(r.g);
+  const stops=lessonsOf(k).map((l,i)=>`<a class="stop ${l.id===nx?'next':''}" href="#${l.id}"><span class="no">${i+1}화${l.preview?' · 4학년 미리보기':''}${l.id===nx?' · 다음 화':''}</span><span class="tt">${l.t}</span><span class="ss" aria-label="별 ${P.stars[l.id]||0}개">${[1,2,3].map(n=>STAR((P.stars[l.id]||0)>=n)).join('')}</span></a>`).join('');
+  return `${idx?'<div class="path-dash" aria-hidden="true"></div>':''}<article class="rg" style="--rc:${r.color}"><div class="rg-h"><div><span class="tag ${r.tag==='처음 배우기'?'new':''}">${r.tag?`${r.sem} · ${r.tag}`:r.sem}</span><h3>${r.name}</h3><p>${r.desc}</p></div><span class="crys" title="${r.crystal}">${CRYSTAL('var(--sun)',!!P.crystals[k])}</span></div><div class="stops">${stops}<a class="stop boss" href="#${k}-boss"><span class="no">대장 문제</span><span class="tt">${P.crystals[k]?r.crystal+' 획득!':'뚱땅이의 도전장'}</span><span class="ss">${CRYSTAL(r.color,!!P.crystals[k]).replace('<svg','<svg style="width:18px;height:22px"')}</span></a><a class="stop sheetlink" href="#ws-${k}-${newSeed()}"><span class="no">출력용</span><span class="tt">단원 문제지 · 정답과 풀이</span><span class="no">인쇄해서 종이로 풀기</span></a></div></article>`;
 }
 function gradeCard(G){
   const ls=lessonsOfGrade(G.g),ks=regionsOf(G.g),st=gradeStars(G.g),max=ls.length*3,cr=ks.filter(k=>P.crystals[k]).length;
@@ -1558,6 +1825,12 @@ function parentsHtml(){
   <li><b>뚱땅이의 실수 = 아이들이 자주 하는 실수</b>: 받아올림 빠뜨리기, 작은 수에서 큰 수 거꾸로 빼기, 계산 순서 무시, 분모끼리 더하기, 소수점 위치 실수 등을 만화로 고쳐요.</li>
   <li><b>틀려도 괜찮아요</b>: 처음 틀리면 힌트를 주고 한 번 더 기회를 줘요. 두 번 틀리면 정답과 풀이를 보여 줘요. 별은 첫 번째에 맞힌 문제 수로 정해져요.</li>
   <li><b>셈이에게 물어보기</b>: 셈이는 지금 보는 학년과 문제를 알고 대답하고, 문제를 다 풀기 전에는 정답 대신 힌트만 줘요. Claude에서 열면 AI 셈이가, 다른 곳에서는 기본 도움말이 대답해요. 대화 내용은 저장되지 않아요.</li></ul>
+  <h4>부모님이 쓰는 기능</h4>
+  <ul><li><b>아이별 프로필</b>: 홈의 "누가 공부하나요?"에서 아이를 추가하면 별, 크리스탈, 오답 노트, 학습 기록이 아이마다 따로 저장돼요.</li>
+  <li><b>오답 노트</b>: 첫 번째에 틀린 문제가 자동으로 모여요. 다시 풀어서 맞히면 빠지고, 오답 문제지로 인쇄할 수도 있어요.</li>
+  <li><b>학습 기록</b>: 최근 7일 학습 횟수, 첫 번째 정답률, 공부 시간, 학년별 진도, 다시 보면 좋은 화를 보여 줘요.</li>
+  <li><b>문제지·풀이지 인쇄</b>: 각 화와 단원마다 문제지와 정답·풀이지를 만들 수 있어요. 세트 번호가 같으면 같은 문제가 나와요.</li>
+  <li><b>읽어 주기</b>: 만화 칸과 문제마다 스피커 버튼을 누르면 소리 내어 읽어 줘요(기기에 한국어 음성이 있어야 해요). 1·2학년은 말풍선이 또박또박한 글씨로 바뀌어요.</li></ul>
   <h4>학년별 과정 (2022 개정 교육과정 기준, 교과서마다 단원 이름은 조금 다를 수 있어요)</h4>
   <div class="tbl"><table><thead><tr><th>레벨</th><th>지역(학기)</th><th>화</th></tr></thead><tbody>${curriculumRows()}</tbody></table></div>
   <h4>사용 팁</h4>
@@ -1578,12 +1851,14 @@ function bindHomeExtras(){
 function renderHome(){
   const have=crystalCount(),tot=Object.keys(R).length,all=have===tot,g=P.grade;
   app.innerHTML=`<section class="hero"><div><p class="eyebrow">초등 1~6학년 수학 · 만화로 배우는 모험</p><h1>숫자섬 <em>수학</em> 탐험대</h1><p class="lead">멈춰 버린 지혜의 시계탑을 다시 움직여라! 하루와 로봇 셈이와 함께 학년별 지역을 돌며 장난꾸러기 뚱땅이가 숨긴 셈 크리스탈 ${tot}개를 찾아요.</p>${SYNC.on?`<p class="sync">${SYNC.name?`${SYNC.name.replace(/[<>&"]/g,'')}님의 `:''}별과 크리스탈이 오늘우리집에 저장돼요</p>`:''}<div class="row">${g?`<a class="btn" href="#${nextTarget(g)}">${g}학년 이어서 하기</a><a class="btn ghost" href="#g${g}">${g}학년 지도</a>`:`<a class="btn" href="#grades-pick" data-scroll="grades">학년 고르기</a>`}</div></div><div class="hero-art">${tower()}</div></section>
+  ${profilesHtml()}
+  <section><div class="row"><a class="btn ghost" href="#review">오답 노트 (${P.wrong.length})</a><a class="btn ghost" href="#report">학습 기록 (부모님용)</a></div></section>
   <section><h2 class="sec">프롤로그 · 멈춰 버린 시계탑</h2>${comicHtml(PROLOGUE)}</section>
   <section id="grades"><h2 class="sec">학년을 골라요</h2><p class="intro">학년이 곧 레벨이에요. 내 학년부터 시작하고, 어려우면 아래 학년에서 복습해요.</p><div class="grades">${GRADES.map(gradeCard).join('')}</div></section>
   ${all?`<section><h2 class="sec">에필로그 · 다시 움직이는 시계탑</h2>${comicHtml([N(`크리스탈 ${tot}개를 모두 시계탑에 끼우자, 째깍째깍! 멈췄던 시계탑이 다시 움직이기 시작했어요.`),S('happy','해냈어! 1학년부터 6학년까지 숫자섬을 모두 탐험했어.'),T('oops','쳇, 이번엔 졌다. 중학교에서 더 어려운 문제로 돌아올 거야!'),H('happy','언제든지 와! 이제 어떤 문제도 무섭지 않거든!')])}</section>`:''}
   <section>${parentsHtml()}</section>`;
   const sc=app.querySelector('[data-scroll]');if(sc)sc.addEventListener('click',e=>{e.preventDefault();$('#grades').scrollIntoView({behavior:reduceMotion()?'auto':'smooth'});});
-  bindHomeExtras();
+  bindHomeExtras();bindProfiles();
 }
 function renderGrade(g){
   const G=GRADES.find(x=>x.g===g),ks=regionsOf(g),all=ks.every(k=>P.crystals[k]);
@@ -1602,6 +1877,10 @@ function resultHtml(L,st,total){
   const msg=stars===3?'한 번에 다 맞혔어! 너 진짜 수학 천재구나!':stars===2?'아주 잘했어! 틀린 문제는 힌트를 떠올리며 다시 풀어 보자.':'끝까지 풀었구나! 만화와 해 보기를 다시 보고 도전하면 별이 늘어날 거야.';
   return `<div class="qcard result"><h3>${L.t} 완료!</h3><div class="stars" aria-label="별 ${stars}개">${[1,2,3].map(n=>STAR(stars>=n)).join('')}</div><p>첫 번째에 맞힌 문제 ${st.first} / ${total}</p><div class="say">${face('semi',stars===3?'wow':'happy')}<p class="bub">${msg}</p></div><div class="row"><button type="button" class="btn ghost" id="again">다시 도전</button>${navNext(L)}</div></div>`;
 }
+function missedHtml(st,top){
+  if(!st.missed.length)return '';
+  return `<details class="missed" ${top?'':'open'}><summary>틀린 문제 다시 보기 (${st.missed.length}개)</summary><ol class="sheet-list keys">${st.missed.map((p,i)=>`<li class="sq"><span class="sq-n">${i+1}</span><div class="sq-b">${sheetQ(p)}<div class="ans-line"><span><b>정답</b> ${p.type==='choice'?`${CIRC[p.a]} `:''}${p.show}</span><span><b>풀이</b> ${p.ex}</span></div></div></li>`).join('')}</ol><p class="note">틀린 문제는 <a href="#review">오답 노트</a>에 모아 두었어요. 나중에 다시 풀 수 있어요.</p></details>`;
+}
 function navNext(L){
   const ls=lessonsOf(L.r),i=ls.indexOf(L);
   return i<ls.length-1?`<a class="btn" href="#${ls[i+1].id}">다음 화로</a>`:`<a class="btn" href="#${L.r}-boss">대장 문제 도전!</a>`;
@@ -1611,32 +1890,144 @@ function renderLesson(L){
   if(P.grade!==g){P.grade=g;save();}
   app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><a href="#g${g}">${g}학년</a><span>›</span><span>${r.name}</span><span>›</span><span>${i+1}화</span></nav>
   <header class="lhead" style="--rc:${r.color}"><span class="tag ${r.tag==='처음 배우기'?'new':''}">Lv.${g} · ${L.preview?'4학년 미리보기':r.tag||r.sem}</span><h1>${i+1}화. ${L.t}</h1><p class="goal"><b>오늘의 목표</b>${L.goal}</p></header>
-  <section><h2 class="sec">만화로 보기</h2>${comicHtml(L.comic)}</section>
+  <section><div class="sec-row"><h2 class="sec">만화로 보기</h2><span class="row tts-only"><button type="button" class="btn ghost" data-say="comic">만화 전체 듣기</button><button type="button" class="btn ghost" data-say="stop">멈추기</button></span></div>${comicHtml(L.comic)}</section>
   <section><h2 class="sec">직접 해 보기</h2><p class="intro">${W.intro}</p><div class="widget" id="w"></div></section>
   <section><h2 class="sec">도전 문제</h2><p class="intro">5문제예요. 틀리면 셈이가 힌트를 줘요. 첫 번째에 맞힐수록 별이 많아져요.</p><div id="quiz"></div></section>
+  <section><h2 class="sec">종이로 풀기</h2><p class="intro">이 화의 문제 10개로 문제지를 만들어요. 정답과 풀이는 따로 볼 수 있어요.</p><div class="row"><a class="btn ghost" href="#ws-${L.id}-${newSeed()}">문제지 만들기</a><a class="btn ghost" href="#ws-${L.r}-${newSeed()}">${r.name} 단원 문제지</a></div></section>
   <nav class="lnav">${i>0?`<a class="btn ghost" href="#${ls[i-1].id}">이전 화</a>`:`<a class="btn ghost" href="#g${g}">${g}학년 지도</a>`}${navNext(L)}</nav>`;
   mountWidget($('#w'),W);
   const q=$('#quiz');
-  const start=()=>runQuiz(q,L.quiz(),(st,total)=>{q.innerHTML=resultHtml(L,st,total);$('#again').addEventListener('click',()=>{start();q.scrollIntoView({block:'start'});});});
+  const start=()=>runQuiz(q,L.quiz(),(st,total)=>{q.innerHTML=resultHtml(L,st,total)+missedHtml(st);$('#again').addEventListener('click',()=>{start();q.scrollIntoView({block:'start'});});},{id:L.id});
   start();
 }
 function renderBoss(k){
   const r=R[k],g=r.g;
+  if(P.grade!==g){P.grade=g;save();}
   app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><a href="#g${g}">${g}학년</a><span>›</span><span>${r.name}</span><span>›</span><span>대장 문제</span></nav>
-  <header class="lhead" style="--rc:${r.color}"><span class="tag">Lv.${g} · 대장 문제</span><h1>뚱땅이의 도전장</h1><p class="goal"><b>통과 조건</b>6문제 중 4문제 이상 맞히면 ${r.crystal}을 얻어요. (힌트 보고 맞혀도 인정!)</p></header>
-  <section>${comicHtml([T('happy',`${r.crystal}을 갖고 싶다고? ${r.name}에서 배운 걸 모두 섞어서 낼 거야. 각오해!`),H('happy','좋아, 해 보자! 셈이야, 도와줘.'),S('happy','힌트는 문제마다 한 번씩 줄게. 침착하게 풀면 할 수 있어!')])}</section>
+  <header class="lhead" style="--rc:${r.color}"><span class="tag">Lv.${g} · 대장 문제</span><h1>뚱땅이의 도전장</h1><p class="goal"><b>통과 조건</b>6문제 중 4문제 이상을 첫 번째 시도에 맞히면 ${r.crystal}을 얻어요.</p></header>
+  <section>${comicHtml([T('happy',`${r.crystal}을 갖고 싶다고? ${r.name}에서 배운 걸 모두 섞어서 낼 거야. 각오해!`),H('happy','좋아, 해 보자! 셈이야, 도와줘.'),S('happy','대장 문제는 첫 번째에 맞혀야 인정돼. 천천히 읽고 침착하게 풀어!')])}</section>
   <section><h2 class="sec">대장 문제 6개</h2><div id="quiz"></div></section>`;
   const q=$('#quiz');
   const start=()=>{const probs=shuffle(lessonsOf(k).flatMap(l=>shuffle(l.quiz()).slice(0,2))).slice(0,6);
     runQuiz(q,probs,(st,total)=>{
-      const pass=st.solved>=4;
+      const pass=st.first>=4;
       if(pass){P.crystals[k]=true;save();updateHeader();}
       const gradeDone=regionsOf(g).every(x=>P.crystals[x]);
-      q.innerHTML=`<div class="qcard result"><h3>${pass?r.crystal+' 획득!':'아깝다! 다시 도전!'}</h3>${pass?`<div class="bigcrystal">${CRYSTAL(r.color,true)}</div>`:''}<p>맞힌 문제 ${st.solved} / ${total}</p><div class="say">${face('ttung',pass?'oops':'happy')}<p class="bub">${pass?(gradeDone?`으앙, ${g}학년 크리스탈을 모두 빼앗겼다! ${g<6?`${g+1}학년 지역에서는 안 질 거야!`:'이제 시계탑이 움직이겠군…'}`:'으앙, 크리스탈을 빼앗겼다! 다음 지역에서는 안 질 거야!'):'히히, 크리스탈은 아직 내 거야! 앞의 화를 복습하고 다시 와.'}</p></div><div class="row"><button type="button" class="btn ghost" id="again">${pass?'한 번 더 풀기':'다시 도전'}</button><a class="btn" href="#g${g}">${gradeDone?'인증서 보러 가기':`${g}학년 지도로`}</a></div></div>`;
+      q.innerHTML=missedHtml(st,true)+`<div class="qcard result"><h3>${pass?r.crystal+' 획득!':'아깝다! 다시 도전!'}</h3>${pass?`<div class="bigcrystal">${CRYSTAL(r.color,true)}</div>`:''}<p>첫 번째에 맞힌 문제 ${st.first} / ${total}</p><div class="say">${face('ttung',pass?'oops':'happy')}<p class="bub">${pass?(gradeDone?`으앙, ${g}학년 크리스탈을 모두 빼앗겼다! ${g<6?`${g+1}학년 지역에서는 안 질 거야!`:'이제 시계탑이 움직이겠군…'}`:'으앙, 크리스탈을 빼앗겼다! 다음 지역에서는 안 질 거야!'):'히히, 크리스탈은 아직 내 거야! 앞의 화를 복습하고 다시 와.'}</p></div><div class="row"><button type="button" class="btn ghost" id="again">${pass?'한 번 더 풀기':'다시 도전'}</button><a class="btn" href="#g${g}">${gradeDone?'인증서 보러 가기':`${g}학년 지도로`}</a></div></div>`;
       $('#again').addEventListener('click',()=>{start();q.scrollIntoView({block:'start'});});
-    });};
+    },{id:k+'-boss'});};
   start();
 }
+/* ---------- read aloud (speechSynthesis) ---------- */
+const CAN_SPEAK='speechSynthesis' in window&&typeof SpeechSynthesisUtterance==='function';
+if(!CAN_SPEAK)document.documentElement.classList.add('no-tts');
+function sayText(html){
+  return plain(html).replace(/\(\d+\/\d+\)/g,'').replace(/×/g,' 곱하기 ').replace(/÷/g,' 나누기 ').replace(/−/g,' 빼기 ').replace(/\+/g,' 더하기 ').replace(/=/g,' 는 ').replace(/□/g,' 네모 ').replace(/○/g,' 동그라미 ').replace(/\[그림:[^\]]*\]/g,'').replace(/\s+/g,' ').trim();
+}
+function speak(texts){
+  if(!CAN_SPEAK)return;
+  try{speechSynthesis.cancel();const v=speechSynthesis.getVoices().find(x=>/^ko/i.test(x.lang));[].concat(texts).filter(Boolean).forEach(t=>{const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=.92;if(v)u.voice=v;speechSynthesis.speak(u);});}catch(e){}
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-say]');if(!b)return;
+  if(b.dataset.say==='pn'){const pn=b.closest('.pn');const t=pn.querySelector('.bub,p');const who=pn.querySelector('.who');speak((who?who.textContent+'. ':'')+sayText(t?t.innerHTML:''));}
+  else if(b.dataset.say==='q'){const c=b.closest('.qcard');const q=c&&c.querySelector('.qtext');speak(sayText(q?q.innerHTML:''));}
+  else if(b.dataset.say==='comic'){const sec=b.closest('section');speak([...sec.querySelectorAll('.pn')].map(pn=>{const t=pn.querySelector('.bub,p,figcaption');const who=pn.querySelector('.who');return (who?who.textContent+'. ':'')+sayText(t?t.innerHTML:'');}));}
+  else if(b.dataset.say==='stop'){try{speechSynthesis.cancel();}catch(err){}}
+});
+
+/* ---------- profiles on the home page ---------- */
+function profilesHtml(){
+  if(SYNC.on)return '';
+  return `<section class="profiles"><h2 class="sec">누가 공부하나요?</h2><div class="row">${PROFILES.map(x=>`<button type="button" class="btn ${x.id===PROF?'':'ghost'}" data-prof="${x.id}" aria-pressed="${x.id===PROF}">${esc(x.name)}</button>`).join('')}<form class="row" id="profForm" autocomplete="off"><label for="profName" hidden>아이 이름</label><input id="profName" class="prof-in" placeholder="아이 이름" maxlength="10"><button class="btn ghost" type="submit">아이 추가</button></form></div><p class="note" style="text-align:left">아이마다 별, 크리스탈, 오답 노트, 학습 기록이 따로 저장돼요.</p></section>`;
+}
+function bindProfiles(){
+  app.querySelectorAll('[data-prof]').forEach(b=>b.addEventListener('click',()=>switchProfile(b.dataset.prof)));
+  const f=$('#profForm');if(f)f.addEventListener('submit',e=>{e.preventDefault();const v=$('#profName').value.trim();if(v)addProfile(v);});
+}
+
+/* ---------- 오답 노트 ---------- */
+function renderReview(){
+  const W=P.wrong.slice().reverse();
+  const byLesson={};W.forEach(w=>{(byLesson[w.id]=byLesson[w.id]||[]).push(w);});
+  const label=id=>{const L=LESSONS.find(l=>l.id===id);if(L)return `${R[L.r].g}학년 · ${L.t}`;const k=id.replace(/-boss$/,'');return R[k]?`${R[k].g}학년 · ${R[k].name} 대장 문제`:id;};
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><span>오답 노트</span></nav>
+  <header class="ghead" style="--rc:var(--castle)"><span class="tag">${esc(profName())}${SYNC.on?'':' · '}오답 노트</span><h1>틀린 문제 다시 풀기</h1><p>첫 번째에 틀린 문제가 모여 있어요. 다시 풀어서 첫 번째에 맞히면 노트에서 빠져요.</p>
+  <div class="row">${W.length?`<button type="button" class="btn" id="redo">오답 ${Math.min(10,W.length)}문제 다시 풀기</button><a class="btn ghost" href="#ws-review-1">오답 문제지 인쇄</a>`:''}<a class="btn ghost" href="#report">학습 기록 보기</a></div></header>
+  <section id="redoBox" hidden><h2 class="sec">다시 풀기</h2><div id="quiz"></div></section>
+  <section><h2 class="sec">모아 둔 문제 (${W.length}개)</h2>${W.length?Object.entries(byLesson).map(([id,ws])=>`<details class="missed"><summary>${label(id)} (${ws.length}개)</summary><ol class="sheet-list keys">${ws.map((w,i)=>`<li class="sq"><span class="sq-n">${i+1}</span><div class="sq-b">${sheetQ(w.p)}<div class="ans-line"><span><b>정답</b> ${w.p.type==='choice'?`${CIRC[w.p.a]} `:''}${w.p.show}</span><span><b>풀이</b> ${w.p.ex}</span><span class="lbl">${w.at}</span></div></div></li>`).join('')}</ol></details>`).join(''):`<p class="intro">아직 틀린 문제가 없어요. 문제를 풀다가 첫 번째에 틀리면 여기에 모여요.</p>`}</section>`;
+  const b=$('#redo');if(b)b.addEventListener('click',()=>{const box=$('#redoBox');box.hidden=false;const probs=shuffle(W.slice(0,10).map(w=>w.p));const q=$('#quiz');runQuiz(q,probs,(st,total)=>{q.innerHTML=`<div class="qcard result"><h3>다시 풀기 완료!</h3><p>첫 번째에 맞힌 문제 ${st.first} / ${total}</p><div class="say">${face('semi','happy')}<p class="bub">${st.first===total?'모두 맞혔어! 오답 노트가 가벼워졌어.':'맞힌 문제는 노트에서 뺐어. 남은 문제도 다시 도전해 보자!'}</p></div><div class="row"><a class="btn" href="#review" id="reload">오답 노트 새로 보기</a></div></div>`;const rl=$('#reload');rl.addEventListener('click',e=>{e.preventDefault();renderReview();window.scrollTo(0,0);});},{id:'review',review:true});box.scrollIntoView({block:'start'});});
+}
+
+/* ---------- 학습 기록 (parent report) ---------- */
+function renderReport(){
+  const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;});
+  const log=P.log,week=log.filter(x=>days.includes(x.d)),per=days.map(d=>week.filter(x=>x.d===d).length),mx=Math.max(1,...per);
+  const f=week.reduce((a,x)=>a+x.f,0),n=week.reduce((a,x)=>a+x.n,0),mins=Math.round(week.reduce((a,x)=>a+x.s,0)/60);
+  const acc={};log.forEach(x=>{if(!LESSONS.find(l=>l.id===x.id))return;const a=acc[x.id]||(acc[x.id]={f:0,n:0});a.f+=x.f;a.n+=x.n;});
+  const weak=Object.entries(acc).map(([id,a])=>({id,r:a.f/a.n})).filter(x=>x.r<0.8).sort((a,b)=>a.r-b.r).slice(0,3);
+  const WD=['일','월','화','수','목','금','토'];
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><span>학습 기록</span></nav>
+  <header class="ghead" style="--rc:var(--sea)"><span class="tag">부모님용</span><h1>${esc(profName())||'우리 아이'}의 학습 기록</h1><p>이 기기에서 푼 기록이에요. 아이마다 따로 저장돼요.</p></header>
+  <section><h2 class="sec">최근 7일</h2><div class="kpis"><div><b>${week.length}</b><span>푼 화·대장 문제</span></div><div><b>${n?Math.round(f/n*100):0}%</b><span>첫 번째 정답률</span></div><div><b>${mins}분</b><span>문제 푼 시간</span></div><div><b>${P.wrong.length}</b><span>오답 노트 문제</span></div></div>
+  <div class="bars" role="img" aria-label="최근 7일 날짜별 학습 횟수">${days.map((d,i)=>`<div class="bar-c"><span class="bar-v">${per[i]||''}</span><i style="height:${Math.round(per[i]/mx*100)}%"></i><span>${WD[new Date(d+'T12:00').getDay()]}</span></div>`).join('')}</div></section>
+  <section><h2 class="sec">학년별 진도</h2><div class="tbl"><table style="min-width:0;width:100%"><thead><tr><th>학년</th><th>푼 화</th><th>별</th><th>크리스탈</th></tr></thead><tbody>${GRADES.map(G=>{const ls=lessonsOfGrade(G.g),ks=regionsOf(G.g);return `<tr><td>Lv.${G.g} · ${G.g}학년</td><td>${ls.filter(l=>P.stars[l.id]).length} / ${ls.length}</td><td>${gradeStars(G.g)} / ${ls.length*3}</td><td>${ks.filter(k=>P.crystals[k]).length} / ${ks.length}</td></tr>`;}).join('')}</tbody></table></div></section>
+  <section><h2 class="sec">다시 보면 좋은 화</h2>${weak.length?`<div class="stops" style="padding:0">${weak.map(w=>{const L=LESSONS.find(l=>l.id===w.id);return `<a class="stop" href="#${L.id}"><span class="no">${R[L.r].g}학년 · ${R[L.r].name}</span><span class="tt">${L.t}</span><span class="no">첫 번째 정답률 ${Math.round(w.r*100)}%</span></a>`;}).join('')}</div>`:'<p class="intro">정답률이 80%보다 낮은 화가 없어요. 잘하고 있어요!</p>'}
+  <div class="row"><a class="btn" href="#review">오답 노트 (${P.wrong.length})</a></div></section>`;
+}
+
+/* ---------- 문제지·풀이지 (printable worksheets) ---------- */
+// A worksheet is generated from a set number (seed), so the problem sheet and the answer sheet always match.
+const CAN_PRINT=!window.claude;
+function seeded(seed,fn){
+  const orig=Math.random;let a=(seed>>>0)||1;
+  Math.random=()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};
+  try{return fn();}finally{Math.random=orig;}
+}
+function sheetSource(id){
+  const L=LESSONS.find(l=>l.id===id);
+  const uniq=(gen,count)=>{const out=[],seen=new Set();for(let round=0;round<8&&out.length<count;round++)for(const p of gen())if(!seen.has(p.q)&&out.length<count){seen.add(p.q);out.push(p);}return out;};
+  if(L){const r=R[L.r],no=lessonsOf(L.r).indexOf(L)+1;return {kind:'lesson',title:`${no}화. ${L.t}`,sub:`Lv.${r.g} · ${r.g}학년 · ${r.name}`,g:r.g,color:r.color,back:`#${L.id}`,make:()=>uniq(L.quiz,10).map(p=>Object.assign(p,{from:`${no}화`}))};}
+  if(R[id]){const r=R[id],ls=lessonsOf(id),per=Math.max(2,Math.min(5,Math.floor(20/ls.length)));return {kind:'unit',title:`${r.name} 단원 문제지`,sub:`Lv.${r.g} · ${r.g}학년 · ${r.sem} · ${ls.length}화 전체`,g:r.g,color:r.color,back:`#g${r.g}`,make:()=>ls.flatMap((l,i)=>uniq(l.quiz,per).map(p=>Object.assign(p,{from:`${i+1}화 ${l.t}`})))};}
+  if(id==='review'){return {kind:'review',title:'오답 노트 문제지',sub:`${profName()} · 오답 노트에서 최근 문제 최대 20개`,g:P.grade||0,color:'var(--castle)',back:'#review',make:()=>P.wrong.slice(-20).map(w=>Object.assign({},w.p,{from:(LESSONS.find(l=>l.id===w.id)||{}).t||''}))};}
+  return null;
+}
+const CIRC=['①','②','③','④','⑤'];
+function blankFor(p){
+  const box=(c='')=>`<span class="box ${c}"></span>`,fb=()=>`<span class="fbox">${box('sm')}<hr>${box('sm')}</span>`;
+  switch(p.type){
+    case 'choice':return '답: ( &nbsp; &nbsp; )';
+    case 'frac':return `답: ${fb()}`;
+    case 'mixed':return `답: ${box('sm')}${fb()}`;
+    case 'qr':return `몫 ${box('sm')} 나머지 ${box('sm')}`;
+    case 'multi':return p.labels.map(l=>`${box('sm')} ${l}`).join(' ');
+    default:return `답: ${box()}`;
+  }
+}
+function sheetQ(p){
+  const opts=p.type==='choice'?`<ol class="sq-opts">${p.opts.map((o,i)=>`<li><b>${CIRC[i]}</b>${o}</li>`).join('')}</ol>`:'';
+  return `${p.q}${opts}`;
+}
+function renderSheet(mode,id,seed){
+  const src=sheetSource(id);if(!src){renderHome();return;}
+  const probs=seeded(seed,src.make),ans=mode==='ans';
+  const other=`#${ans?'ws':'ans'}-${id}-${seed}`;
+  if(!probs.length){app.innerHTML=`<p class="intro">문제지로 만들 문제가 없어요.</p><a class="btn ghost" href="${src.back}">돌아가기</a>`;return;}
+  app.innerHTML=`<nav class="crumb no-print"><a href="#home">모험 지도</a><span>›</span>${src.g?`<a href="#g${src.g}">${src.g}학년</a><span>›</span>`:''}<span>${src.title}</span></nav>
+  <div class="sheet-tools no-print"><div class="seg-tabs" role="tablist"><a href="#ws-${id}-${seed}" class="${ans?'':'on'}" aria-selected="${!ans}">문제지</a><a href="#ans-${id}-${seed}" class="${ans?'on':''}" aria-selected="${ans}">정답과 풀이</a></div>
+  <div class="row"><a class="btn ghost" href="#${mode}-${id}-${newSeed()}">다른 문제로</a>${CAN_PRINT?'<button type="button" class="btn" id="printBtn">인쇄하기</button>':''}<a class="btn ghost" href="${src.back}">돌아가기</a></div></div>
+  ${CAN_PRINT?'':`<p class="print-note no-print">이 화면에서는 인쇄 기능을 쓸 수 없어요. 배포된 학습 페이지나 오늘우리집 앱의 학습 페이지에서 열면 인쇄할 수 있어요. 세트 번호 ${seed}를 기억하면 같은 문제가 나와요.</p>`}
+  <article class="sheet" style="--rc:${src.color}">
+    <header class="sheet-h"><div><span class="lbl">${src.sub}</span><h1>${src.title.replace(' 단원 문제지','')} ${ans?'정답과 풀이':src.kind==='unit'?'단원 문제지':'문제지'}</h1></div>
+    ${ans?`<div class="sheet-meta"><span>문제 ${probs.length}개</span><span>세트 ${seed}</span></div>`:`<div class="sheet-meta"><span>이름 <i></i></span><span>날짜 <i></i></span><span>점수 <i style="width:3em"></i>/ ${probs.length}</span></div>`}</header>
+    <ol class="sheet-list ${ans?'keys':''}">${probs.map((p,i)=>`<li class="sq"><span class="sq-n">${i+1}</span><div class="sq-b">${sheetQ(p)}${ans?`<div class="ans-line"><span><b>정답</b> ${p.type==='choice'?`${CIRC[p.a]} `:''}${p.show}</span><span><b>풀이</b> ${p.ex}</span>${p.from?`<span class="lbl">복습: ${p.from}</span>`:''}</div>`:`<div class="sq-a">${blankFor(p)}</div>`}</div></li>`).join('')}</ol>
+    <footer class="sheet-foot"><span>숫자섬 수학 탐험대</span><span>세트 ${seed}${ans?'':' · 정답은 같은 세트 번호의 풀이지에서 확인'}</span></footer>
+  </article>
+  <nav class="lnav no-print"><a class="btn ghost" href="${src.back}">돌아가기</a><a class="btn" href="${other}">${ans?'문제지 보기':'정답과 풀이 보기'}</a></nav>`;
+  const pb=$('#printBtn');if(pb)pb.addEventListener('click',()=>{try{window.print();}catch(e){}});
+}
+const newSeed=()=>1000+Math.floor(Math.random()*9000);
+
 /* ---------- 셈이에게 물어보기 (Q&A) ---------- */
 // AI mode uses the viewer's Claude via the artifact `sample` capability; otherwise a built-in offline helper answers.
 let CUR={place:'모험 지도',grade:0,lesson:null,p:null,idx:0,total:0,tries:0,locked:false};
@@ -1684,10 +2075,17 @@ const FAQ=[
   [/(더|크|작|비교)/,'분자가 1인 분수는 분모가 작을수록 더 커. 적게 나눌수록 한 조각이 크거든! 분모가 같으면 분자가 큰 쪽이 더 커.'],
   [/나머지/,'나머지는 똑같이 나눠 주고 남은 수야. 남은 게 나누는 수만큼 있으면 한 번 더 나눠 줄 수 있으니까, 나머지는 항상 나누는 수보다 작아야 해.'],
   [/검산/,'검산은 답이 맞는지 확인하는 거야. "나누는 수 × 몫 + 나머지"를 계산해서 처음 수가 나오면 맞은 거야. 17 ÷ 5 = 3 … 2라면 5 × 3 + 2 = 17!'],
-  [/올림/,'올림은 한 자리에서 10이 넘으면 10을 윗자리로 1만큼 올려 주는 거야. 6 × 3 = 18이면 8은 쓰고, 1은 십의 자리 위에 작게 써 두었다가 꼭 더해 줘.'],
+  [/^(?!.*(반올림|올림하여|올림해)).*올림/,'올림은 한 자리에서 10이 넘으면 10을 윗자리로 1만큼 올려 주는 거야. 6 × 3 = 18이면 8은 쓰고, 1은 십의 자리 위에 작게 써 두었다가 꼭 더해 줘.'],
   [/몫/,'몫은 나눗셈의 답이야. 12 ÷ 3 = 4에서 4가 몫이야. 한 명이 받는 개수라고 생각하면 돼.'],
   [/(곱셈|곱하기|구구단|×)/,'곱셈은 같은 수를 여러 번 더하는 걸 짧게 쓴 거야. 4 + 4 + 4는 4 × 3이야. 곱하는 순서를 바꿔도 답은 같아.'],
   [/(나눗셈|나누기|÷)/,'나눗셈은 똑같이 나누는 거야. 곱셈구구를 거꾸로 생각하면 쉬워. 24 ÷ 6은 "6 × 몇 = 24?"를 찾으면 돼.'],
+  [/(가르기|모으기|가르)/,'가르기는 한 수를 두 수로 나누는 거야. 7은 3과 4로 가를 수 있어. 반대로 3과 4를 합치는 게 모으기야.'],
+  [/(10 ?만들|십 ?만들)/,'8 + 5처럼 10이 넘는 덧셈은 먼저 10을 만들어. 8에 2를 더하면 10, 5에서 2를 썼으니 3이 남아. 10 + 3 = 13!'],
+  [/(구구단|외우)/,'구구단은 같은 수를 계속 더하는 거야. 7단은 7씩 커져: 7, 14, 21… 모르는 칸은 바로 앞 칸에 그 단의 수를 더하면 돼.'],
+  [/(몇 ?배)/,'"3의 4배"는 3을 4번 더한 것, 3 × 4와 같아. 12는 3씩 4묶음이니까 3의 4배야.'],
+  [/(짝수|홀수)/,'둘씩 짝을 지었을 때 남는 게 없으면 짝수, 하나가 남으면 홀수야. 일의 자리가 0, 2, 4, 6, 8이면 짝수!'],
+  [/(반올림|올림|버림|어림|이상|이하|초과|미만)/,'반올림은 바로 아래 자리 숫자가 5 이상이면 올리고 4 이하면 버려. 올림은 조금이라도 있으면 올리고, 버림은 모두 버려. "이상·이하"는 그 수를 포함하고 "초과·미만"은 포함하지 않아.'],
+  [/(큰 수|억|조|만 단위|만의 자리)/,'큰 수는 오른쪽부터 네 자리씩 끊어 읽어. 끊은 자리마다 만, 억, 조를 붙이면 돼. 35000000은 3500만!'],
   [/(약수)/,'약수는 어떤 수를 나누어떨어지게 하는 수야. 12의 약수는 1, 2, 3, 4, 6, 12. 곱해서 12가 되는 두 수를 짝지어 찾으면 빠뜨리지 않아.'],
   [/(배수)/,'배수는 어떤 수를 1배, 2배, 3배… 한 수야. 3의 배수는 3, 6, 9, 12… 두 수의 공배수 중 가장 작은 수가 최소공배수야.'],
   [/(최대공약수)/,'두 수의 공통인 약수 중에서 가장 큰 수가 최대공약수야. 12와 18의 공약수는 1, 2, 3, 6이니까 최대공약수는 6!'],
@@ -1704,7 +2102,8 @@ const FAQ=[
   [/(분수|조각)/,'분수는 전체를 똑같이 나눈 것 중 몇 개인지 나타내는 수야. 똑같이 나눴는지가 제일 중요해!'],
   [/(덧셈|더하기|뺄셈|빼기|\+)/,'분모가 같은 분수는 분모는 그대로 두고 분자끼리만 더하거나 빼. 조각을 모아도 조각 크기는 그대로거든!']
 ];
-function offlineReply(q){
+function offlineReply(q){return fixJosa(offlineReply0(q));}
+function offlineReply0(q){
   const p=CUR.p;
   if(p&&/(힌트|모르겠|어떻게|시작|도와)/.test(q))return CUR.locked?`이 문제는 이렇게 풀어. ${plain(p.ex)}`:`힌트야! ${plain(p.hint)}`;
   if(p&&CUR.locked&&/(왜|이유|답)/.test(q))return `풀이를 같이 볼까? ${plain(p.ex)}`;
@@ -1726,7 +2125,8 @@ function refreshAsk(){
   if(!ASK.open)return;
   const p=CUR.p;
   $('#askCtx').textContent=`지금 보는 곳: ${CUR.place}${p?` · 문제 ${CUR.idx}${CUR.locked?' (풀이 끝)':''}`:''}`;
-  const chips=p?(CUR.locked?['왜 이게 답이야?','다른 방법도 있어?','비슷한 문제 내 줘']:['힌트 줘','어디서부터 시작해?','이 문제 무슨 뜻이야?']):['분모랑 분자가 뭐야?','나머지는 왜 작아야 해?','올림이 뭐야?'];
+  const GCH={1:['가르기가 뭐야?','10 만들기 알려 줘','시계 보는 법 알려 줘'],2:['받아올림이 뭐야?','구구단 쉽게 외우는 법','몇 배가 뭐야?'],3:['분모랑 분자가 뭐야?','나머지는 왜 작아야 해?','올림이 뭐야?'],4:['큰 수 읽는 법','소수점 맞추는 법','대분수 빼기 방법'],5:['약수가 뭐야?','통분이 뭐야?','반올림이 뭐야?'],6:['비율이 뭐야?','백분율이 뭐야?','원의 넓이 구하는 법']};
+  const chips=p?(CUR.locked?['왜 이게 답이야?','다른 방법도 있어?','비슷한 문제 내 줘']:['힌트 줘','어디서부터 시작해?','이 문제 무슨 뜻이야?']):(GCH[CUR.grade]||GCH[3]);
   $('#askChips').innerHTML=chips.map(c=>`<button type="button">${c}</button>`).join('');
 }
 function setAskMode(){$('#askMode').textContent=ASK.mode==='ai'?'AI 셈이 · 질문하면 생각해서 대답해요':'기본 도움말 · 낱말로 물어보면 알려 줘요';}
@@ -1774,11 +2174,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ASK.open)closeAsk()
 
 function route(){
   const h=decodeURIComponent(location.hash.slice(1))||'home';
+  const sm=/^(ws|ans)-(.+)-(\d{1,9})$/.exec(h);
+  if(sm&&sheetSource(sm[2])){const src=sheetSource(sm[2]);CUR={place:`${src.title} ${sm[1]==='ws'?'문제지':'풀이지'}`,grade:src.g,lesson:null,p:null,idx:0,total:0,tries:0,locked:false};renderSheet(sm[1],sm[2],+sm[3]);updateHeader();refreshAsk();window.scrollTo(0,0);return;}
   const L=LESSONS.find(l=>l.id===h);
   const boss=h.endsWith('-boss')&&R[h.slice(0,-5)]?h.slice(0,-5):null;
   const gm=/^g([1-6])$/.exec(h),gr=L?R[L.r].g:boss?R[boss].g:gm?+gm[1]:(P.grade||0);
   CUR={place:L?`${gr}학년 ${R[L.r].name} ${lessonsOf(L.r).indexOf(L)+1}화 "${L.t}"`:boss?`${gr}학년 ${R[boss].name} 대장 문제`:gm?`${gr}학년 지도`:'모험 지도',grade:gr,lesson:L||(boss?{goal:`${R[boss].name}에서 배운 내용을 섞은 대장 문제`}:null),p:null,idx:0,total:0,tries:0,locked:false};
-  if(L)renderLesson(L);else if(boss)renderBoss(boss);else if(gm)renderGrade(+gm[1]);else renderHome();
+  if(h==='review'){CUR.place='오답 노트';renderReview();}else if(h==='report'){CUR.place='학습 기록';renderReport();}
+  else if(L)renderLesson(L);else if(boss)renderBoss(boss);else if(gm)renderGrade(+gm[1]);else renderHome();
+  document.body.classList.toggle('low',!!CUR.grade&&CUR.grade<=2);
   updateHeader();refreshAsk();window.scrollTo(0,0);
 }
 window.addEventListener('hashchange',route);

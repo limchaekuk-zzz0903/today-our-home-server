@@ -35,8 +35,8 @@ COOKIE_PATH = "/learn"
 TICKET_TTL = timedelta(minutes=5)
 SESSION_TTL = timedelta(days=30)
 MAX_BODY = 20_000
-# 학습 페이지 전체 규모 (1~6학년): 화 42개, 대장 문제 크리스탈 13개
-TOTAL_LESSONS = 42
+# 학습 페이지 전체 규모 (1~6학년): 화 49개, 대장 문제 크리스탈 13개
+TOTAL_LESSONS = 49
 TOTAL_CRYSTALS = 13
 _LESSON_RE = re.compile(r"^[a-z]{2,10}-[0-9a-z]{1,8}$")
 _REGION_RE = re.compile(r"^[a-z]{2,10}$")

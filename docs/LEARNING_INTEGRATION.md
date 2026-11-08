@@ -26,17 +26,17 @@
 |---|---|---|---|
 | POST | `/api/learning/session?start=frac-1` | 기기 헤더 | 학습 페이지 1회용 URL 발급. `start`(선택)로 시작할 화 지정 |
 | GET | `/api/learning/progress` | 기기 헤더 | 내 진도 요약 `{lessons_done, stars_total, crystals}` |
-| GET | `/api/learning/family-progress` | 기기 헤더 | 가족 구성원별 진도 요약 (`total_lessons: 42`, `total_crystals: 13`) |
+| GET | `/api/learning/family-progress` | 기기 헤더 | 가족 구성원별 진도 요약 (`total_lessons: 49`, `total_crystals: 13`) |
 | GET | `/learn/` | 쿠키 | 학습 페이지 (WebView 전용) |
 | GET/PUT | `/learn/api/progress` | 쿠키 | 학습 페이지가 내부적으로 사용 |
 
 `start` 값:
 - 학년 지도: `g1`~`g6` (예: 자녀 학년에 맞춰 `?start=g4`)
-- 1학년: `seed-1`~`seed-3`, `hill-1`~`hill-3`
-- 2학년: `river-1`~`river-3`, `gugu-1`~`gugu-3`
-- 3학년: `mul-1`~`mul-3`, `div-1`~`div-3`, `frac-1`~`frac-6`
+- 1학년: `seed-0`~`seed-3`, `hill-1`~`hill-4`
+- 2학년: `river-1`~`river-3`, `gugu-1`~`gugu-5`
+- 3학년: `mul-0`~`mul-3`, `div-1`~`div-3`, `frac-1`~`frac-7`
 - 4학년: `port-1`~`port-3`, `light-1`~`light-3`
-- 5학년: `jungle-1`~`jungle-3`, `volcano-1`~`volcano-3`
+- 5학년: `jungle-1`~`jungle-3`, `volcano-1`~`volcano-4`
 - 6학년: `canyon-1`~`canyon-3`, `observ-1`~`observ-3`
 - 대장 문제: `<지역>-boss` (예: `port-boss`), 처음 화면: `home`
 
@@ -44,7 +44,7 @@
 
 ```json
 {
-  "total_lessons": 42,
+  "total_lessons": 49,
   "total_crystals": 13,
   "members": [
     {"device_id": "…", "user_name": "회은", "updated_at": "2026-11-08T02:59:16",
@@ -93,10 +93,10 @@ WebView 설정 체크리스트: JavaScript 켜기, DOM storage(localStorage) 켜
 
 ## 학습 페이지 갱신
 
-학습 페이지 원본은 `limchaekuk-zzz0903/servicemap` 저장소의 `math-adventure/` 입니다. 내용을 바꾼 뒤 이 저장소에서:
+학습 페이지 원본은 `limchaekuk-zzz0903/Elementaryschoolworksheets` 저장소입니다. 내용을 바꾼 뒤 이 저장소에서:
 
 ```bash
-scripts/sync_learn.sh ../servicemap   # 경로를 생략하면 GitHub main 에서 내려받음
+scripts/sync_learn.sh ../elementaryschoolworksheets   # 경로를 생략하면 GitHub main 에서 내려받음
 git add learn_static && git commit -m "Update learning page"
 ```
 
