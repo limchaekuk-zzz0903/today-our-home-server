@@ -1,6 +1,6 @@
 # 학습 페이지(숫자섬 수학 탐험대) 앱 연동 가이드
 
-오늘우리집 회원이 앱 안에서 초등 3학년 수학 학습 페이지를 쓸 수 있도록 서버에 연동해 두었습니다.
+오늘우리집 회원이 앱 안에서 초등 1~6학년 수학 학습 페이지를 쓸 수 있도록 서버에 연동해 두었습니다.
 앱에서는 **버튼 하나와 WebView 화면 하나**만 추가하면 됩니다.
 
 ## 동작 방식
@@ -26,18 +26,26 @@
 |---|---|---|---|
 | POST | `/api/learning/session?start=frac-1` | 기기 헤더 | 학습 페이지 1회용 URL 발급. `start`(선택)로 시작할 화 지정 |
 | GET | `/api/learning/progress` | 기기 헤더 | 내 진도 요약 `{lessons_done, stars_total, crystals}` |
-| GET | `/api/learning/family-progress` | 기기 헤더 | 가족 구성원별 진도 요약 (`total_lessons: 12`, `total_crystals: 3`) |
+| GET | `/api/learning/family-progress` | 기기 헤더 | 가족 구성원별 진도 요약 (`total_lessons: 42`, `total_crystals: 13`) |
 | GET | `/learn/` | 쿠키 | 학습 페이지 (WebView 전용) |
 | GET/PUT | `/learn/api/progress` | 쿠키 | 학습 페이지가 내부적으로 사용 |
 
-`start` 값: `mul-1`~`mul-3`(곱셈), `div-1`~`div-3`(나눗셈), `frac-1`~`frac-6`(분수), `mul-boss`·`div-boss`·`frac-boss`(대장 문제), `home`
+`start` 값:
+- 학년 지도: `g1`~`g6` (예: 자녀 학년에 맞춰 `?start=g4`)
+- 1학년: `seed-1`~`seed-3`, `hill-1`~`hill-3`
+- 2학년: `river-1`~`river-3`, `gugu-1`~`gugu-3`
+- 3학년: `mul-1`~`mul-3`, `div-1`~`div-3`, `frac-1`~`frac-6`
+- 4학년: `port-1`~`port-3`, `light-1`~`light-3`
+- 5학년: `jungle-1`~`jungle-3`, `volcano-1`~`volcano-3`
+- 6학년: `canyon-1`~`canyon-3`, `observ-1`~`observ-3`
+- 대장 문제: `<지역>-boss` (예: `port-boss`), 처음 화면: `home`
 
 `family-progress` 응답 예:
 
 ```json
 {
-  "total_lessons": 12,
-  "total_crystals": 3,
+  "total_lessons": 42,
+  "total_crystals": 13,
   "members": [
     {"device_id": "…", "user_name": "회은", "updated_at": "2026-11-08T02:59:16",
      "lessons_done": 3, "stars_total": 7, "crystals": ["mul"]}

@@ -35,6 +35,9 @@ COOKIE_PATH = "/learn"
 TICKET_TTL = timedelta(minutes=5)
 SESSION_TTL = timedelta(days=30)
 MAX_BODY = 20_000
+# 학습 페이지 전체 규모 (1~6학년): 화 42개, 대장 문제 크리스탈 13개
+TOTAL_LESSONS = 42
+TOTAL_CRYSTALS = 13
 _LESSON_RE = re.compile(r"^[a-z]{2,10}-[0-9a-z]{1,8}$")
 _REGION_RE = re.compile(r"^[a-z]{2,10}$")
 
@@ -181,12 +184,12 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
 
     @app.post("/api/learning/session")
     async def create_learning_session(request: Request, start: Optional[str] = None):
-        """학습 페이지를 열 1회용 URL 발급. start=frac-1 처럼 시작할 화를 지정할 수 있음."""
+        """학습 페이지를 열 1회용 URL 발급. start=g4(학년 지도), frac-1(화)처럼 시작 화면을 지정할 수 있음."""
         device_id = request.headers.get("X-Device-ID", "")
         device = await DB.fetchrow("SELECT id FROM devices WHERE id = ?", device_id)
         if not device:
             raise HTTPException(status_code=404, detail="등록되지 않은 기기예요")
-        if start and not (_LESSON_RE.match(start) or start == "home"):
+        if start and not (_LESSON_RE.match(start) or start == "home" or re.match(r"^g[1-6]$", start)):
             start = None
         ticket = secrets.token_urlsafe(32)
         expires = _utcnow() + TICKET_TTL
@@ -232,7 +235,7 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
                 "updated_at": m.get("updated_at"),
                 **_summary(prog),
             })
-        return {"total_lessons": 12, "total_crystals": 3, "members": result}
+        return {"total_lessons": TOTAL_LESSONS, "total_crystals": TOTAL_CRYSTALS, "members": result}
 
     # ── 학습 페이지 (쿠키 인증) ──────────────────────────────────────────────
 
