@@ -251,6 +251,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup():
     await init_db()
+    await learning.init_tables()
 
 
 # ── 인증 미들웨어 ─────────────────────────────────────────────────────────────
@@ -261,7 +262,9 @@ _NO_AUTH_PATHS = {"/api/ping", "/api/debug/db", "/api/debug/register-test", "/ap
 @app.middleware("http")
 async def device_auth_middleware(request: Request, call_next):
     path = request.url.path
-    if path in _NO_AUTH_PATHS or path.startswith("/docs") or path.startswith("/openapi"):
+    # /learn 은 학습 페이지(WebView)용: learning.py 가 쿠키로 직접 인증
+    if path in _NO_AUTH_PATHS or path.startswith("/docs") or path.startswith("/openapi") \
+            or path == "/learn" or path.startswith("/learn/"):
         return await call_next(request)
 
     device_id = request.headers.get("X-Device-ID", "")
@@ -1043,6 +1046,20 @@ async def upsert_shared_event(event: SharedEventReq):
 async def delete_shared_event(event_id: str):
     await DB.execute("DELETE FROM shared_events WHERE id = ?", event_id)
     return {"status": "ok"}
+
+
+# ── 학습 페이지 연동 (learning.py) ────────────────────────────────────────────
+
+def _upsert_sql(table: str, key: str, cols: List[str]) -> str:
+    names = ", ".join([key] + cols)
+    marks = ", ".join(["?"] * (len(cols) + 1))
+    sets = ", ".join(f"{c} = excluded.{c}" for c in cols)
+    return f"INSERT INTO {table} ({names}) VALUES ({marks}) ON CONFLICT ({key}) DO UPDATE SET {sets}"
+
+
+import learning  # noqa: E402
+
+learning.register(app, DB, _upsert_sql)
 
 
 if __name__ == "__main__":

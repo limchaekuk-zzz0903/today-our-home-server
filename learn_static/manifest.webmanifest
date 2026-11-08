@@ -1,0 +1,17 @@
+{
+  "name": "숫자섬 수학 탐험대",
+  "short_name": "수학탐험대",
+  "description": "초등 3학년 곱셈·나눗셈 복습과 분수 개념을 만화 모험으로 배우는 학습 앱",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F2F4FB",
+  "theme_color": "#1B2140",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

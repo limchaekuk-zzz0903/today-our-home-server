@@ -1,0 +1,1041 @@
+<!doctype html><!--SA-->
+<html lang="ko"><!--SA-->
+<head><!--SA-->
+<meta charset="utf-8"><!--SA-->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><!--SA-->
+<meta name="theme-color" content="#1B2140"><!--SA-->
+<link rel="manifest" href="manifest.webmanifest"><!--SA-->
+<link rel="icon" href="icon.svg" type="image/svg+xml"><!--SA-->
+<link rel="apple-touch-icon" href="icon-192.png"><!--SA-->
+<title>숫자섬 수학 탐험대</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&family=Gowun+Dodum&display=swap">
+<style>
+/* Layout: comic-book pages on dotted paper — a tower hero, a winding three-region map, and lesson pages that run 만화 → 해 보기 → 문제. */
+:root{
+  --paper:#F2F4FB; --paper2:#E6EAF7; --dot:#D9DEEF; --panel:#FFFFFF;
+  --ink:#1B2140; --ink2:#4E5677; --line:#1B2140; --shadow:#1B2140; --feat:#1B2140;
+  --bar:#1B2140; --barfg:#FFFFFF;
+  --forest:#1C9466; --cave:#5650D0; --castle:#E8552F; --sun:#FFC23A; --onsun:#1B2140; --sky:#7FD0FF; --onrc:#FFFFFF;
+  --bubble:#FFFFFF; --trickbg:#F4EEFF; --narr:#FFF0B3; --ok:#14865A; --bad:#C9303F; --hintbg:#FFF6D6;
+  --skin:#FFD6B3; --hair:#2B2F4A; --cheek:#FF8FA3; --trick:#9A68DF; --muzzle:#F6EEFF; --robot:#9AD9FF; --screen:#1B2140;
+  --slice:#FFFFFF; --cdy:#FFC23A;
+  --f-display:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-hand:'Gaegu','Apple SD Gothic Neo','Malgun Gothic',cursive;
+  --f-body:'Gowun Dodum','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12162A; --paper2:#1B2140; --dot:#1E2442; --panel:#1C2240;
+  --ink:#ECEFFA; --ink2:#AEB5D6; --line:#DDE2F5; --shadow:#04060E; --feat:#1B2140;
+  --bar:#0B0E1F; --barfg:#ECEFFA;
+  --forest:#2AB07C; --cave:#7C76F0; --castle:#F26A45; --sun:#FFC94D; --onsun:#1B2140; --sky:#8FD8FF; --onrc:#FFFFFF;
+  --bubble:#262D52; --trickbg:#2E2852; --narr:#3B3418; --ok:#4FD39B; --bad:#FF7482; --hintbg:#3B3418;
+  --slice:#2A3158; --cdy:#FFC94D; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#12162A; --paper2:#1B2140; --dot:#1E2442; --panel:#1C2240;
+  --ink:#ECEFFA; --ink2:#AEB5D6; --line:#DDE2F5; --shadow:#04060E; --feat:#1B2140;
+  --bar:#0B0E1F; --barfg:#ECEFFA;
+  --forest:#2AB07C; --cave:#7C76F0; --castle:#F26A45; --sun:#FFC94D; --onsun:#1B2140; --sky:#8FD8FF; --onrc:#FFFFFF;
+  --bubble:#262D52; --trickbg:#2E2852; --narr:#3B3418; --ok:#4FD39B; --bad:#FF7482; --hintbg:#3B3418;
+  --slice:#2A3158; --cdy:#FFC94D; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background-color:var(--paper);background-image:radial-gradient(var(--dot) 1.3px,transparent 1.4px);background-size:16px 16px;color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.65}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bar)}
+a{color:inherit}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.25;text-wrap:balance;margin:0}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bar);color:var(--barfg)}
+.top-in{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.logo{font-family:var(--f-display);font-size:1.2rem;text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo svg{width:28px;height:28px}
+.stat{display:flex;align-items:center;gap:14px;font-family:var(--f-display)}
+.stat .crs{display:flex;gap:3px}
+.stat .crs svg{width:20px;height:24px}
+.stat .st{display:flex;align-items:center;gap:4px}
+.stat .st svg{width:20px;height:20px}
+
+.wrap{max-width:1000px;margin:0 auto;padding-block:24px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:40px}
+section{display:flex;flex-direction:column;gap:16px;min-width:0}
+.sec{font-size:1.5rem;display:flex;align-items:center;gap:10px}
+.sec::before{content:"";width:14px;height:14px;background:var(--sun);border:3px solid var(--line);transform:rotate(45deg);flex:none}
+
+/* buttons */
+.btn{font-family:var(--f-display);font-size:1.08rem;line-height:1.2;border:3px solid var(--line);background:var(--sun);color:var(--onsun);border-radius:12px;padding:.6em 1.1em;box-shadow:3px 3px 0 var(--shadow);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform .08s}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
+.btn.ghost{background:var(--panel);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:center;background:var(--panel);border:3px solid var(--line);box-shadow:7px 7px 0 var(--shadow);border-radius:6px;padding:28px}
+.eyebrow{font-family:var(--f-display);color:var(--castle);letter-spacing:.06em;font-size:.95rem}
+.hero h1{font-size:clamp(2.1rem,6vw,3.4rem);margin-block:6px 12px}
+.hero h1 em{font-style:normal;color:var(--castle);-webkit-text-stroke:0}
+.lead{font-size:1.08rem;max-width:34em;color:var(--ink2)}
+.hero .row{margin-top:18px}
+.sync{margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-family:var(--f-display);font-size:.92rem;background:var(--paper2);border:2px solid var(--forest);color:var(--ink);border-radius:999px;padding:3px 12px}
+.sync::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--forest)}
+.hero-art{display:flex;justify-content:center}
+.hero-art svg{width:100%;max-width:260px;height:auto}
+.hands{transform-origin:130px 112px}
+.tower-on .hands{animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:640px){.hero{grid-template-columns:1fr;padding:20px}.hero-art{order:-1}.hero-art svg{max-width:180px}}
+
+/* comic */
+.comic{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:16px}
+.pn{background:var(--panel);border:3px solid var(--line);border-radius:4px;box-shadow:5px 5px 0 var(--shadow);padding:14px;display:flex;gap:12px;align-items:flex-start;min-width:0;margin:0;animation:pop .35s ease-out both;animation-delay:calc(var(--i,0) * 60ms)}
+@keyframes pop{from{transform:translateY(6px) scale(.98)}}
+.av{flex:0 0 74px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ch{width:74px;height:74px;display:block}
+.who{font-family:var(--f-display);font-size:.85rem;color:var(--ink2)}
+.bub{position:relative;flex:1;min-width:0;background:var(--bubble);border:2.5px solid var(--line);border-radius:18px;padding:10px 14px;font-family:var(--f-hand);font-weight:700;font-size:1.28rem;line-height:1.45;margin-top:4px}
+.bub::before{content:"";position:absolute;left:-9px;top:20px;width:14px;height:14px;background:inherit;border-left:2.5px solid var(--line);border-bottom:2.5px solid var(--line);transform:rotate(45deg)}
+.pn.ttung .bub{background:var(--trickbg)}
+.pn.narr{background:var(--narr);font-family:var(--f-display);font-size:1.12rem;align-items:center}
+.pn.scene{flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.pn.scene figcaption{font-family:var(--f-display);color:var(--ink2);text-align:center}
+.viz{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;max-width:100%;overflow-x:auto}
+.viz svg{max-width:100%;height:auto}
+.wrong-eq{font-family:var(--f-display);font-size:1.8rem;color:var(--bad)}
+.wrong-eq s{text-decoration-thickness:3px}
+
+/* fractions */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;font-family:var(--f-display);margin:0 .12em;font-weight:400}
+.fr>span{padding:0 .18em}
+.fr>span:first-child{border-bottom:.12em solid currentColor;padding-bottom:.06em}
+.fr>span:last-child{padding-top:.06em}
+.fr.big{font-size:3rem}
+.mx{display:inline-flex;align-items:center;font-family:var(--f-display)}
+
+/* pieces */
+.pie .sl{stroke:var(--line);stroke-width:2.5;stroke-linejoin:round;fill:var(--slice);transition:fill .15s}
+.pie.tap .sl{cursor:pointer}
+.pie.tap .sl:hover{fill:var(--paper2)}
+.sl.on,.pie.tap .sl.on:hover{fill:var(--castle)}
+.sl.on2{fill:var(--sun)}
+.sl.gone{fill:var(--paper2);stroke-dasharray:5 4;opacity:.6}
+.apple{fill:var(--castle);stroke:var(--line);stroke-width:2}
+.leaf{fill:var(--forest)}
+.gems{display:flex;flex-wrap:wrap;gap:3px;justify-content:center}
+.gem{width:20px;height:20px}
+.gem path{fill:var(--cave);stroke:var(--line);stroke-width:1.5}
+.candies{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.grp{display:flex;flex-wrap:wrap;gap:4px;max-width:132px;padding:8px;border:2.5px dashed var(--ink2);border-radius:12px;background:transparent;justify-content:center}
+button.grp{cursor:pointer}
+.grp.sel{border-style:solid;border-color:var(--castle);background:var(--narr)}
+.cdy{width:20px;height:20px;border-radius:50%;background:var(--cdy);border:2px solid var(--line);display:block}
+.grp.sel .cdy{background:var(--castle)}
+
+/* vertical multiplication */
+.vm{font-family:var(--f-display);font-size:2.1rem;border-collapse:collapse;margin:0 auto}
+.vm td{width:1.25em;height:1.35em;text-align:center;padding:0}
+.vm tr.cr td{height:1em;font-size:1.1rem}
+.vm tr.line td{border-top:3px solid var(--line)}
+.carry{color:var(--castle)}
+.hl{background:var(--narr);border-radius:6px;padding:0 .15em}
+
+/* area model */
+.area{display:grid;gap:4px;width:min(100%,420px);height:280px;margin:0 auto;font-family:var(--f-display)}
+.area .lab{display:flex;align-items:center;justify-content:center;color:var(--ink2);font-size:1.05rem;padding:2px 6px}
+.area .cell{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2.5px solid var(--line);border-radius:6px;color:var(--onsun);font-size:.92rem;line-height:1.25;text-align:center;min-width:0}
+.area .cell b{font-size:1.25rem;font-weight:400}
+.c1{background:var(--sky)}.c2{background:var(--sun)}.c3{background:#B8EBCF}.c4{background:#FFC7B8}
+
+/* lesson head */
+.crumb{font-family:var(--f-display);color:var(--ink2);display:flex;gap:8px;flex-wrap:wrap}
+.crumb a{text-decoration:none;border-bottom:2px solid var(--sun)}
+.lhead{background:var(--rc);color:var(--onrc);border:3px solid var(--line);box-shadow:6px 6px 0 var(--shadow);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.lhead h1{font-size:clamp(1.7rem,5vw,2.4rem)}
+.tag{align-self:flex-start;font-family:var(--f-display);background:var(--panel);color:var(--ink);border:2.5px solid var(--line);border-radius:999px;padding:2px 12px;font-size:.9rem}
+.tag.new{background:var(--sun);color:var(--onsun)}
+.goal{background:rgba(0,0,0,.18);border-radius:10px;padding:8px 12px;max-width:44em}
+.goal b{font-family:var(--f-display);font-weight:400;margin-right:6px}
+
+/* widget */
+.widget{background:var(--panel);border:3px solid var(--line);box-shadow:5px 5px 0 var(--shadow);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:16px;align-items:center;min-width:0}
+.intro{color:var(--ink2);max-width:44em}
+.stps{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.stp{display:flex;align-items:center;gap:6px;background:var(--paper2);border-radius:999px;padding:4px 6px 4px 14px;font-family:var(--f-display)}
+.stp button{width:36px;height:36px;border-radius:50%;border:2.5px solid var(--line);background:var(--panel);color:var(--ink);font-family:var(--f-display);font-size:1.3rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.stp output{min-width:2ch;text-align:center;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.eq{font-family:var(--f-display);font-size:1.4rem;text-align:center;line-height:1.6}
+.eq b{color:var(--castle);font-weight:400}
+.note{color:var(--ink2);text-align:center;max-width:36em}
+.pile{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:52px}
+.lbl{font-family:var(--f-display);color:var(--ink2)}
+.baskets{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.bk{width:96px;min-height:96px;border:3px solid var(--line);border-top-width:6px;border-radius:0 0 22px 22px;background:var(--paper2);display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:6px;font-family:var(--f-display)}
+.fam{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:center}
+.fam svg{width:220px;max-width:100%;height:auto}
+.tnum{fill:var(--ink);font-family:var(--f-display);font-size:30px;text-anchor:middle}
+.tnum.top{fill:var(--castle)}
+.eqs{list-style:none;margin:0;padding:0;font-family:var(--f-display);font-size:1.35rem;display:grid;gap:4px}
+.pie-row{display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:center}
+.frbox{display:flex;flex-direction:column;align-items:center;gap:6px}
+.read{font-family:var(--f-display);font-size:1.4rem}
+.legend{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:.98rem}
+.legend b{font-family:var(--f-display);font-weight:400;color:var(--castle);margin-right:6px}
+.cmp{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.cmp-side{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%}
+.cmp-side svg{width:min(100%,300px);height:auto}
+.sgn{font-family:var(--f-display);font-size:2.6rem;color:var(--castle);line-height:1}
+.seg .btn{font-size:1rem}
+
+/* quiz */
+.qcard{background:var(--panel);border:3px solid var(--line);box-shadow:5px 5px 0 var(--shadow);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0;scroll-margin-top:80px}
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--f-display);color:var(--ink2)}
+.pips{display:flex;gap:6px}
+.pips i{width:14px;height:14px;border-radius:50%;border:2.5px solid var(--line);display:block}
+.pips i.done{background:var(--forest)}
+.pips i.now{background:var(--sun)}
+.qtext{font-size:1.2rem;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.qtext .big{font-family:var(--f-display);font-size:2rem}
+.qwho{display:flex;align-items:center;gap:8px;font-family:var(--f-hand);font-weight:700;font-size:1.25rem;background:var(--trickbg);border-radius:14px;padding:6px 12px 6px 6px;text-align:left}
+.qwho .ch{width:54px;height:54px;flex:none}
+.qans{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center}
+.ans{font-family:var(--f-display);font-size:1.7rem;width:4.2em;text-align:center;border:3px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);padding:4px}
+.ans.sm{width:2.6em}
+.frin{display:inline-flex;flex-direction:column;align-items:center;gap:6px}
+.frin hr{width:100%;border:0;border-top:3px solid var(--line);margin:0}
+.qlab{font-family:var(--f-display);font-size:1.15rem}
+.opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.opt{border:3px solid var(--line);background:var(--paper);border-radius:12px;padding:10px 16px;font-family:var(--f-display);font-size:1.25rem;cursor:pointer;box-shadow:3px 3px 0 var(--shadow);min-width:64px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.opt svg{display:block;max-width:100%;height:auto}
+.opt.right{background:var(--forest);color:var(--onrc)}
+.opt.wrong{background:var(--paper2);opacity:.5;text-decoration:line-through}
+.fb{border-radius:12px;padding:0;font-size:1.08rem}
+.fb:not(:empty){padding:12px 14px}
+.fb b{font-family:var(--f-display);font-weight:400;margin-right:6px;font-size:1.15rem}
+.fb.ok{background:var(--paper2);border:2.5px solid var(--ok)}
+.fb.ok b{color:var(--ok)}
+.fb.hint{background:var(--hintbg);border:2.5px solid var(--sun)}
+.fb.bad{background:var(--paper2);border:2.5px solid var(--bad)}
+.fb.bad b{color:var(--bad)}
+.fb.warn{color:var(--bad)}
+.result{align-items:center;text-align:center}
+.result .stars{display:flex;gap:6px}
+.result .stars svg{width:52px;height:52px}
+.result h3{font-size:1.7rem}
+.say{display:flex;gap:10px;align-items:center;text-align:left;max-width:36em}
+.say .bub{margin:0}
+.bigcrystal svg{width:120px;height:140px;animation:float 2.4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+
+/* map */
+.regions{display:grid;gap:26px}
+.rg{background:var(--panel);border:3px solid var(--line);box-shadow:6px 6px 0 var(--shadow);border-radius:6px;overflow:hidden;position:relative}
+.rg-h{background:var(--rc);color:var(--onrc);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:3px solid var(--line)}
+.rg-h h3{font-size:1.6rem}
+.rg-h p{opacity:.95;font-size:.98rem}
+.rg-h .crys svg{width:40px;height:48px}
+.stops{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:12px;padding:16px}
+.stop{text-align:left;display:flex;flex-direction:column;gap:4px;border:2.5px solid var(--line);border-radius:10px;background:var(--paper);padding:10px 12px;text-decoration:none;color:var(--ink);transition:transform .1s}
+.stop:hover{transform:translateY(-2px)}
+.stop .no{font-family:var(--f-display);color:var(--ink2);font-size:.9rem}
+.stop .tt{font-family:var(--f-display);font-size:1.12rem;line-height:1.3}
+.stop .ss{display:flex;gap:2px}
+.stop .ss svg{width:18px;height:18px}
+.stop.boss{background:var(--narr)}
+.path-dash{height:26px;margin:-26px auto;width:0;border-left:4px dashed var(--ink2)}
+
+/* parents, certificate */
+.parents{background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:16px 20px}
+.parents summary{font-family:var(--f-display);font-size:1.2rem;cursor:pointer}
+.parents h4{font-family:var(--f-display);font-weight:400;font-size:1.08rem;margin:18px 0 6px}
+.parents ul{margin:0;padding-left:1.2em;display:grid;gap:4px;max-width:46em}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;min-width:520px;font-size:.95rem}
+.tbl th,.tbl td{border:1.5px solid var(--ink2);padding:6px 10px;text-align:left;vertical-align:top}
+.tbl th{font-family:var(--f-display);font-weight:400;background:var(--paper2)}
+.cert{background:var(--panel);border:5px double var(--line);border-radius:6px;padding:28px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+.cert h2{font-size:2rem;color:var(--castle)}
+.cert input{font-family:var(--f-display);font-size:1.4rem;text-align:center;border:0;border-bottom:3px solid var(--line);background:transparent;color:var(--ink);width:min(100%,12em)}
+.cert p{max-width:32em}
+
+.lnav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.burst{position:fixed;pointer-events:none;z-index:50}
+.burst i{position:absolute;width:16px;height:16px;background:var(--sun);clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);animation:fly .8s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--x),var(--y)) rotate(200deg);opacity:0}}
+/* ask 셈이 */
+.askq{font-family:var(--f-display);font-size:.95rem;border:2.5px solid var(--line);background:var(--robot);color:var(--onsun);border-radius:999px;padding:4px 12px 4px 6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.askq svg{width:26px;height:26px}
+.ask-fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:6px;font-family:var(--f-display);font-size:1.05rem;border:3px solid var(--line);background:var(--robot);color:var(--onsun);border-radius:999px;padding:6px 16px 6px 6px;box-shadow:3px 3px 0 var(--shadow);cursor:pointer}
+.ask-fab svg{width:40px;height:40px}
+.ask{position:fixed;z-index:45;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(400px,calc(100vw - 32px));height:min(620px,calc(100vh - 110px));display:flex;flex-direction:column;background:var(--panel);border:3px solid var(--line);border-radius:14px;box-shadow:6px 6px 0 var(--shadow);overflow:hidden}
+.ask[hidden]{display:none!important}
+.ask-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px 8px 8px;background:var(--bar);color:var(--barfg)}
+.ask-id{display:flex;align-items:center;gap:8px}
+.ask-id svg{width:42px;height:42px}
+.ask-id b{font-family:var(--f-display);font-weight:400;font-size:1.1rem;display:block;line-height:1.2}
+.ask-mode{font-size:.8rem;opacity:.85}
+.ask-x{width:38px;height:38px;border-radius:50%;border:2px solid var(--barfg);background:transparent;color:var(--barfg);font-size:1.4rem;line-height:1;cursor:pointer}
+.ask-ctx{font-family:var(--f-display);font-size:.88rem;color:var(--ink2);background:var(--paper2);padding:6px 12px}
+.ask-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.msg{display:flex;gap:6px;align-items:flex-end}
+.msg svg{width:34px;height:34px;flex:none}
+.msg.kid{justify-content:flex-end}
+.mb{max-width:84%;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:14px;padding:8px 12px;line-height:1.55;font-size:1rem}
+.msg.semi .mb{background:var(--bubble);border:2px solid var(--line);border-bottom-left-radius:4px}
+.msg.kid .mb{background:var(--sun);color:var(--onsun);border:2px solid var(--line);border-bottom-right-radius:4px}
+.mb.wait{color:var(--ink2);font-style:italic}
+.ask-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}
+.ask-chips button{font-family:var(--f-display);font-size:.9rem;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}
+.ask-f{display:flex;gap:6px;padding:8px 10px 10px;border-top:2px solid var(--paper2)}
+.ask-f input{flex:1;min-width:0;font:inherit;font-size:1rem;border:2.5px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--paper);color:var(--ink)}
+.ask-f .btn{padding:.45em .8em;font-size:1rem}
+@media (max-width:520px){.ask{left:0;right:0;bottom:0;width:auto;height:min(78vh,calc(100vh - 60px));border-radius:16px 16px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}.ask-fab span{display:none}.ask-fab{padding:6px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head><!--SA-->
+<body><!--SA-->
+<header class="top"><div class="top-in" id="topbar"></div></header>
+<main class="wrap" id="app"></main>
+<button class="ask-fab" id="askFab" type="button" aria-controls="askPanel" aria-expanded="false"><span class="ask-face"></span><span>셈이에게 질문</span></button>
+<aside class="ask" id="askPanel" hidden aria-label="셈이에게 질문하기">
+  <div class="ask-h"><div class="ask-id"><span class="ask-face"></span><div><b>셈이에게 물어보기</b><span class="ask-mode" id="askMode">기본 도움말</span></div></div><button class="ask-x" id="askClose" type="button" aria-label="닫기">×</button></div>
+  <div class="ask-ctx" id="askCtx"></div>
+  <div class="ask-log" id="askLog" aria-live="polite"></div>
+  <div class="ask-chips" id="askChips"></div>
+  <form class="ask-f" id="askForm" autocomplete="off"><label for="askIn" hidden>질문</label><input id="askIn" placeholder="궁금한 걸 써 봐" maxlength="200"><button class="btn" type="submit" id="askGo">보내기</button><button class="btn ghost" type="button" id="askStop" hidden>멈추기</button></form>
+</aside>
+<script>
+'use strict';
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const fr=(n,d,cls='')=>`<span class="fr ${cls}"><span>${n}</span><span>${d}</span></span>`;
+const mixed=(w,n,d)=>`<span class="mx">${w}${fr(n,d)}</span>`;
+const reduceMotion=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- progress (this browser only) ---------- */
+const PKEY='math3-adventure-v1';
+const blank=()=>({stars:{},crystals:{},name:''});
+let P=(()=>{try{return Object.assign(blank(),JSON.parse(localStorage.getItem(PKEY)||'{}'));}catch(e){return blank();}})();
+/* Server sync: only when served by the 오늘우리집 server (/learn/), which answers api/progress for a signed-in member. */
+const SYNC={on:false,name:'',timer:null,reset:false};
+function pushProgress(){
+  if(!SYNC.on)return;
+  clearTimeout(SYNC.timer);
+  SYNC.timer=setTimeout(()=>{
+    const body=JSON.stringify({progress:P,reset:SYNC.reset});SYNC.reset=false;
+    fetch('api/progress',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});
+  },600);
+}
+const save=()=>{try{localStorage.setItem(PKEY,JSON.stringify(P));}catch(e){}pushProgress();};
+async function syncInit(){
+  if(!/^https?:$/.test(location.protocol)||!/\/learn\/?$/.test(location.pathname))return;
+  try{
+    const r=await fetch('api/progress',{credentials:'same-origin',headers:{Accept:'application/json'}});
+    if(!r.ok||!(r.headers.get('content-type')||'').includes('json'))return;
+    const j=await r.json();
+    SYNC.on=true;SYNC.name=String(j.name||'').slice(0,20);
+    const sp=j.progress||{};
+    for(const [k,v] of Object.entries(sp.stars||{}))P.stars[k]=Math.max(P.stars[k]||0,Number(v)||0);
+    for(const [k,v] of Object.entries(sp.crystals||{}))if(v)P.crystals[k]=true;
+    if(!P.name&&sp.name)P.name=String(sp.name);
+    save();
+    updateHeader();
+    if(!location.hash||location.hash==='#home')renderHome();
+  }catch(e){}
+}
+
+/* ---------- characters ---------- */
+const NAMES={haru:'하루',semi:'셈이',ttung:'뚱땅'};
+function face(who,f='happy'){
+  const S='stroke="var(--line)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"';
+  const F='stroke="var(--feat)" stroke-width="3" stroke-linecap="round" fill="none"';
+  if(who==='haru'){
+    const eyes=f==='happy'?`<path d="M35 58 Q40 52 45 58 M55 58 Q60 52 65 58" ${F}/>`:f==='think'?`<circle cx="42" cy="54" r="3.6" fill="var(--feat)"/><circle cx="62" cy="54" r="3.6" fill="var(--feat)"/>`:f==='oops'?`<path d="M35 54 L45 58 M65 54 L55 58" ${F}/>`:`<circle cx="40" cy="57" r="4.2" fill="var(--feat)"/><circle cx="60" cy="57" r="4.2" fill="var(--feat)"/>`;
+    const mouth={happy:`<path d="M41 68 Q50 78 59 68" ${F}/>`,wow:`<ellipse cx="50" cy="71" rx="4.5" ry="6" fill="var(--feat)"/>`,think:`<path d="M44 71 Q50 69 57 72" ${F}/>`,oops:`<path d="M42 74 Q50 67 58 74" ${F}/>`}[f];
+    return `<svg class="ch" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="58" r="30" fill="var(--skin)" ${S}/><path d="M19 56 Q16 22 50 21 Q84 22 81 56 Q76 40 64 37 Q58 46 46 40 Q30 39 19 56Z" fill="var(--hair)" ${S}/><path d="M64 37 Q70 30 78 33" fill="none" ${S}/>${eyes}<circle cx="32" cy="66" r="4.5" fill="var(--cheek)" opacity=".75"/><circle cx="68" cy="66" r="4.5" fill="var(--cheek)" opacity=".75"/>${mouth}</svg>`;
+  }
+  if(who==='semi'){
+    const E='stroke="var(--sky)" stroke-width="3.5" stroke-linecap="round" fill="none"';
+    const eyes={happy:`<path d="M36 57 Q41 50 46 57 M54 57 Q59 50 64 57" ${E}/>`,think:`<path d="M36 54 L46 54" ${E}/><rect x="54" y="49" width="10" height="10" rx="3" fill="var(--sky)"/>`,wow:`<circle cx="41" cy="54" r="5" ${E}/><circle cx="59" cy="54" r="5" ${E}/>`,oops:`<path d="M37 50 L45 58 M45 50 L37 58 M55 50 L63 58 M63 50 L55 58" ${E}/>`}[f];
+    const mouth=(f==='wow'||f==='oops')?`<rect x="46" y="62" width="8" height="5" rx="2" fill="var(--sky)"/>`:`<path d="M43 63 Q50 68 57 63" ${E}/>`;
+    return `<svg class="ch" viewBox="0 0 100 100" aria-hidden="true"><line x1="50" y1="30" x2="50" y2="16" ${S}/><circle cx="50" cy="13" r="6" fill="var(--sun)" ${S}/><rect x="11" y="46" width="11" height="18" rx="4" fill="var(--robot)" ${S}/><rect x="78" y="46" width="11" height="18" rx="4" fill="var(--robot)" ${S}/><rect x="20" y="30" width="60" height="52" rx="16" fill="var(--robot)" ${S}/><rect x="28" y="39" width="44" height="33" rx="9" fill="var(--screen)"/>${eyes}${mouth}<circle cx="34" cy="78" r="2" fill="var(--feat)"/><circle cx="66" cy="78" r="2" fill="var(--feat)"/></svg>`;
+  }
+  const eyes={happy:`<path d="M33 54 Q39 48 45 54 M55 54 Q61 48 67 54" ${F}/>`,think:`<path d="M33 51 L45 54 M55 54 L67 51" ${F}/><circle cx="41" cy="56" r="2.5" fill="var(--feat)"/><circle cx="63" cy="56" r="2.5" fill="var(--feat)"/>`,wow:`<circle cx="39" cy="54" r="4.5" fill="var(--feat)"/><circle cx="61" cy="54" r="4.5" fill="var(--feat)"/>`,oops:`<path d="M33 50 L45 55 M67 50 L55 55" ${F}/><circle cx="40" cy="57" r="2.5" fill="var(--feat)"/><circle cx="60" cy="57" r="2.5" fill="var(--feat)"/>`}[f];
+  const mouth={happy:`<path d="M39 68 Q50 80 61 68Z" fill="var(--feat)"/>`,think:`<path d="M42 71 Q52 73 60 67" ${F}/>`,wow:`<ellipse cx="50" cy="72" rx="4" ry="5" fill="var(--feat)"/>`,oops:`<path d="M40 72 Q45 68 50 72 Q55 76 60 72" ${F}/>`}[f];
+  return `<svg class="ch" viewBox="0 0 100 100" aria-hidden="true"><path d="M21 48 L25 11 L46 32Z" fill="var(--trick)" ${S}/><path d="M79 48 L75 11 L54 32Z" fill="var(--trick)" ${S}/><path d="M27 25 L28.5 17 L37 28Z" fill="var(--cheek)"/><path d="M73 25 L71.5 17 L63 28Z" fill="var(--cheek)"/><ellipse cx="50" cy="57" rx="32" ry="28" fill="var(--trick)" ${S}/><ellipse cx="50" cy="69" rx="17" ry="12" fill="var(--muzzle)"/>${eyes}<ellipse cx="50" cy="63" rx="4" ry="3" fill="var(--feat)"/>${mouth}</svg>`;
+}
+const H=(f,t)=>({w:'haru',f,t}), S=(f,t)=>({w:'semi',f,t}), T=(f,t)=>({w:'ttung',f,t});
+const N=t=>({narr:t}), SC=(scene,cap)=>({scene,cap});
+
+/* ---------- pictures ---------- */
+function pie(d,on,o={}){
+  const s=o.size||120,c=s/2,r=c-4,tot=o.angles?o.angles.reduce((a,b)=>a+b,0):d;
+  const cls=i=>Array.isArray(on)?(on[i]||''):(i<on?'on':'');
+  const act=o.click?'data-act="slice"':'';
+  let p='';
+  if(d===1)p=`<circle ${act} data-i="0" class="sl ${cls(0)}" cx="${c}" cy="${c}" r="${r}"/>`;
+  else{let acc=0;for(let i=0;i<d;i++){const w=o.angles?o.angles[i]:1,a0=acc/tot*2*Math.PI-Math.PI/2;acc+=w;const a1=acc/tot*2*Math.PI-Math.PI/2;
+    const x0=(c+r*Math.cos(a0)).toFixed(2),y0=(c+r*Math.sin(a0)).toFixed(2),x1=(c+r*Math.cos(a1)).toFixed(2),y1=(c+r*Math.sin(a1)).toFixed(2);
+    p+=`<path ${act} data-i="${i}" class="sl ${cls(i)}" d="M${c} ${c} L${x0} ${y0} A${r} ${r} 0 ${(a1-a0)>Math.PI?1:0} 1 ${x1} ${y1}Z"/>`;}}
+  const cnt=Array.isArray(on)?on.filter(x=>x==='on'||x==='on2').length:on;
+  const lab=o.label||(o.angles?`크기가 서로 다른 ${d}조각으로 자른 원`:`똑같이 ${d}조각으로 나눈 원, ${cnt}조각 색칠`);
+  return `<svg class="pie${o.click?' tap':''}" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" role="img" aria-label="${lab}">${p}</svg>`;
+}
+function bar(d,on,o={}){
+  const W=o.w||240,h=o.h||40,ws=o.widths||Array(d).fill(1),tot=ws.reduce((a,b)=>a+b,0);
+  let x=3,p='';
+  ws.forEach((w,i)=>{const ww=(W-6)*w/tot;p+=`<rect class="sl ${i<on?'on':''}" x="${x.toFixed(2)}" y="3" width="${ww.toFixed(2)}" height="${h-6}"/>`;x+=ww;});
+  return `<svg class="pie" viewBox="0 0 ${W} ${h}" width="${W}" height="${h}" role="img" aria-label="${o.widths?`크기가 서로 다른 ${d}칸 막대`:`똑같이 ${d}칸으로 나눈 막대, ${on}칸 색칠`}">${p}</svg>`;
+}
+const pies=(n,d,size=96)=>{let h='',k=Math.max(1,Math.ceil(n/d));for(let i=0;i<k;i++)h+=pie(d,Math.min(d,n-i*d),{size});return `<div class="viz">${h}</div>`;};
+function apples(c,r){
+  const g=34;let p='';
+  for(let y=0;y<r;y++)for(let x=0;x<c;x++){const cx=x*g+g/2,cy=y*g+g/2+3;p+=`<circle class="apple" cx="${cx}" cy="${cy}" r="12"/><ellipse class="leaf" cx="${cx+4}" cy="${cy-13}" rx="5" ry="2.6" transform="rotate(-30 ${cx+4} ${cy-13})"/>`;}
+  return `<svg viewBox="0 0 ${c*g} ${r*g+4}" width="${c*g}" height="${r*g+4}" role="img" aria-label="사과 ${c}개씩 ${r}줄">${p}</svg>`;
+}
+const GEM='<svg class="gem" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 L18.5 8 L10 18.5 L1.5 8Z"/></svg>';
+const gemsHtml=n=>`<div class="gems" role="img" aria-label="보석 ${n}개">${GEM.repeat(n)}</div>`;
+function candies(t,g,sel=[],tap=false){
+  const s=t/g;let h=`<div class="candies" role="group" aria-label="사탕 ${t}개${g>1?`, ${s}개씩 ${g}묶음${sel.length?`, 색칠한 묶음 ${sel.length}개`:''}`:''}">`;
+  for(let i=0;i<g;i++){const tag=tap?'button':'div';h+=`<${tag} ${tap?`type="button" data-act="grp" data-i="${i}" aria-pressed="${sel.includes(i)}" aria-label="${i+1}번째 묶음"`:''} class="grp ${sel.includes(i)?'sel':''}">${'<i class="cdy"></i>'.repeat(s)}</${tag}>`;}
+  return h+'</div>';
+}
+function vmul(a,m,step){
+  const o=a%10,X=o*m,c=Math.floor(X/10),A=String(a).padStart(3,' ').split(''),R=String(a*m).padStart(3,' ').split('');
+  const row=(cells,cls='')=>`<tr class="${cls}">${cells.map(x=>`<td>${x===' '?'':x}</td>`).join('')}</tr>`;
+  const carry=step>=1&&c?['','',`<span class="carry">${c}</span>`,'']:['','','',''];
+  let rr=[' ',' ',' ',' '];
+  if(step===1)rr=[' ',' ',' ',`<span class="hl">${X%10}</span>`];
+  if(step>=2)rr=[' ',...R];
+  return `<table class="vm" aria-label="${a} 곱하기 ${m} 세로셈"><tbody>${row(carry,'cr')}${row([' ',...A])}${row(['×',' ',' ',String(m)])}${row(rr,'line')}</tbody></table>`;
+}
+function areaModel(a,b){
+  const a1=Math.floor(a/10)*10,a0=a%10,b1=Math.floor(b/10)*10,b0=b%10;
+  const cell=(x,y,c)=>`<div class="cell ${c}">${x}×${y}<b>${x*y}</b></div>`;
+  return `<div class="area" style="grid-template-columns:auto minmax(64px,${a1}fr) minmax(64px,${a0}fr);grid-template-rows:auto minmax(54px,${b1}fr) minmax(54px,${b0}fr)"><div></div><div class="lab">${a1}</div><div class="lab">${a0}</div><div class="lab">${b1}</div>${cell(a1,b1,'c1')}${cell(a0,b1,'c2')}<div class="lab">${b0}</div>${cell(a1,b0,'c3')}${cell(a0,b0,'c4')}</div>`;
+}
+const STAR=on=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.6L12 17.2l-5.9 3.2 1.3-6.6L2.5 9.3l6.6-.8z" fill="${on?'var(--sun)':'none'}" stroke="${on?'var(--line)':'currentColor'}" stroke-width="1.8" stroke-linejoin="round" opacity="${on?1:.45}"/></svg>`;
+const CRYSTAL=(col,on)=>`<svg viewBox="0 0 100 120" aria-hidden="true"><path d="M50 4 L88 38 L70 114 L30 114 L12 38Z" fill="${on?col:'none'}" stroke="${on?'var(--line)':'currentColor'}" stroke-width="5" stroke-linejoin="round" ${on?'':'stroke-dasharray="9 7" opacity=".55"'}/>${on?'<path d="M12 38 L88 38 M50 4 L38 38 L50 114 L62 38 Z" fill="none" stroke="var(--line)" stroke-width="3" stroke-linejoin="round" opacity=".55"/><path d="M30 30 L40 18" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7"/>':''}</svg>`;
+function tower(){
+  const slot=(x,k)=>`<g transform="translate(${x} 176) scale(.32)">${CRYSTAL(R[k].color,!!P.crystals[k])}</g>`;
+  const all=Object.keys(R).every(k=>P.crystals[k]);
+  return `<svg viewBox="0 0 260 300" class="${all?'tower-on':''}" role="img" aria-label="지혜의 시계탑, 크리스탈 ${Object.keys(R).filter(k=>P.crystals[k]).length}개 찾음">
+  <path d="M60 296 L80 150 L180 150 L200 296Z" fill="var(--paper2)" stroke="var(--line)" stroke-width="4" stroke-linejoin="round"/>
+  <rect x="70" y="58" width="120" height="110" fill="var(--panel)" stroke="var(--line)" stroke-width="4"/>
+  <path d="M60 62 L130 6 L200 62Z" fill="var(--castle)" stroke="var(--line)" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="130" cy="112" r="40" fill="var(--narr)" stroke="var(--line)" stroke-width="4"/>
+  ${[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>{const a=i*Math.PI/6;return `<circle cx="${(130+32*Math.sin(a)).toFixed(1)}" cy="${(112-32*Math.cos(a)).toFixed(1)}" r="${i%3?1.8:3}" fill="var(--line)"/>`;}).join('')}
+  <g class="hands"><path d="M130 112 L130 84" stroke="var(--line)" stroke-width="5" stroke-linecap="round"/><path d="M130 112 L150 122" stroke="var(--castle)" stroke-width="4" stroke-linecap="round"/></g>
+  <circle cx="130" cy="112" r="5" fill="var(--line)"/>
+  ${slot(78,'mul')}${slot(114,'div')}${slot(150,'frac')}
+  <path d="M112 296 L112 262 Q130 244 148 262 L148 296" fill="var(--hair)" stroke="var(--line)" stroke-width="4"/>
+  </svg>`;
+}
+
+/* ---------- problem builders ---------- */
+const num=(q,a,hint,ex)=>({type:'num',q,a,hint,ex,show:String(a)});
+const frq=(q,n,d,hint,ex)=>({type:'frac',q,a:[n,d],hint,ex,show:fr(n,d)});
+const mxq=(q,w,n,d,hint,ex)=>({type:'mixed',q,a:[w,n,d],hint,ex,show:mixed(w,n,d)});
+const qrq=(q,qq,r,hint,ex)=>({type:'qr',q,a:[qq,r],hint,ex,show:`몫 ${qq}, 나머지 ${r}`});
+function mc(q,correct,wrongs,hint,ex,fixed){
+  const ws=[...new Set(wrongs)].filter(w=>w!==correct);
+  const opts=fixed?fixed:shuffle([correct,...ws]);
+  return {type:'choice',q,opts,a:opts.indexOf(correct),hint,ex,show:correct};
+}
+const sgnQ=(q,correct,hint,ex)=>mc(q,correct,[],hint,ex,['&gt;','&lt;','=']);
+const SG=(x,y)=>x>y?'&gt;':x<y?'&lt;':'=';
+const ttungSays=t=>`<div class="qwho">${face('ttung','happy')}<span>${t}</span></div>`;
+function carryPair(){const t=ri(1,4),m=ri(2,9);let o=ri(2,9);while(o*m<10)o=ri(3,9);return [t*10+o,m];}
+function unequalW(d){let w;do{w=Array.from({length:d},()=>ri(1,4));}while(new Set(w).size===1);return w;}
+
+/* ---------- regions & lessons ---------- */
+const R={
+  mul:{name:'곱셈 숲',tag:'복습',color:'var(--forest)',crystal:'곱셈 크리스탈',desc:'구구단부터 두 자리 곱셈까지, 배운 곱셈을 다시 단단하게!'},
+  div:{name:'나눗셈 동굴',tag:'복습',color:'var(--cave)',crystal:'나눗셈 크리스탈',desc:'똑같이 나누기, 몫과 나머지, 검산까지 한 번에 정리!'},
+  frac:{name:'분수 성',tag:'처음 배우기',color:'var(--castle)',crystal:'분수 크리스탈',desc:'분수가 뭘까? 똑같이 나누기부터 분수 덧셈까지 차근차근!'}
+};
+
+const PROLOGUE=[
+  N('어느 날, 하루는 낡은 수학 공책 사이에서 반짝이는 지도 한 장을 발견했어요.'),
+  S('wow','삐빅! 드디어 찾았다! 나는 숫자섬에서 온 계산 로봇 셈이야.'),
+  H('wow','숫자섬? 로봇이 말을 한다고?!'),
+  S('think','숫자섬의 지혜의 시계탑이 멈춰 버렸어. 장난꾸러기 뚱땅이가 셈 크리스탈 세 개를 숨겼거든.'),
+  T('happy','히히! 크리스탈을 찾고 싶으면 내 문제를 풀어 봐. 난 계산을 얼렁뚱땅 하는 게 특기라고!'),
+  H('happy','좋아! 곱셈 숲, 나눗셈 동굴, 분수 성. 크리스탈 세 개를 모두 찾아서 시계탑을 다시 움직이자!')
+];
+
+const LESSONS=[
+/* ===== 곱셈 숲 ===== */
+{id:'mul-1',r:'mul',t:'묶어 세면 곱셈!',goal:'같은 수를 여러 번 더하는 것을 곱셈식으로 나타내고, 곱셈구구를 떠올려요.',
+ comic:[N('곱셈 숲 입구. 사과나무에 사과가 줄줄이 열려 있어요.'),SC(apples(4,3),'사과가 4개씩 3줄'),
+  T('happy','사과가 몇 개게? 하나, 둘, 셋… 하나씩 세다가는 해가 지겠지? 히히.'),
+  H('think','4개씩 3줄이니까… 4 + 4 + 4 = 12!'),
+  S('happy','맞아! 같은 수를 여러 번 더할 땐 곱셈으로 짧게 써. 4 × 3 = 12. "4씩 3묶음"이라는 뜻이야.'),
+  T('think','그럼 3 × 4는 완전히 다른 답이겠네?'),
+  H('happy','아니야! 사과 판을 옆으로 돌리면 3개씩 4줄이 돼. 개수는 그대로 12개. 곱하는 순서를 바꿔도 답은 같아!')],
+ widget:'array',
+ quiz:()=>{
+  const a=()=>{const c=ri(2,6),r=ri(2,4);return num(`${apples(c,r)}<p>사과가 ${c}개씩 ${r}줄 있어요. 모두 몇 개일까요?</p>`,c*r,`${c}씩 ${r}번 더해 보거나, ${c}단을 떠올려 봐.`,`${c} × ${r} = ${c*r}`);};
+  const b=()=>{const x=ri(3,9),n=ri(3,5);return num(`<p class="big">${Array(n).fill(x).join(' + ')} = ${x} × □</p>`,n,`${x}를 몇 번 더했는지 세어 봐.`,`${x}를 ${n}번 더했으니까 ${x} × ${n}이에요.`);};
+  const c=()=>{const x=ri(2,9),y=ri(2,9);return num(`<p class="big">${x} × ${y} = □</p>`,x*y,`${x}단을 처음부터 외워 봐: ${x}, ${x*2}, ${x*3}…`,`${x} × ${y} = ${x*y}`);};
+  const d=()=>{const x=ri(3,9),y=ri(2,8);return mc(`<p><b>${x} × ${y}</b>와 계산 결과가 같은 식은?</p>`,`${y} × ${x}`,[`${x} + ${y}`,`${x} × ${y+1}`,`${x-1} × ${y}`],'곱하는 두 수의 순서를 바꿔 볼까?',`곱하는 순서를 바꿔도 결과는 같아요. ${x} × ${y} = ${y} × ${x} = ${x*y}`);};
+  return [a(),b(),c(),d(),c()];}},
+{id:'mul-2',r:'mul',t:'올림을 잊지 마! 두 자리 × 한 자리',goal:'(몇십몇) × (몇)을 세로셈으로 일의 자리부터 계산하고, 올림을 정확히 해요.',
+ comic:[N('숲속 버섯 가게. 버섯이 한 바구니에 26개씩, 3바구니 있어요.'),
+  T('happy','계산 끝! 6 × 3 = 18, 2 × 3 = 6. 둘을 붙이면 618개! 대단하지?'),
+  SC('<p class="wrong-eq">26 × 3 = <s>618</s></p>','뚱땅이의 계산'),
+  H('wow','618개? 바구니 3개에 그렇게 많이 들어갈 리가 없잖아!'),
+  S('think','어림해 보자. 26은 30보다 작으니까, 답은 30 × 3 = 90보다 작아야 해.'),
+  S('happy','일의 자리부터! 6 × 3 = 18. 8은 일의 자리에 쓰고, 10은 십의 자리로 1을 올려 줘.'),
+  SC(vmul(26,3,2),'올림한 1을 잊지 않기'),
+  H('happy','십의 자리는 2 × 3 = 6, 올려 준 1을 더하면 7. 그러니까 78개!'),
+  T('oops','으윽, 올림을 깜빡했네…')],
+ widget:'mulsteps',
+ quiz:()=>{
+  const ex=(a,m)=>{const o=a%10,t=Math.floor(a/10),X=o*m;return `${o} × ${m} = ${X} → ${X%10}을 쓰고 ${Math.floor(X/10)}을 올려요. ${t} × ${m} + ${Math.floor(X/10)} = ${t*m+Math.floor(X/10)}. 답은 ${a*m}`;};
+  const a=()=>{const [x,m]=carryPair();return num(vmul(x,m,0),x*m,`일의 자리부터! ${x%10} × ${m} = ${(x%10)*m}, 올림을 잊지 마.`,ex(x,m));};
+  const b=()=>{const [x,m]=carryPair();return num(`<p>버섯이 한 바구니에 <b>${x}개</b>씩 <b>${m}바구니</b> 있어요. 버섯은 모두 몇 개일까요?</p>`,x*m,`${x} × ${m}을 세로셈으로 써 봐.`,ex(x,m));};
+  const c=()=>{const [x,m]=carryPair(),t=Math.floor(x/10),o=x%10;return num(`${ttungSays(`${x} × ${m} = ${t*m}${o*m}! 내 계산 맞지?`)}<p>뚱땅이의 계산을 바르게 고쳐 보세요.</p>`,x*m,`${x}는 ${(t+1)*10}보다 작으니까, 답은 ${(t+1)*10*m}보다 작아야 해.`,ex(x,m));};
+  return [a(),a(),b(),c(),a()];}},
+{id:'mul-3',r:'mul',t:'쪼개면 쉬워! 큰 수의 곱셈',goal:'(세 자리) × (한 자리), (두 자리) × (두 자리)를 쪼개서 곱한 뒤 더해요.',
+ comic:[N('숲의 끝, 크리스탈로 가는 흔들다리. 판자에 문제가 적혀 있어요. "13 × 12"'),
+  H('think','두 자리 곱하기 두 자리? 너무 어려워 보여…'),
+  S('happy','쪼개면 쉬워! 12를 10과 2로 나눠 봐. 13 × 10 = 130, 13 × 2 = 26.'),
+  SC(areaModel(13,12),'13 × 12를 네 칸으로 쪼개기'),
+  H('happy','130 + 26 = 156! 큰 문제도 아는 곱셈으로 쪼개면 되는구나.'),
+  S('happy','세 자리 곱셈도 같아. 213 × 3은 200 × 3, 10 × 3, 3 × 3을 각각 구해서 더하면 639!'),
+  T('think','쳇, 다리를 건너면 곱셈 크리스탈이 있어. 하지만 내 대장 문제를 먼저 풀어야 할걸!')],
+ widget:'area',
+ quiz:()=>{
+  const a=()=>{const x=ri(101,329),m=ri(2,3),h=Math.floor(x/100)*100,t=Math.floor(x%100/10)*10,o=x%10;return num(`<p class="big">${x} × ${m} = □</p>`,x*m,`${h} × ${m}, ${t} × ${m}, ${o} × ${m}을 각각 구해서 더해 봐.`,`${h*m} + ${t*m} + ${o*m} = ${x*m}`);};
+  const b=()=>{const x=ri(11,29),y=ri(11,19),y1=Math.floor(y/10)*10,y0=y%10;return num(`<p class="big">${x} × ${y} = □</p>`,x*y,`${y}를 ${y1}과 ${y0}으로 쪼개 봐. ${x} × ${y1}과 ${x} × ${y0}을 구해서 더해!`,`${x} × ${y1} = ${x*y1}, ${x} × ${y0} = ${x*y0}, 더하면 ${x*y}`);};
+  const c=()=>{const x=ri(12,24),y=ri(11,15),y0=y%10;return num(`<p>한 상자에 색연필이 <b>${x}자루</b>씩 들어 있어요. <b>${y}상자</b>에는 모두 몇 자루일까요?</p>`,x*y,`${x} × ${y}를 ${x} × 10과 ${x} × ${y0}으로 쪼개 봐.`,`${x*10} + ${x*y0} = ${x*y}`);};
+  return [a(),b(),a(),b(),c()];}},
+/* ===== 나눗셈 동굴 ===== */
+{id:'div-1',r:'div',t:'똑같이 나누기',goal:'나눗셈의 두 가지 뜻(똑같이 나누어 주기, 몇 개씩 묶어 덜어 내기)을 다시 떠올려요.',
+ comic:[N('어두운 나눗셈 동굴. 바닥에 보석 12개가 흩어져 있어요.'),SC(gemsHtml(12),'보석 12개'),
+  T('happy','보석 12개를 셋이서 나누자. 나 10개, 너희는 1개씩! 공평하지?'),
+  H('oops','그건 하나도 안 공평해!'),
+  S('happy','나눗셈은 똑같이 나누는 거야. 한 명에게 하나씩 차례로 나눠 주면… 한 사람에 4개씩. 12 ÷ 3 = 4.'),
+  H('think','보석을 4개씩 주머니에 담으면 주머니가 몇 개 필요할까? 12에서 4씩 덜어 내면 3번! 이것도 12 ÷ 4 = 3이야.'),
+  S('happy','맞아. "한 명에 몇 개씩?"을 구할 때도, "몇 묶음?"을 구할 때도 나눗셈을 써.')],
+ widget:'share',
+ quiz:()=>{
+  const a=()=>{const b=ri(2,9),q=ri(2,9);return num(`<p class="big">${b*q} ÷ ${b} = □</p>`,q,`${b}단에서 ${b*q}가 나오는 곳을 찾아봐.`,`${b} × ${q} = ${b*q}이므로 ${b*q} ÷ ${b} = ${q}`);};
+  const b=()=>{const n=ri(2,5),q=ri(2,6);return num(`${gemsHtml(n*q)}<p>보석 ${n*q}개를 친구 ${n}명에게 똑같이 나누어 주면, 한 명에게 몇 개씩일까요?</p>`,q,'한 명에게 하나씩 차례로 나눠 준다고 생각해 봐.',`${n*q} ÷ ${n} = ${q}`);};
+  const c=()=>{const s=ri(2,6),q=ri(2,8);return num(`<p>구슬 ${s*q}개를 한 주머니에 ${s}개씩 담으면, 주머니가 몇 개 필요할까요?</p>`,q,`${s*q}에서 ${s}씩 몇 번 덜어 낼 수 있을까?`,`${s*q} ÷ ${s} = ${q}`);};
+  const d=()=>{const b=ri(2,6),q=ri(2,6),t=b*q;return mc(`<p><b>${t} ÷ ${b}</b>의 뜻으로 알맞은 것은?</p>`,`${t}개를 ${b}명에게 똑같이 나눈 한 명의 몫`,[`${t}에서 ${b}를 한 번 뺀 수`,`${t}를 ${b}번 더한 수`],'나눗셈은 "똑같이 나누기"야.',`${t} ÷ ${b}는 ${t}개를 ${b}명에게 똑같이 나눌 때 한 명이 받는 수예요. 답은 ${q}`);};
+  return [a(),b(),c(),d(),a()];}},
+{id:'div-2',r:'div',t:'곱셈구구로 몫 찾기',goal:'곱셈과 나눗셈의 관계를 이용해 몫을 빠르게 구해요.',
+ comic:[N('동굴 문에 자물쇠가 걸려 있어요. "24 ÷ 6 = ?"'),
+  T('happy','쉽지! 24에서 6을 빼면 18. 답은 18!'),
+  S('oops','삐빅! 그건 뺄셈이야. 나눗셈은 24 안에 6이 몇 번 들어가는지 묻는 거야.'),
+  H('think','6단을 외워 보자. 6 × 1 = 6, 6 × 2 = 12, 6 × 3 = 18, 6 × 4 = 24! 6이 4번 들어가니까 몫은 4.'),
+  SC(`<ul class="eqs"><li>6 × 4 = 24</li><li>24 ÷ 6 = 4</li><li>24 ÷ 4 = 6</li></ul>`,'세 수는 한 가족'),
+  S('happy','곱셈식 하나로 나눗셈식 두 개를 만들 수 있어. 6, 4, 24는 한 가족이야!'),
+  T('oops','덜컹! 자물쇠가 열려 버렸잖아…')],
+ widget:'family',
+ quiz:()=>{
+  const a=()=>{const b=ri(3,9),q=ri(3,9),t=b*q;return num(`<p>${b} × ${q} = ${t}</p><p class="big">${t} ÷ ${q} = □</p>`,b,'곱셈식의 세 수는 한 가족! 곱셈식 안에서 찾아봐.',`${b} × ${q} = ${t} → ${t} ÷ ${q} = ${b}`);};
+  const b=()=>{const n=ri(3,9),q=ri(3,9),t=n*q;return num(`<p class="big">${t} ÷ □ = ${n}</p>`,q,`${n} × □ = ${t}를 생각해 봐.`,`${n} × ${q} = ${t}이므로 ${t} ÷ ${q} = ${n}`);};
+  const c=()=>{const n=ri(4,9),q=ri(3,9),t=n*q;return num(`${ttungSays(`${t} ÷ ${n} = ${t-n}! ${t}에서 ${n}을 뺐지롱.`)}<p>바른 몫은 얼마일까요?</p>`,q,`${n}단에서 ${t}를 찾아봐.`,`${n} × ${q} = ${t}이므로 ${t} ÷ ${n} = ${q}`);};
+  const d=()=>{const n=ri(2,4),tq=ri(1,Math.floor(9/n)),oq=ri(0,Math.floor(9/n)),q=tq*10+oq,t=n*q;return num(`<p class="big">${t} ÷ ${n} = □</p>`,q,`${t}를 ${tq*n*10}과 ${oq*n}으로 쪼개서 각각 ${n}로 나눠 봐.`,`${tq*n*10} ÷ ${n} = ${tq*10}, ${oq*n} ÷ ${n} = ${oq}, 합치면 ${q}`);};
+  return [a(),b(),c(),d(),b()];}},
+{id:'div-3',r:'div',t:'나머지와 검산',goal:'나머지가 있는 나눗셈을 하고, 곱셈으로 맞는지 확인(검산)해요.',
+ comic:[N('동굴 깊은 곳. 빛나는 구슬 17개를 상자 5개에 똑같이 넣어야 해요.'),
+  H('think','한 상자에 3개씩 넣으면 15개… 2개가 남아!'),
+  S('happy','17 ÷ 5 = 3 … 2. 3은 몫, 남은 2는 나머지야.'),
+  T('happy','그럼 2개씩 넣고 7개 남겨도 되지? 17 ÷ 5 = 2 … 7!'),
+  H('oops','안 돼! 7개가 남으면 상자마다 1개씩 더 넣을 수 있잖아. 나머지는 항상 나누는 수보다 작아야 해.'),
+  SC('<p class="eq">5 × 3 + 2 = <b>17</b></p>','검산: 나누는 수 × 몫 + 나머지'),
+  S('happy','답이 맞는지 확인하는 방법도 있어. 나누는 수 × 몫 + 나머지 = 나누어지는 수. 5 × 3 + 2 = 17, 딱 맞지? 이걸 검산이라고 해.')],
+ widget:'share2',
+ quiz:()=>{
+  const a=()=>{const d=ri(3,9),q=ri(2,9),r=ri(1,d-1),t=d*q+r;return qrq(`<p class="big">${t} ÷ ${d} = □ … □</p>`,q,r,`${d}단에서 ${t}보다 작으면서 가장 가까운 수를 찾아봐.`,`${d} × ${q} = ${d*q}, ${t} - ${d*q} = ${r}. 몫 ${q}, 나머지 ${r} (검산: ${d} × ${q} + ${r} = ${t})`);};
+  const b=()=>{const d=ri(3,8),q=ri(2,9),r=ri(1,d-1);return num(`<p>어떤 나눗셈에서 나누는 수는 <b>${d}</b>, 몫은 <b>${q}</b>, 나머지는 <b>${r}</b>예요. 나누어지는 수는 얼마일까요?</p>`,d*q+r,'검산식: 나누는 수 × 몫 + 나머지',`${d} × ${q} + ${r} = ${d*q+r}`);};
+  const c=()=>{const d=ri(4,7),bad=d+ri(0,2),goods=shuffle(Array.from({length:d-1},(_,i)=>i+1)).slice(0,3);return mc(`<p>□ ÷ ${d}의 나머지가 될 수 <b>없는</b> 수는?</p>`,String(bad),goods.map(String),`나머지는 나누는 수 ${d}보다 작아야 해.`,`${bad}는 ${d}보다 작지 않아서 나머지가 될 수 없어요.`);};
+  const d=()=>{const n=ri(3,6),q=ri(3,8),r=ri(1,n-1),t=n*q+r;return qrq(`<p>쿠키 <b>${t}개</b>를 접시 <b>${n}개</b>에 똑같이 나누어 담으면, 한 접시에 몇 개씩 담고 몇 개가 남을까요?</p>`,q,r,`${t} ÷ ${n}을 계산해 봐. 남은 쿠키는 ${n}개보다 적어야 해.`,`${t} ÷ ${n} = ${q} … ${r}. 한 접시에 ${q}개, ${r}개가 남아요.`);};
+  return [a(),b(),a(),c(),d()];}},
+/* ===== 분수 성 ===== */
+{id:'frac-1',r:'frac',t:'똑같이 나누어야 분수!',goal:'전체를 똑같이 나누는 것이 분수의 시작이라는 것을 알아요.',
+ comic:[N('드디어 분수 성! 성 안에서는 커다란 케이크 잔치가 열리고 있어요.'),
+  T('happy','내가 케이크를 4조각으로 잘랐어! 하나씩 가져가.'),
+  SC(pie(4,0,{size:150,angles:[5,1.5,1,1.5]}),'뚱땅이가 자른 케이크'),
+  H('oops','뚱땅아, 네 조각만 엄청 크잖아!'),
+  S('think','조각 수가 같아도 크기가 다르면 공평하지 않아. 분수는 전체를 똑같이 나누는 데서 시작해.'),
+  SC(pie(4,0,{size:150}),'똑같이 4조각'),
+  H('happy','이렇게 똑같이 4조각으로 나누면 어느 조각을 골라도 크기가 같아!')],
+ widget:'fair',
+ quiz:()=>{
+  const a=()=>{const d=pick([2,3,4]);return mc(`<p>똑같이 <b>${d}조각</b>으로 나눈 것은 어느 것일까요?</p>`,bar(d,0,{w:180,h:36}),[0,1,2].map(()=>bar(d,0,{w:180,h:36,widths:unequalW(d)})),'조각들의 크기가 모두 같은지 살펴봐.','모든 조각의 크기가 같아야 똑같이 나눈 거예요.');};
+  const b=()=>{const d=ri(2,8);return num(`${pie(d,0,{size:140})}<p>이 피자는 몇 조각으로 똑같이 나누었나요?</p>`,d,'선을 따라 조각을 하나씩 세어 봐.',`똑같이 ${d}조각으로 나누었어요.`);};
+  const c=()=>{const ds=shuffle([2,3,4,5,6]).slice(0,3),bd=pick([3,4,5]);return mc('<p>똑같이 나누지 <b>않은</b> 것은 어느 것일까요?</p>',pie(bd,0,{size:90,angles:unequalW(bd)}),ds.map(d=>pie(d,0,{size:90})),'크기가 다른 조각이 섞여 있는 피자를 찾아봐.','조각의 크기가 서로 다르면 똑같이 나눈 것이 아니에요.');};
+  return [a(),b(),c(),a(),b()];}},
+{id:'frac-2',r:'frac',t:'분수의 이름, 분모와 분자',goal:'분모와 분자의 뜻을 알고, 분수를 읽고 써요.',
+ comic:[S('happy','케이크를 똑같이 4조각으로 나눈 것 중 1조각을 "4분의 1"이라고 하고, 이렇게 써.'),
+  SC(`${pie(4,1,{size:120})}${fr(1,4,'big')}`,'4분의 1'),
+  H('think','숫자가 위아래로 있네? 아래 숫자는 뭐야?'),
+  S('happy','아래의 4는 분모. 전체를 몇 조각으로 똑같이 나눴는지 알려 줘. 위의 1은 분자. 그중 몇 조각인지 알려 줘.'),
+  H('happy','외우는 방법을 만들었어! 분모는 "모두" 몇 조각, 분자는 "자기" 몫 몇 조각!'),
+  T('think','그럼 4조각 중 3조각을 먹으면 3분의 4?'),
+  H('happy',`거꾸로야! 전체 4조각 중 3조각이니까 4분의 3, ${fr(3,4)}. 읽을 때는 분모부터 읽어.`)],
+ widget:'pie',
+ quiz:()=>{
+  const a=()=>{const d=ri(2,8),k=ri(1,d-1);return frq(`${pie(d,k,{size:130})}<p>색칠한 부분은 전체의 얼마일까요? 분수로 써 보세요.</p>`,k,d,'전체 조각 수가 분모(아래), 색칠한 조각 수가 분자(위)야.',`전체 ${d}조각 중 ${k}조각이니까 ${fr(k,d)}`);};
+  const b=()=>{const d=ri(3,9),k=ri(1,d-1);return mc(`<p class="big">${fr(k,d)}</p><p>바르게 읽은 것은?</p>`,`${d}분의 ${k}`,[`${k}분의 ${d}`,`${k}와 ${d}`,`${d}의 ${k}분`],'분수는 아래 숫자(분모)부터 읽어.',`${fr(k,d)}는 "${d}분의 ${k}"라고 읽어요.`);};
+  const c=()=>{const d=ri(3,9),k=ri(1,d-1),ask=pick(['분모','분자']);return num(`<p class="big">${fr(k,d)}</p><p>이 분수의 <b>${ask}</b>는 얼마일까요?</p>`,ask==='분모'?d:k,'분모는 아래, 분자는 위!',`${fr(k,d)}의 분모는 ${d}, 분자는 ${k}예요.`);};
+  const d=()=>{const n=ri(3,8),k=ri(1,n-1);return frq(`${bar(n,k,{w:240,h:44})}<p>색칠하지 <b>않은</b> 부분은 전체의 얼마일까요?</p>`,n-k,n,'색칠하지 않은 칸을 세어 봐.',`전체 ${n}칸 중 ${n-k}칸이니까 ${fr(n-k,n)}`);};
+  return [a(),b(),c(),d(),a()];}},
+{id:'frac-3',r:'frac',t:'어느 조각이 더 클까?',goal:'단위분수끼리, 분모가 같은 분수끼리 크기를 비교해요.',
+ comic:[T('happy',`나는 피자 ${fr(1,2)} 조각 말고 ${fr(1,8)} 조각 줘. 8이 2보다 크니까 더 크겠지!`),
+  S('think','정말 그럴까? 피자를 2명이 나눌 때랑 8명이 나눌 때를 비교해 봐.'),
+  SC(`${pie(2,1,{size:110})}${pie(8,1,{size:110})}`,`${fr(1,2)}과 ${fr(1,8)}`),
+  H('wow','8명이 나누면 한 조각이 훨씬 작아! 분모가 클수록 한 조각은 작아지는구나.'),
+  T('oops','내 피자가 쪼그라들었어…'),
+  S('happy',`분모가 같을 때는 더 쉬워. 조각 크기가 같으니까 분자가 큰 쪽이 더 커. ${fr(3,5)}는 ${fr(2,5)}보다 커!`)],
+ widget:'compare',
+ quiz:()=>{
+  const a=()=>{const x=ri(2,9);let y=ri(2,9);while(y===x)y=ri(2,9);return sgnQ(`<p class="big">${fr(1,x)} ○ ${fr(1,y)}</p><p>○ 안에 알맞은 것은?</p>`,SG(y,x),'분모가 클수록 한 조각은 더 작아져.',`${fr(1,Math.min(x,y))}이 더 커요. 적게 나눌수록 한 조각이 크니까요.`);};
+  const b=()=>{const d=ri(4,9),x=ri(1,d-1);let y=ri(1,d-1);while(y===x)y=ri(1,d-1);return sgnQ(`<p class="big">${fr(x,d)} ○ ${fr(y,d)}</p><p>○ 안에 알맞은 것은?</p>`,SG(x,y),'분모가 같으면 조각 크기가 같아. 조각 수(분자)를 비교해!',`분모가 같으니까 분자가 큰 ${fr(Math.max(x,y),d)}가 더 커요.`);};
+  const c=()=>{const ds=shuffle([2,3,4,5,6,7,8,9]).slice(0,3),m=Math.min(...ds);return mc('<p>가장 큰 분수는 어느 것일까요?</p>',fr(1,m),ds.filter(x=>x!==m).map(x=>fr(1,x)),'분자가 모두 1이면, 분모가 가장 작은 것이 가장 커.',`분모가 가장 작은 ${fr(1,m)}이 가장 커요.`);};
+  const d=()=>{const n=ri(5,9),ks=shuffle(Array.from({length:n-1},(_,i)=>i+1)).slice(0,3),m=Math.min(...ks);return mc('<p>가장 작은 분수는 어느 것일까요?</p>',fr(m,n),ks.filter(k=>k!==m).map(k=>fr(k,n)),'분모가 모두 같으면 분자를 비교해.',`분자가 가장 작은 ${fr(m,n)}가 가장 작아요.`);};
+  return [a(),b(),a(),c(),d()];}},
+{id:'frac-4',r:'frac',t:'묶음을 분수로',goal:'여러 개의 물건을 똑같이 묶어서 분수로 나타내요.',
+ comic:[N('성의 사탕 창고. 사탕 12개가 쌓여 있어요.'),
+  S('happy','사탕 12개를 똑같이 3묶음으로 나눠 볼까? 한 묶음에 4개씩이야.'),
+  SC(candies(12,3,[0]),'12개를 3묶음으로'),
+  H('think',`그럼 색칠한 한 묶음은 3묶음 중의 1묶음… ${fr(1,3)}이네!`),
+  S('happy',`맞아. 12의 ${fr(1,3)}은 4개. 그럼 12의 ${fr(2,3)}는?`),
+  H('happy','2묶음이니까 4 + 4 = 8개!'),
+  T('think','물건이 여러 개여도 분수가 되다니… 사탕도 공평하게 나눠야겠군.')],
+ widget:'groups',
+ quiz:()=>{
+  const a=()=>{const g=pick([2,3,4,5]),s=ri(2,5),t=g*s;return num(`${candies(t,1)}<p>사탕 ${t}개의 ${fr(1,g)}은 몇 개일까요?</p>`,s,`${t}개를 똑같이 ${g}묶음으로 나누면 한 묶음에 몇 개일까?`,`${t} ÷ ${g} = ${s}, 그래서 ${t}의 ${fr(1,g)}은 ${s}개예요.`);};
+  const b=()=>{const g=pick([3,4,5]),s=ri(2,4),k=ri(2,g-1),t=g*s;return num(`${candies(t,g)}<p>사탕 ${t}개의 ${fr(k,g)}는 몇 개일까요?</p>`,k*s,`한 묶음(${fr(1,g)})이 ${s}개야. ${k}묶음이면?`,`${fr(1,g)}은 ${s}개, ${fr(k,g)}는 ${s} × ${k} = ${k*s}개`);};
+  const c=()=>{const s=ri(2,5),g=pick([2,3,4,5]),t=s*g;return frq(`<p>사탕 ${t}개를 <b>${s}개씩</b> 묶었어요. ${s}개는 ${t}개의 얼마일까요?</p>`,1,g,`${s}개씩 묶으면 모두 몇 묶음이 될까?`,`${t} ÷ ${s} = ${g}묶음 중 1묶음이니까 ${fr(1,g)}`);};
+  const d=()=>{const g=pick([3,4,5,6]),s=ri(2,3),k=ri(1,g-1),sel=shuffle(Array.from({length:g},(_,i)=>i)).slice(0,k);return frq(`${candies(g*s,g,sel)}<p>색칠한 묶음은 전체의 얼마일까요?</p>`,k,g,'전체 묶음 수가 분모, 색칠한 묶음 수가 분자야.',`${g}묶음 중 ${k}묶음이니까 ${fr(k,g)}`);};
+  return [a(),d(),b(),c(),b()];}},
+{id:'frac-5',r:'frac',t:'진분수, 가분수, 대분수',goal:'1보다 작은 분수와 1보다 큰 분수를 구분하고, 가분수와 대분수를 서로 바꿔요.',
+ comic:[N(`성의 연회장. 피자가 ${fr(1,4)} 크기로 조각조각 나 있어요.`),
+  H('happy',`${fr(1,4)} 조각을 5개 모았어! 그럼 ${fr(5,4)}?`),
+  SC(pies(5,4,100),`${fr(1,4)}이 5개`),
+  S('happy',`맞아. ${fr(5,4)}처럼 분자가 분모와 같거나 큰 분수를 가분수라고 해. ${fr(1,2)}, ${fr(3,4)}처럼 분자가 분모보다 작은 분수는 진분수야.`),
+  H('think',`그런데 ${fr(5,4)}는 피자 한 판이랑 한 조각이잖아?`),
+  S('happy',`그래서 ${mixed(1,1,4)}(1과 4분의 1)이라고도 써. 자연수와 진분수를 함께 쓴 분수를 대분수라고 해.`),
+  T('happy',`피자 한 판 반이면 ${mixed(1,1,2)}! 이건 나도 알겠다!`)],
+ widget:'improper',
+ quiz:()=>{
+  const a=()=>{const d=ri(2,7),n=Math.random()<.5?ri(1,d-1):ri(d,2*d+1),t=n<d?'진분수':'가분수';return mc(`<p class="big">${fr(n,d)}</p><p>이 분수는 어떤 분수일까요?</p>`,t,[t==='진분수'?'가분수':'진분수','대분수'],'분자와 분모 중 어느 쪽이 큰지 비교해 봐.',`분자 ${n}이 분모 ${d}보다 ${n<d?'작으니까 진분수':'크거나 같으니까 가분수'}예요.`,['진분수','가분수','대분수']);};
+  const b=()=>{const d=ri(2,6),w=ri(1,3),r=ri(1,d-1),n=w*d+r;return mxq(`${pies(n,d,84)}<p class="big">${fr(n,d)}를 대분수로 나타내면?</p>`,w,r,d,`${d}조각이 모이면 피자 한 판! ${n}조각으로 한 판을 몇 번 채울 수 있을까?`,`${n} ÷ ${d} = ${w} … ${r} → ${mixed(w,r,d)}`);};
+  const c=()=>{const d=ri(2,6),w=ri(1,3),r=ri(1,d-1);return frq(`<p class="big">${mixed(w,r,d)}</p><p>이 대분수를 가분수로 나타내면?</p>`,w*d+r,d,`한 판은 ${fr(d,d)}! ${w}판은 몇 조각일까?`,`${w}판 = ${w*d}조각, 여기에 ${r}조각을 더하면 ${w*d+r}조각 → ${fr(w*d+r,d)}`);};
+  const d=()=>{const d=ri(3,5),n=ri(d+1,2*d-1);return frq(`${pies(n,d,100)}<p>색칠한 부분을 가분수로 나타내면?</p>`,n,d,`한 조각은 ${fr(1,d)}이야. 색칠한 조각이 모두 몇 개일까?`,`${fr(1,d)}이 ${n}개니까 ${fr(n,d)}`);};
+  return [a(),d(),b(),c(),a()];}},
+{id:'frac-6',r:'frac',t:'분수의 덧셈과 뺄셈',preview:true,goal:'분모가 같은 분수끼리 더하고 빼요. (4학년 내용 미리보기)',
+ comic:[N(`성의 꼭대기. 분수 크리스탈 앞에 마지막 문제가 있어요. "${fr(1,4)} + ${fr(2,4)}"`),
+  T('happy',`분자끼리 더하고 분모끼리 더하면 ${fr(3,8)}! 이번엔 확실해!`),
+  H('think',`피자로 생각해 보자. ${fr(1,4)} 조각 1개와 2개를 모으면…`),
+  SC(pie(4,['on','on2','on2',''],{size:140}),`${fr(1,4)} + ${fr(2,4)}`),
+  H('wow',`4조각 중 3조각, ${fr(3,4)}야! ${fr(3,8)}은 오히려 더 작아졌잖아.`),
+  S('happy',`조각 크기(분모)는 그대로야. 같은 크기 조각이 몇 개인지(분자)만 더하면 돼. 뺄 때도 마찬가지! ${fr(3,5)} − ${fr(1,5)} = ${fr(2,5)}`),
+  T('oops','조각을 모아도 조각 크기는 안 변하는구나… 이제 알겠어.')],
+ widget:'addpie',
+ quiz:()=>{
+  const a=()=>{const d=ri(3,9),x=ri(1,d-2),y=ri(1,d-1-x);return frq(`<p class="big">${fr(x,d)} + ${fr(y,d)} = □</p>`,x+y,d,'분모(조각 크기)는 그대로, 분자(조각 수)끼리 더해!',`${fr(x,d)} + ${fr(y,d)} = ${fr(x+y,d)}`);};
+  const b=()=>{const d=ri(3,9),x=ri(2,d-1),y=ri(1,x-1);return frq(`<p class="big">${fr(x,d)} − ${fr(y,d)} = □</p>`,x-y,d,'분모는 그대로, 분자끼리 빼!',`${fr(x,d)} − ${fr(y,d)} = ${fr(x-y,d)}`);};
+  const c=()=>{const d=ri(4,8),x=ri(1,d-2),y=ri(1,d-1-x);return frq(`${ttungSays(`${fr(x,d)} + ${fr(y,d)} = ${fr(x+y,d+d)}! 위는 위끼리, 아래는 아래끼리!`)}<p>바르게 계산하면 얼마일까요?</p>`,x+y,d,'조각을 모아도 조각 크기(분모)는 바뀌지 않아.',`${fr(x,d)} + ${fr(y,d)} = ${fr(x+y,d)}`);};
+  const d=()=>{const x=ri(1,4),y=ri(1,7-x);return frq(`${pie(8,Array.from({length:8},(_,i)=>i<x?'on':i<x+y?'on2':''),{size:130})}<p>피자 8조각 중 하루가 <b>${x}조각</b>, 셈이가 <b>${y}조각</b>을 먹었어요. 두 사람이 먹은 피자는 전체의 얼마일까요?</p>`,x+y,8,`하루는 ${fr(x,8)}, 셈이는 ${fr(y,8)}을 먹었어. 더해 봐!`,`${fr(x,8)} + ${fr(y,8)} = ${fr(x+y,8)}`);};
+  return [a(),b(),c(),a(),d()];}}
+];
+
+/* ---------- interactive widgets ---------- */
+const stp=(k,label,v)=>`<div class="stp"><span>${label}</span><button type="button" data-k="${k}" data-d="-1" aria-label="${label} 줄이기">−</button><output aria-live="polite">${v}</output><button type="button" data-k="${k}" data-d="1" aria-label="${label} 늘리기">+</button></div>`;
+const divs=t=>{const r=[];for(let g=2;g<t;g++)if(t%g===0)r.push(g);return r;};
+const TOT=[6,8,10,12,15,16,18,20,24];
+const shareView=s=>{const r=s.r,pile=s.t-r*s.n,done=pile<s.n;
+  return `<div class="stps">${stp('t','보석',s.t)}${stp('n','바구니',s.n)}</div>
+  <div class="pile"><span class="lbl">남은 보석 ${pile}개</span>${gemsHtml(pile)}</div>
+  <div class="baskets">${Array.from({length:s.n},()=>`<div class="bk">${gemsHtml(r)}<span>${r}개</span></div>`).join('')}</div>
+  <div class="row"><button type="button" class="btn" data-act="deal" ${done?'disabled':''}>한 바퀴 나눠 주기</button><button type="button" class="btn ghost" data-act="all" ${done?'disabled':''}>끝까지 나눠 주기</button><button type="button" class="btn ghost" data-act="reset">처음부터</button></div>
+  <p class="eq">${done?`${s.t} ÷ ${s.n} = <b>${r}</b>${pile?` … 나머지 <b>${pile}</b>`:''}`:'바구니마다 하나씩 차례로 나눠 줘 볼까?'}</p>
+  ${done?`<p class="note">${pile?`남은 ${pile}개는 바구니 ${s.n}개에 하나씩 줄 수 없어서 나머지가 돼요. (검산: ${s.n} × ${r} + ${pile} = ${s.t})`:`딱 맞게 나누어졌어요. (${s.n} × ${r} = ${s.t})`}</p>`:''}`;};
+const shareStep=(k,d,s)=>{if(k==='t')s.t=clamp(s.t+d,2,30);else s.n=clamp(s.n+d,2,6);s.r=0;};
+const shareAct=(a,el,s)=>{if(a==='deal'&&s.t-s.r*s.n>=s.n)s.r++;if(a==='all')s.r=Math.floor(s.t/s.n);if(a==='reset')s.r=0;};
+const WIDGETS={
+  array:{intro:'줄 수와 한 줄의 개수를 바꿔 보고, 덧셈식과 곱셈식이 어떻게 변하는지 살펴봐요. "판 돌리기"를 누르면 곱하는 순서가 바뀌어요.',
+    init:()=>({c:4,r:3}),
+    view:s=>`<div class="stps">${stp('c','한 줄에',s.c)}${stp('r','줄 수',s.r)}</div><div class="viz">${apples(s.c,s.r)}</div><p class="eq">${Array(s.r).fill(s.c).join(' + ')} = <b>${s.c*s.r}</b><br>${s.c} × ${s.r} = <b>${s.c*s.r}</b></p><button type="button" class="btn ghost" data-act="rot">판 돌리기</button>`,
+    step:(k,d,s)=>{s[k]=clamp(s[k]+d,1,9);},act:(a,el,s)=>{if(a==='rot')[s.c,s.r]=[s.r,s.c];}},
+  mulsteps:{intro:'"다음 단계"를 눌러 세로셈을 한 단계씩 풀어 봐요. 올림한 수가 어디로 가는지 잘 보세요.',
+    init:()=>{const [a,m]=carryPair();return {a,m,step:0};},
+    view:s=>{const o=s.a%10,t=Math.floor(s.a/10),X=o*s.m,c=Math.floor(X/10);
+      const msg=[`${s.a} × ${s.m}을 세로로 써요. 일의 자리부터 계산해요.`,`일의 자리: ${o} × ${s.m} = ${X}. ${X%10}을 쓰고, ${c}을 십의 자리 위에 올려요.`,`십의 자리: ${t} × ${s.m} = ${t*s.m}, 올림한 ${c}을 더하면 ${t*s.m+c}. 답은 ${s.a*s.m}!`][s.step];
+      return `${vmul(s.a,s.m,s.step)}<p class="note">${msg}</p><div class="row"><button type="button" class="btn" data-act="next" ${s.step>=2?'disabled':''}>다음 단계</button><button type="button" class="btn ghost" data-act="new">새 문제</button></div>`;},
+    act:(a,el,s)=>{if(a==='next')s.step=Math.min(2,s.step+1);if(a==='new')Object.assign(s,WIDGETS.mulsteps.init());}},
+  area:{intro:'두 자리 수를 십의 자리와 일의 자리로 쪼개면, 네 개의 작은 곱셈이 돼요. 네 칸을 모두 더하면 답!',
+    init:()=>{let a=ri(12,29);while(a%10===0)a=ri(12,29);return {a,b:ri(11,19)};},
+    view:s=>{const a1=Math.floor(s.a/10)*10,a0=s.a%10,b1=Math.floor(s.b/10)*10,b0=s.b%10;return `<p class="eq">${s.a} × ${s.b}</p>${areaModel(s.a,s.b)}<p class="eq">${a1*b1} + ${a0*b1} + ${a1*b0} + ${a0*b0} = <b>${s.a*s.b}</b></p><button type="button" class="btn ghost" data-act="new">새 문제</button>`;},
+    act:(a,el,s)=>{if(a==='new')Object.assign(s,WIDGETS.area.init());}},
+  share:{intro:'보석 수와 바구니 수를 정하고, 바구니마다 하나씩 나눠 줘 보세요. 한 바구니에 몇 개씩 들어갈까요?',init:()=>({t:12,n:3,r:0}),view:shareView,step:shareStep,act:shareAct},
+  share2:{intro:'이번에는 딱 나누어떨어지지 않는 수로 해 봐요. 남는 보석이 나머지예요. 나머지는 항상 바구니 수보다 작은지 확인해 보세요.',init:()=>({t:17,n:5,r:0}),view:shareView,step:shareStep,act:shareAct},
+  family:{intro:'세 수가 한 가족이 되면 곱셈식 2개, 나눗셈식 2개를 만들 수 있어요.',
+    init:()=>({b:6,q:4}),
+    view:s=>{const a=s.b*s.q;return `<div class="fam"><svg viewBox="0 0 220 180" role="img" aria-label="${s.b}, ${s.q}, ${a} 숫자 가족"><path d="M110 10 L208 170 L12 170Z" fill="var(--paper2)" stroke="var(--line)" stroke-width="3" stroke-linejoin="round"/><path d="M40 122 L180 122" stroke="var(--line)" stroke-width="2" stroke-dasharray="5 5"/><text x="110" y="92" class="tnum top">${a}</text><text x="68" y="158" class="tnum">${s.b}</text><text x="110" y="156" class="tnum" style="font-size:22px">×</text><text x="152" y="158" class="tnum">${s.q}</text></svg><ul class="eqs"><li>${s.b} × ${s.q} = ${a}</li><li>${s.q} × ${s.b} = ${a}</li><li>${a} ÷ ${s.b} = ${s.q}</li><li>${a} ÷ ${s.q} = ${s.b}</li></ul></div><button type="button" class="btn ghost" data-act="new">새 숫자 가족</button>`;},
+    act:(a,el,s)=>{if(a==='new'){s.b=ri(2,9);s.q=ri(2,9);}}},
+  fair:{intro:'두 가지 칼질을 비교해 보세요. 조각 수를 바꿔도 셈이의 칼질은 언제나 똑같은 크기예요.',
+    init:()=>({d:4,mode:'bad',w:unequalW(4)}),
+    view:s=>`<div class="row seg"><button type="button" class="btn ${s.mode==='bad'?'':'ghost'}" data-act="bad" aria-pressed="${s.mode==='bad'}">뚱땅이의 칼질</button><button type="button" class="btn ${s.mode==='good'?'':'ghost'}" data-act="good" aria-pressed="${s.mode==='good'}">셈이의 칼질</button></div><div class="stps">${stp('d','조각 수',s.d)}</div><div class="viz">${pie(s.d,0,{size:200,angles:s.mode==='bad'?s.w:null})}</div><p class="note">${s.mode==='bad'?`${s.d}조각이지만 크기가 제각각! 이렇게 자른 조각은 분수로 나타낼 수 없어요.`:`똑같이 ${s.d}조각! 한 조각은 전체의 ${fr(1,s.d)}이에요.`}</p>`,
+    step:(k,d,s)=>{s.d=clamp(s.d+d,2,8);s.w=unequalW(s.d);},act:(a,el,s)=>{if(a==='bad'){s.mode='bad';s.w=unequalW(s.d);}if(a==='good')s.mode='good';}},
+  pie:{intro:'조각 수를 정하고, 피자 조각을 눌러 색칠해 보세요. 분수가 바로 바뀌어요.',
+    init:()=>({d:4,on:[true,false,false,false]}),
+    view:s=>{const k=s.on.filter(Boolean).length;return `<div class="stps">${stp('d','몇 조각으로 나눌까?',s.d)}</div><div class="pie-row"><div class="viz">${pie(s.d,s.on.map(x=>x?'on':''),{size:210,click:true,label:`${s.d}조각 중 ${k}조각 색칠`})}</div><div class="frbox">${fr(k,s.d,'big')}<p class="read">${s.d}분의 ${k}</p><ul class="legend"><li><b>분자 ${k}</b>색칠한 조각 수</li><li><b>분모 ${s.d}</b>전체 조각 수</li></ul></div></div><p class="note">조각을 눌러서 색칠하거나 지워 보세요.</p>`;},
+    step:(k,d,s)=>{const n=clamp(s.d+d,2,10);s.on=Array.from({length:n},(_,i)=>s.on[i]||false);s.d=n;},
+    act:(a,el,s)=>{if(a==='slice'){const i=+el.dataset.i;s.on[i]=!s.on[i];}}},
+  compare:{intro:'두 분수를 막대로 나란히 놓고 길이를 비교해 보세요. 분자와 분모를 바꿔 가며 규칙을 찾아봐요.',
+    init:()=>({an:1,ad:2,bn:1,bd:8}),
+    view:s=>{const A=s.an/s.ad,B=s.bn/s.bd,sg=Math.abs(A-B)<1e-9?'=':A>B?'&gt;':'&lt;';
+      const msg=s.ad===s.bd?'분모가 같으면 조각 크기가 같으니까, 분자가 큰 쪽이 더 커요.':(s.an===1&&s.bn===1)?'분자가 1이면 분모가 작을수록(적게 나눌수록) 한 조각이 커요.':'막대의 색칠한 길이를 비교해 보세요.';
+      const side=(n,d,kn,kd)=>`<div class="cmp-side"><div class="stps">${stp(kn,'분자',n)}${stp(kd,'분모',d)}</div>${bar(d,n,{w:300,h:44})}${fr(n,d,'big')}</div>`;
+      return `<div class="cmp">${side(s.an,s.ad,'an','ad')}<div class="sgn" aria-label="비교 기호">${sg}</div>${side(s.bn,s.bd,'bn','bd')}</div><p class="note">${msg}</p>`;},
+    step:(k,d,s)=>{if(k==='ad'||k==='bd'){s[k]=clamp(s[k]+d,2,10);s.an=Math.min(s.an,s.ad);s.bn=Math.min(s.bn,s.bd);}else s[k]=clamp(s[k]+d,1,k==='an'?s.ad:s.bd);}},
+  groups:{intro:'사탕 수와 묶음 수를 정하고, 묶음을 눌러 색칠해 보세요. 색칠한 묶음이 전체의 얼마인지 알 수 있어요.',
+    init:()=>({t:12,g:3,sel:[0]}),
+    view:s=>{const per=s.t/s.g,k=s.sel.length;return `<div class="stps">${stp('t','사탕',s.t)}${stp('g','묶음 수',s.g)}</div>${candies(s.t,s.g,s.sel,true)}<p class="eq">사탕 ${s.t}개를 똑같이 ${s.g}묶음으로 → 한 묶음에 ${per}개<br>색칠한 ${k}묶음 = 전체의 ${fr(k,s.g)} = 사탕 <b>${k*per}개</b></p>`;},
+    step:(k,d,s)=>{if(k==='t'){s.t=TOT[clamp(TOT.indexOf(s.t)+d,0,TOT.length-1)];const ds=divs(s.t);if(!ds.includes(s.g))s.g=ds[0];}else{const ds=divs(s.t);s.g=ds[clamp(ds.indexOf(s.g)+d,0,ds.length-1)];}s.sel=[0];},
+    act:(a,el,s)=>{if(a==='grp'){const i=+el.dataset.i;s.sel=s.sel.includes(i)?s.sel.filter(x=>x!==i):[...s.sel,i];}}},
+  improper:{intro:'분자를 늘려 가며 피자 조각을 모아 보세요. 분자가 분모와 같아지면 피자 한 판이 돼요.',
+    init:()=>({d:4,n:5}),
+    view:s=>{const w=Math.floor(s.n/s.d),r=s.n%s.d;const kind=s.n<s.d?'진분수 (1보다 작아요)':s.n===s.d?'가분수 (딱 1이에요)':'가분수 (1보다 커요)';
+      const as=s.n>=s.d?(r?` = 대분수 ${mixed(w,r,s.d)}`:` = 자연수 ${w}`):'';
+      return `<div class="stps">${stp('n','분자',s.n)}${stp('d','분모',s.d)}</div>${pies(s.n,s.d,110)}<p class="eq">${fr(s.n,s.d)}${as}</p><p class="note"><b>${kind}</b></p>`;},
+    step:(k,d,s)=>{if(k==='d'){s.d=clamp(s.d+d,2,6);s.n=clamp(s.n,1,3*s.d);}else s.n=clamp(s.n+d,1,3*s.d);}},
+  addpie:{intro:'더하기와 빼기를 골라 보고, 조각 수를 바꿔 보세요. 분모는 언제나 그대로예요.',
+    init:()=>({mode:'add',d:6,a:2,b:3}),
+    view:s=>{const add=s.mode==='add';const cls=Array.from({length:s.d},(_,i)=>add?(i<s.a?'on':i<s.a+s.b?'on2':''):(i<s.a-s.b?'on':i<s.a?'gone':''));
+      return `<div class="row seg"><button type="button" class="btn ${add?'':'ghost'}" data-act="add" aria-pressed="${add}">더하기</button><button type="button" class="btn ${add?'ghost':''}" data-act="sub" aria-pressed="${!add}">빼기</button></div><div class="stps">${stp('d','분모',s.d)}${stp('a','첫째 분자',s.a)}${stp('b','둘째 분자',s.b)}</div><div class="viz">${pie(s.d,cls,{size:200})}</div><p class="eq">${fr(s.a,s.d)} ${add?'+':'−'} ${fr(s.b,s.d)} = <b>${fr(add?s.a+s.b:s.a-s.b,s.d)}</b></p><p class="note">조각 크기(분모 ${s.d})는 그대로! 조각 수(분자)만 ${s.a} ${add?'+':'−'} ${s.b} = ${add?s.a+s.b:s.a-s.b}</p>`;},
+    step:(k,d,s)=>{if(k==='d')s.d=clamp(s.d+d,2,10);else s[k]+=d;WIDGETS.addpie.fix(s);},
+    act:(a,el,s)=>{if(a==='add'||a==='sub'){s.mode=a;WIDGETS.addpie.fix(s);}},
+    fix:s=>{if(s.mode==='add'){s.a=clamp(s.a,1,s.d-1);s.b=clamp(s.b,1,s.d-s.a);}else{s.a=clamp(s.a,1,s.d);s.b=clamp(s.b,0,s.a);}}}
+};
+function mountWidget(root,spec){
+  const st=spec.init();
+  const render=focusSel=>{root.innerHTML=spec.view(st);if(focusSel){const el=root.querySelector(focusSel);if(el&&!el.disabled)el.focus({preventScroll:true});}};
+  root.addEventListener('click',e=>{
+    const b=e.target.closest('[data-k]');
+    if(b&&root.contains(b)){spec.step(b.dataset.k,+b.dataset.d,st);render(`[data-k="${b.dataset.k}"][data-d="${b.dataset.d}"]`);return;}
+    const t=e.target.closest('[data-act]');
+    if(t&&root.contains(t)&&spec.act){spec.act(t.dataset.act,t,st);render(t.dataset.i!=null?`[data-act="${t.dataset.act}"][data-i="${t.dataset.i}"]`:`[data-act="${t.dataset.act}"]`);}
+  });
+  render();
+}
+
+/* ---------- quiz ---------- */
+const PRAISE=['정답!','최고야!','완벽해!','바로 그거야!','수학 천재 등장!','멋지다!'];
+function ansHtml(p){
+  const inp=(id,cls='')=>`<input class="ans ${cls}" id="${id}" inputmode="numeric" pattern="[0-9]*" aria-label="${{ans:'답',an:'분자',ad:'분모',aw:'자연수 부분',aq:'몫',ar:'나머지'}[id]}">`;
+  const go='<button class="btn" type="submit">확인</button>';
+  if(p.type==='choice')return `<div class="opts">${p.opts.map((o,i)=>`<button type="button" class="opt" data-i="${i}">${o}</button>`).join('')}</div>`;
+  if(p.type==='num')return `${inp('ans')}${go}`;
+  if(p.type==='frac')return `<span class="frin">${inp('an','sm')}<hr>${inp('ad','sm')}</span>${go}`;
+  if(p.type==='mixed')return `${inp('aw','sm')}<span class="frin">${inp('an','sm')}<hr>${inp('ad','sm')}</span>${go}`;
+  if(p.type==='qr')return `<span class="qlab">몫</span>${inp('aq','sm')}<span class="qlab">나머지</span>${inp('ar','sm')}${go}`;
+}
+function readAns(p,root){
+  const v=id=>{const el=$('#'+id,root);const s=el?el.value.replace(/[^0-9]/g,''):'';return s===''?NaN:Number(s);};
+  const ids={num:['ans'],frac:['an','ad'],mixed:['aw','an','ad'],qr:['aq','ar']}[p.type];
+  const vals=ids.map(v);
+  if(vals.some(isNaN))return null;
+  return p.type==='num'?vals[0]===p.a:vals.every((x,i)=>x===p.a[i]);
+}
+function burst(anchor){
+  if(reduceMotion())return;
+  const r=anchor.getBoundingClientRect(),b=document.createElement('div');
+  b.className='burst';b.style.left=(r.left+30)+'px';b.style.top=(r.top+20)+'px';
+  for(let i=0;i<10;i++){const s=document.createElement('i');const a=Math.random()*Math.PI*2,d=50+Math.random()*60;s.style.setProperty('--x',Math.cos(a)*d+'px');s.style.setProperty('--y',Math.sin(a)*d+'px');b.appendChild(s);}
+  document.body.appendChild(b);setTimeout(()=>b.remove(),900);
+}
+function runQuiz(root,problems,onDone){
+  const st={i:0,tries:0,first:0,solved:0,locked:false};
+  const draw=()=>{
+    if(st.i>=problems.length){CUR.p=null;refreshAsk();onDone(st,problems.length);return;}
+    const p=problems[st.i];
+    Object.assign(CUR,{p,idx:st.i+1,total:problems.length,tries:0,locked:false});refreshAsk();
+    root.innerHTML=`<div class="qcard" id="qcard"><div class="qtop"><span>문제 ${st.i+1} / ${problems.length}</span><button type="button" class="askq" data-ask>${face('semi','happy')}셈이에게 물어보기</button><span class="pips">${problems.map((_,j)=>`<i class="${j<st.i?'done':j===st.i?'now':''}"></i>`).join('')}</span></div><div class="qtext">${p.q}</div><form class="qans" id="qform" autocomplete="off">${ansHtml(p)}</form><div class="fb" id="fb" aria-live="polite"></div><div class="row" id="qnext"></div></div>`;
+    $('#qform',root).addEventListener('submit',e=>{e.preventDefault();submit();});
+    root.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>submit(+b.dataset.i,b)));
+    $('[data-ask]',root).addEventListener('click',()=>openAsk());
+  };
+  function submit(choice,btn){
+    if(st.locked)return;
+    const p=problems[st.i],fb=$('#fb',root);
+    let ok;
+    if(p.type==='choice')ok=choice===p.a;
+    else{ok=readAns(p,root);if(ok===null){fb.className='fb warn';fb.textContent='빈칸에 숫자를 모두 써 줘!';return;}}
+    if(ok){
+      if(st.tries===0)st.first++;st.solved++;st.locked=true;
+      if(btn)btn.classList.add('right');
+      fb.className='fb ok';fb.innerHTML=`<b>${pick(PRAISE)}</b>${p.ex}`;burst(fb);finish();
+    }else{
+      st.tries++;CUR.tries=st.tries;
+      if(btn){btn.classList.add('wrong');btn.disabled=true;}
+      if(st.tries===1){fb.className='fb hint';fb.innerHTML=`<b>앗, 다시 생각해 볼까?</b>셈이의 힌트: ${p.hint}`;}
+      else{st.locked=true;fb.className='fb bad';fb.innerHTML=`<b>정답은 ${p.show}</b>${p.ex}`;if(p.type==='choice')root.querySelectorAll('.opt')[p.a].classList.add('right');finish();}
+    }
+  }
+  function finish(){
+    CUR.tries=st.tries;CUR.locked=true;refreshAsk();
+    root.querySelectorAll('#qform input, #qform button').forEach(x=>x.disabled=true);
+    const b=document.createElement('button');b.type='button';b.className='btn';
+    b.textContent=st.i===problems.length-1?'결과 보기':'다음 문제';
+    b.addEventListener('click',()=>{st.i++;st.tries=0;st.locked=false;draw();const c=$('#qcard',root)||root;c.scrollIntoView({block:'start',behavior:reduceMotion()?'auto':'smooth'});const f=root.querySelector('#qform input, .opt');if(f)f.focus({preventScroll:true});});
+    $('#qnext',root).appendChild(b);b.focus({preventScroll:true});
+  }
+  draw();
+}
+
+/* ---------- views ---------- */
+const app=$('#app');
+const lessonsOf=k=>LESSONS.filter(l=>l.r===k);
+const totalStars=()=>Object.values(P.stars).reduce((a,b)=>a+b,0);
+function comicHtml(panels){
+  return `<div class="comic">${panels.map((p,i)=>{
+    if(p.narr)return `<div class="pn narr" style="--i:${i}"><p>${p.narr}</p></div>`;
+    if(p.scene)return `<figure class="pn scene" style="--i:${i}"><div class="viz">${p.scene}</div>${p.cap?`<figcaption>${p.cap}</figcaption>`:''}</figure>`;
+    return `<div class="pn ${p.w}" style="--i:${i}"><div class="av">${face(p.w,p.f)}<span class="who">${NAMES[p.w]}</span></div><p class="bub">${p.t}</p></div>`;
+  }).join('')}</div>`;
+}
+function updateHeader(){
+  $('#topbar').innerHTML=`<a href="#home" class="logo">${CRYSTAL('var(--sun)',true)}숫자섬 수학 탐험대</a><div class="stat"><span class="crs" aria-label="크리스탈 ${Object.keys(R).filter(k=>P.crystals[k]).length}개">${Object.keys(R).map(k=>CRYSTAL(R[k].color,!!P.crystals[k])).join('')}</span><span class="st" aria-label="별 ${totalStars()}개">${STAR(true)}${totalStars()}</span></div>`;
+}
+function nextTarget(){
+  for(const k of Object.keys(R)){for(const l of lessonsOf(k))if(!P.stars[l.id])return l.id;if(!P.crystals[k])return k+'-boss';}
+  return LESSONS[0].id;
+}
+function regionCard(k,idx){
+  const r=R[k];
+  const stops=lessonsOf(k).map((l,i)=>`<a class="stop" href="#${l.id}"><span class="no">${i+1}화${l.preview?' · 4학년 미리보기':''}</span><span class="tt">${l.t}</span><span class="ss" aria-label="별 ${P.stars[l.id]||0}개">${[1,2,3].map(n=>STAR((P.stars[l.id]||0)>=n)).join('')}</span></a>`).join('');
+  return `${idx?'<div class="path-dash" aria-hidden="true"></div>':''}<article class="rg" style="--rc:${r.color}"><div class="rg-h"><div><span class="tag ${k==='frac'?'new':''}">${r.tag}</span><h3>${r.name}</h3><p>${r.desc}</p></div><span class="crys" title="${r.crystal}">${CRYSTAL('var(--sun)',!!P.crystals[k])}</span></div><div class="stops">${stops}<a class="stop boss" href="#${k}-boss"><span class="no">대장 문제</span><span class="tt">${P.crystals[k]?r.crystal+' 획득!':'뚱땅이의 도전장'}</span><span class="ss">${CRYSTAL(r.color,!!P.crystals[k]).replace('<svg','<svg style="width:18px;height:22px"')}</span></a></div></article>`;
+}
+function parentsHtml(){
+  return `<details class="parents"><summary>부모님·선생님께: 학습 설계와 사용법</summary>
+  <h4>이렇게 구성했어요</h4>
+  <ul><li><b>곱셈·나눗셈은 복습</b>: 이미 배운 내용을 만화 속 "뚱땅이의 실수"를 고치며 다시 다져요.</li>
+  <li><b>분수는 처음부터</b>: 똑같이 나누기 → 분모·분자 → 크기 비교 → 묶음 분수 → 가분수·대분수 → 분모가 같은 분수의 덧셈·뺄셈 순서로 개념을 쌓아요.</li>
+  <li><b>한 화의 흐름</b>: 만화(왜 필요한지) → 직접 해 보기(그림·조작) → 도전 문제 5개(식). 구체물 → 그림 → 식으로 넘어가는 순서예요.</li>
+  <li><b>뚱땅이의 실수 = 아이들이 자주 하는 실수</b>: 올림 빠뜨리기, 나눗셈을 뺄셈으로 착각, 나머지가 나누는 수보다 큼, "분모가 크면 더 큰 분수", 분모끼리 더하기.</li>
+  <li><b>틀려도 괜찮아요</b>: 처음 틀리면 힌트를 주고 한 번 더 기회를 줘요. 두 번 틀리면 정답과 풀이를 보여 줘요. 별은 첫 번째에 맞힌 문제 수로 정해져요.</li>
+  <li><b>셈이에게 물어보기</b>: 화면 오른쪽 아래 버튼이나 문제 카드의 버튼으로 질문할 수 있어요. 셈이는 지금 보고 있는 문제를 알고 대답하고, 문제를 다 풀기 전에는 정답 대신 힌트와 생각할 질문만 줘요. 수학과 상관없는 이야기는 공부로 돌려 주고, 개인정보는 묻지 않아요.</li>
+  <li><b>AI 셈이</b>: Claude에서 열면 처음 질문할 때 사용 허락을 물어요. 허락하면 보는 사람의 Claude 계정으로 대답해요. 허락하지 않거나 다른 곳에서 열면, 낱말(분모, 나머지, 올림 등)에 맞춰 대답하는 기본 도움말로 바뀌어요. 대화 내용은 저장되지 않아요.</li></ul>
+  <h4>교과 연결 (초등 3학년)</h4>
+  <div class="tbl"><table><thead><tr><th>지역</th><th>이 페이지</th><th>교과서 단원</th></tr></thead><tbody>
+  <tr><td>곱셈 숲</td><td>1~3화</td><td>3-1 곱셈, 3-2 곱셈</td></tr>
+  <tr><td>나눗셈 동굴</td><td>1~3화</td><td>3-1 나눗셈, 3-2 나눗셈</td></tr>
+  <tr><td>분수 성</td><td>1~5화</td><td>3-1 분수와 소수, 3-2 분수</td></tr>
+  <tr><td>분수 성</td><td>6화</td><td>4학년 분수의 덧셈과 뺄셈 (미리보기)</td></tr></tbody></table></div>
+  <h4>사용 팁</h4>
+  <ul><li>하루 1화, 10~15분이면 충분해요. 만화는 소리 내어 함께 읽으면 더 좋아요.</li>
+  <li>문제는 열 때마다 숫자가 바뀌어서 여러 번 풀어도 새로워요.</li>
+  <li>진도와 별은 이 기기의 브라우저에만 저장돼요.</li></ul>
+  <div class="row" style="margin-top:14px"><button type="button" class="btn ghost" id="reset">진도 처음부터 다시 하기</button><span id="resetMsg" class="note"></span></div></details>`;
+}
+function certHtml(){
+  return `<section><h2 class="sec">에필로그 · 다시 움직이는 시계탑</h2>${comicHtml([N('세 개의 크리스탈을 시계탑에 끼우자, 째깍째깍! 멈췄던 시계탑이 다시 움직이기 시작했어요.'),S('happy','해냈어! 곱셈, 나눗셈, 분수까지 모두 네 힘으로 풀었어.'),T('oops','쳇, 이번엔 졌다. 다음엔 더 어려운 문제로 돌아올 거야!'),H('happy','언제든지 와! 이제 분수도 무섭지 않거든!')])}
+  <div class="cert"><h2>수학 탐험대 인증서</h2><label for="kidname" class="lbl">탐험대원 이름</label><input id="kidname" value="${(P.name||'').replace(/"/g,'&quot;')}" placeholder="이름을 써 주세요" maxlength="12"><p>위 탐험대원은 숫자섬의 곱셈 숲, 나눗셈 동굴, 분수 성을 모두 탐험하고 세 개의 셈 크리스탈을 되찾아 지혜의 시계탑을 다시 움직였으므로 이 증서를 드립니다.</p><p class="lbl">별 ${totalStars()}개 · 숫자섬 시계탑 관리 로봇 셈이</p></div></section>`;
+}
+function renderHome(){
+  const all=Object.keys(R).every(k=>P.crystals[k]);
+  const started=totalStars()>0;
+  app.innerHTML=`<section class="hero"><div><p class="eyebrow">초등 3학년 수학 · 만화로 배우는 모험</p><h1>숫자섬 <em>수학</em> 탐험대</h1><p class="lead">멈춰 버린 지혜의 시계탑을 다시 움직여라! 하루와 로봇 셈이와 함께 곱셈 숲, 나눗셈 동굴, 분수 성을 돌며 장난꾸러기 뚱땅이가 숨긴 셈 크리스탈을 찾아요.</p>${SYNC.on?`<p class="sync">${SYNC.name?`${SYNC.name.replace(/[<>&"]/g,'')}님의 `:''}별과 크리스탈이 오늘우리집에 저장돼요</p>`:''}<div class="row"><a class="btn" href="#${nextTarget()}">${all?'다시 탐험하기':started?'이어서 모험하기':'모험 시작하기'}</a><a class="btn ghost" href="#frac-1">분수 성으로 바로 가기</a></div></div><div class="hero-art">${tower()}</div></section>
+  <section><h2 class="sec">프롤로그 · 멈춰 버린 시계탑</h2>${comicHtml(PROLOGUE)}</section>
+  <section><h2 class="sec">모험 지도</h2><div class="regions">${Object.keys(R).map(regionCard).join('')}</div></section>
+  ${all?certHtml():''}
+  <section>${parentsHtml()}</section>`;
+  const nm=$('#kidname');if(nm)nm.addEventListener('input',()=>{P.name=nm.value;save();});
+  const rs=$('#reset');let armed=false;
+  rs.addEventListener('click',()=>{if(!armed){armed=true;rs.textContent='정말 지울까요? 한 번 더 누르세요';$('#resetMsg').textContent='별과 크리스탈이 모두 사라져요.';return;}P=blank();SYNC.reset=true;save();route();});
+}
+function resultHtml(L,st,total){
+  const stars=st.first===total?3:st.first>=Math.ceil(total*.6)?2:1;
+  P.stars[L.id]=Math.max(P.stars[L.id]||0,stars);save();updateHeader();
+  const msg=stars===3?'한 번에 다 맞혔어! 너 진짜 수학 천재구나!':stars===2?'아주 잘했어! 틀린 문제는 힌트를 떠올리며 다시 풀어 보자.':'끝까지 풀었구나! 만화와 해 보기를 다시 보고 도전하면 별이 늘어날 거야.';
+  return `<div class="qcard result"><h3>${L.t} 완료!</h3><div class="stars" aria-label="별 ${stars}개">${[1,2,3].map(n=>STAR(stars>=n)).join('')}</div><p>첫 번째에 맞힌 문제 ${st.first} / ${total}</p><div class="say">${face('semi',stars===3?'wow':'happy')}<p class="bub">${msg}</p></div><div class="row"><button type="button" class="btn ghost" id="again">다시 도전</button>${navNext(L)}</div></div>`;
+}
+function navNext(L){
+  const ls=lessonsOf(L.r),i=ls.indexOf(L);
+  return i<ls.length-1?`<a class="btn" href="#${ls[i+1].id}">다음 화로</a>`:`<a class="btn" href="#${L.r}-boss">대장 문제 도전!</a>`;
+}
+function renderLesson(L){
+  const r=R[L.r],ls=lessonsOf(L.r),i=ls.indexOf(L),W=WIDGETS[L.widget];
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><span>${r.name}</span><span>›</span><span>${i+1}화</span></nav>
+  <header class="lhead" style="--rc:${r.color}"><span class="tag ${L.r==='frac'?'new':''}">${L.preview?'4학년 미리보기':r.tag}</span><h1>${i+1}화. ${L.t}</h1><p class="goal"><b>오늘의 목표</b>${L.goal}</p></header>
+  <section><h2 class="sec">만화로 보기</h2>${comicHtml(L.comic)}</section>
+  <section><h2 class="sec">직접 해 보기</h2><p class="intro">${W.intro}</p><div class="widget" id="w"></div></section>
+  <section><h2 class="sec">도전 문제</h2><p class="intro">5문제예요. 틀리면 셈이가 힌트를 줘요. 첫 번째에 맞힐수록 별이 많아져요.</p><div id="quiz"></div></section>
+  <nav class="lnav">${i>0?`<a class="btn ghost" href="#${ls[i-1].id}">이전 화</a>`:'<a class="btn ghost" href="#home">모험 지도</a>'}${navNext(L)}</nav>`;
+  mountWidget($('#w'),W);
+  const q=$('#quiz');
+  const start=()=>runQuiz(q,L.quiz(),(st,total)=>{q.innerHTML=resultHtml(L,st,total);$('#again').addEventListener('click',()=>{start();q.scrollIntoView({block:'start'});});});
+  start();
+}
+function renderBoss(k){
+  const r=R[k];
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><span>${r.name}</span><span>›</span><span>대장 문제</span></nav>
+  <header class="lhead" style="--rc:${r.color}"><span class="tag">대장 문제</span><h1>뚱땅이의 도전장</h1><p class="goal"><b>통과 조건</b>6문제 중 4문제 이상 맞히면 ${r.crystal}을 얻어요. (힌트 보고 맞혀도 인정!)</p></header>
+  <section>${comicHtml([T('happy',`${r.crystal}을 갖고 싶다고? ${r.name}에서 배운 걸 모두 섞어서 낼 거야. 각오해!`),H('happy','좋아, 해 보자! 셈이야, 도와줘.'),S('happy','힌트는 문제마다 한 번씩 줄게. 침착하게 풀면 할 수 있어!')])}</section>
+  <section><h2 class="sec">대장 문제 6개</h2><div id="quiz"></div></section>`;
+  const q=$('#quiz');
+  const start=()=>{const probs=shuffle(lessonsOf(k).flatMap(l=>shuffle(l.quiz()).slice(0,2))).slice(0,6);
+    runQuiz(q,probs,(st,total)=>{
+      const pass=st.solved>=4;
+      if(pass){P.crystals[k]=true;save();updateHeader();}
+      const all=Object.keys(R).every(x=>P.crystals[x]);
+      q.innerHTML=`<div class="qcard result"><h3>${pass?r.crystal+' 획득!':'아깝다! 다시 도전!'}</h3>${pass?`<div class="bigcrystal">${CRYSTAL(r.color,true)}</div>`:''}<p>맞힌 문제 ${st.solved} / ${total}</p><div class="say">${face('ttung',pass?'oops':'happy')}<p class="bub">${pass?'으앙, 크리스탈을 빼앗겼다! 다음 지역에서는 안 질 거야!':'히히, 크리스탈은 아직 내 거야! 앞의 화를 복습하고 다시 와.'}</p></div><div class="row"><button type="button" class="btn ghost" id="again">${pass?'한 번 더 풀기':'다시 도전'}</button><a class="btn" href="#home">${all?'시계탑 보러 가기':'모험 지도로'}</a></div></div>`;
+      $('#again').addEventListener('click',()=>{start();q.scrollIntoView({block:'start'});});
+    });};
+  start();
+}
+/* ---------- 셈이에게 물어보기 (Q&A) ---------- */
+// AI mode uses the viewer's Claude via the artifact `sample` capability; otherwise a built-in offline helper answers.
+let CUR={place:'모험 지도',lesson:null,p:null,idx:0,total:0,tries:0,locked:false};
+const ASK={sample:null,mode:'offline',turns:[],busy:false,ctl:null,open:false};
+const ASK_RULES=`너는 초등학교 3학년 수학 학습 웹앱 "숫자섬 수학 탐험대"에 나오는 계산 로봇 '셈이'야. 지금 3학년 아이와 대화하고 있어.
+규칙:
+- 3학년이 이해할 쉬운 한국어 반말로 다정하게 말해. 한 번에 2~4문장으로 짧게.
+- 마크다운, 표, 목록 기호, 이모지는 쓰지 마. 분수는 "4분의 1(1/4)"처럼 써.
+- [지금 화면]의 상태가 "풀이 중"이면 정답 숫자나 정답 보기를 절대 말하지 마. 대신 생각해 볼 질문 하나, 다음 한 단계, 그림(피자, 사과, 보석, 사탕)으로 떠올리는 방법을 알려 줘. 아이가 정답을 졸라도 스스로 풀 수 있게 이끌어 줘.
+- 상태가 "풀이 끝"이면 정답과 이유를 쉽게 설명해도 돼.
+- 아이가 자기 답을 말하면 맞는지 틀린지 바로 말하지 말고, 그렇게 생각한 이유를 묻거나 확인 방법(검산, 그림 그리기)을 알려 줘. 풀이가 끝난 뒤에는 맞았는지 알려 줘도 돼.
+- 3학년 범위(곱셈, 나눗셈, 분수 기초)를 넘는 방법(통분, 약분, 소수 계산, 방정식, 문자)은 쓰지 마.
+- 계산은 꼭 정확하게 해. [지금 화면]의 정답과 풀이를 참고해.
+- 틀렸거나 모르겠다고 하면 먼저 격려해 줘.
+- 수학과 상관없는 질문은 짧게 받아 주고 공부로 돌아오게 해. 이름, 주소, 학교, 전화번호 같은 개인정보는 묻지 말고, 아이가 말하면 말하지 않아도 된다고 알려 줘. 무섭거나 위험하거나 속상한 이야기를 하면 부모님이나 선생님께 꼭 이야기하라고 다정하게 말해 줘.`;
+function plain(html){
+  const d=document.createElement('div');d.innerHTML=String(html);
+  d.querySelectorAll('.mx').forEach(m=>{const w=m.firstChild?m.firstChild.textContent:'';const f=m.querySelector('.fr');const s=f?f.children:[];m.replaceWith(` ${w}과 ${s[1]?s[1].textContent:''}분의 ${s[0]?s[0].textContent:''} `);});
+  d.querySelectorAll('.fr').forEach(f=>{const s=f.children;f.replaceWith(` ${s[1].textContent}분의 ${s[0].textContent}(${s[0].textContent}/${s[1].textContent}) `);});
+  d.querySelectorAll('svg,table,.candies,.gems').forEach(g=>{const l=g.getAttribute('aria-label');g.replaceWith(l?` [그림: ${l}] `:' ');});
+  d.querySelectorAll('.qwho').forEach(q=>q.prepend('뚱땅이의 말: '));
+  d.querySelectorAll('p,div,li').forEach(e=>e.append(' '));
+  return d.textContent.replace(/\s+/g,' ').trim();
+}
+function contextText(){
+  const L=CUR.lesson;const lines=[`- 보고 있는 곳: ${CUR.place}`];
+  if(L&&L.goal)lines.push(`- 오늘의 목표: ${L.goal}`);
+  const p=CUR.p;
+  if(p){
+    lines.push(`- 문제 ${CUR.idx}/${CUR.total}: ${plain(p.q)}`);
+    if(p.type==='choice')lines.push(`- 보기: ${p.opts.map((o,i)=>`${i+1}) ${plain(o)}`).join(', ')}`);
+    lines.push(`- 상태: ${CUR.locked?'풀이 끝':`풀이 중 (지금까지 ${CUR.tries}번 틀림)`}`);
+    lines.push(`- 정답(참고용${CUR.locked?'':', 풀이 중이니 절대 말하지 말 것'}): ${plain(p.show)}`);
+    lines.push(`- 앱의 힌트: ${plain(p.hint)}`);
+    lines.push(`- 앱의 풀이${CUR.locked?'':'(참고용, 말하지 말 것)'}: ${plain(p.ex)}`);
+  }else lines.push('- 지금은 문제를 풀고 있지 않아.');
+  return lines.join('\n');
+}
+const FAQ=[
+  [/가분수/,'가분수는 분자가 분모와 같거나 더 큰 분수야. 5분의 5(5/5)나 4분의 5(5/4)처럼! 피자 한 판이 넘거나 딱 한 판이 되는 거지.'],
+  [/대분수/,'대분수는 자연수와 진분수를 같이 쓴 분수야. 피자 1판과 4분의 1(1/4)조각이 있으면 "1과 4분의 1"이라고 써.'],
+  [/진분수/,'진분수는 분자가 분모보다 작은 분수야. 4분의 3(3/4)처럼 1보다 작아. 피자 한 판이 안 되는 거야.'],
+  [/분모/,'분모는 분수의 아래에 있는 수야. 전체를 몇 조각으로 똑같이 나눴는지 알려 줘. 4분의 1(1/4)이면 분모는 4! "모두 몇 조각"으로 기억해.'],
+  [/분자/,'분자는 분수의 위에 있는 수야. 똑같이 나눈 조각 중에서 몇 조각인지 알려 줘. 4분의 3(3/4)이면 분자는 3! "자기 몫 몇 조각"으로 기억해.'],
+  [/(더|크|작|비교)/,'분자가 1인 분수는 분모가 작을수록 더 커. 적게 나눌수록 한 조각이 크거든! 분모가 같으면 분자가 큰 쪽이 더 커.'],
+  [/나머지/,'나머지는 똑같이 나눠 주고 남은 수야. 남은 게 나누는 수만큼 있으면 한 번 더 나눠 줄 수 있으니까, 나머지는 항상 나누는 수보다 작아야 해.'],
+  [/검산/,'검산은 답이 맞는지 확인하는 거야. "나누는 수 × 몫 + 나머지"를 계산해서 처음 수가 나오면 맞은 거야. 17 ÷ 5 = 3 … 2라면 5 × 3 + 2 = 17!'],
+  [/올림/,'올림은 한 자리에서 10이 넘으면 10을 윗자리로 1만큼 올려 주는 거야. 6 × 3 = 18이면 8은 쓰고, 1은 십의 자리 위에 작게 써 두었다가 꼭 더해 줘.'],
+  [/몫/,'몫은 나눗셈의 답이야. 12 ÷ 3 = 4에서 4가 몫이야. 한 명이 받는 개수라고 생각하면 돼.'],
+  [/(곱셈|곱하기|구구단|×)/,'곱셈은 같은 수를 여러 번 더하는 걸 짧게 쓴 거야. 4 + 4 + 4는 4 × 3이야. 곱하는 순서를 바꿔도 답은 같아.'],
+  [/(나눗셈|나누기|÷)/,'나눗셈은 똑같이 나누는 거야. 곱셈구구를 거꾸로 생각하면 쉬워. 24 ÷ 6은 "6 × 몇 = 24?"를 찾으면 돼.'],
+  [/(분수|조각)/,'분수는 전체를 똑같이 나눈 것 중 몇 개인지 나타내는 수야. 똑같이 나눴는지가 제일 중요해!'],
+  [/(덧셈|더하기|뺄셈|빼기|\+)/,'분모가 같은 분수는 분모는 그대로 두고 분자끼리만 더하거나 빼. 조각을 모아도 조각 크기는 그대로거든!']
+];
+function offlineReply(q){
+  const p=CUR.p;
+  if(p&&/(힌트|모르겠|어떻게|시작|도와)/.test(q))return CUR.locked?`이 문제는 이렇게 풀어. ${plain(p.ex)}`:`힌트야! ${plain(p.hint)}`;
+  if(p&&CUR.locked&&/(왜|이유|답)/.test(q))return `풀이를 같이 볼까? ${plain(p.ex)}`;
+  if(p&&!CUR.locked&&/(답|정답)/.test(q))return `정답은 네가 직접 찾아야 더 똑똑해져! 대신 힌트를 줄게. ${plain(p.hint)}`;
+  if(/(비슷|문제 내|또)/.test(q))return '"다시 도전"을 누르면 숫자가 바뀐 새 문제가 나와! 대장 문제에서는 여러 화의 문제가 섞여서 나와.';
+  if(p&&/(뜻|무슨)/.test(q))return `문제를 천천히 다시 읽어 보자. ${plain(p.q)} 무엇을 구하라고 하는지 먼저 찾아봐!`;
+  for(const [re,a] of FAQ)if(re.test(q))return a;
+  if(p&&!CUR.locked)return `좋은 질문이야! 우선 이 힌트부터 생각해 볼까? ${plain(p.hint)}`;
+  return '음, 그 질문은 내가 아직 잘 몰라. "분모", "나머지", "올림" 같은 말을 넣어서 다시 물어봐 줄래?';
+}
+function askMsg(who,text,wait){
+  const log=$('#askLog'),m=document.createElement('div');
+  m.className='msg '+who;
+  const b=document.createElement('div');b.className='mb'+(wait?' wait':'');b.textContent=text;
+  if(who==='semi')m.innerHTML=face('semi','happy');
+  m.appendChild(b);log.appendChild(m);log.scrollTop=log.scrollHeight;return b;
+}
+function refreshAsk(){
+  if(!ASK.open)return;
+  const p=CUR.p;
+  $('#askCtx').textContent=`지금 보는 곳: ${CUR.place}${p?` · 문제 ${CUR.idx}${CUR.locked?' (풀이 끝)':''}`:''}`;
+  const chips=p?(CUR.locked?['왜 이게 답이야?','다른 방법도 있어?','비슷한 문제 내 줘']:['힌트 줘','어디서부터 시작해?','이 문제 무슨 뜻이야?']):['분모랑 분자가 뭐야?','나머지는 왜 작아야 해?','올림이 뭐야?'];
+  $('#askChips').innerHTML=chips.map(c=>`<button type="button">${c}</button>`).join('');
+}
+function setAskMode(){$('#askMode').textContent=ASK.mode==='ai'?'AI 셈이 · 질문하면 생각해서 대답해요':'기본 도움말 · 낱말로 물어보면 알려 줘요';}
+function openAsk(){
+  ASK.open=true;$('#askPanel').hidden=false;$('#askFab').hidden=true;$('#askFab').setAttribute('aria-expanded','true');
+  if(!$('#askLog').children.length)askMsg('semi','안녕! 나는 셈이야. 문제를 풀다가 막히면 뭐든 물어봐. 정답을 바로 알려 주지는 않지만, 네가 풀 수 있게 꼭 도와줄게!');
+  refreshAsk();setAskMode();$('#askIn').focus();
+}
+function closeAsk(){
+  if(ASK.ctl)ASK.ctl.abort();
+  ASK.open=false;$('#askPanel').hidden=true;$('#askFab').hidden=false;$('#askFab').setAttribute('aria-expanded','false');$('#askFab').focus();
+}
+function askBusy(on){ASK.busy=on;$('#askGo').hidden=on;$('#askStop').hidden=!on;$('#askIn').disabled=on;if(!on)$('#askIn').focus();}
+async function askSend(raw){
+  const text=String(raw||'').trim().slice(0,200);
+  if(!text||ASK.busy)return;
+  askMsg('kid',text);$('#askIn').value='';
+  if(ASK.mode!=='ai'||!ASK.sample){askMsg('semi',offlineReply(text));return;}
+  const bubble=askMsg('semi','셈이가 생각하는 중…',true);
+  const ctl=ASK.ctl=new AbortController();askBusy(true);
+  const input=[{role:'user',content:ASK_RULES},...ASK.turns.slice(-8),{role:'user',content:`[지금 화면]\n${contextText()}\n\n[아이의 질문]\n${text}`}];
+  try{
+    const r=await ASK.sample(input,{modelTier:'quick',cache:false,signal:ctl.signal,onText:({text:t})=>{bubble.classList.remove('wait');bubble.textContent=t;$('#askLog').scrollTop=$('#askLog').scrollHeight;}});
+    bubble.classList.remove('wait');bubble.textContent=r.text;
+    ASK.turns.push({role:'user',content:text},{role:'assistant',content:r.text});
+  }catch(e){
+    const code=e&&e.code,kept=e&&e.text?e.text+'\n\n':'';
+    bubble.classList.remove('wait');
+    if(code==='cancelled')bubble.textContent=e.text||'(멈췄어)';
+    else if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(code)){ASK.mode='offline';setAskMode();bubble.textContent=offlineReply(text)+'\n\n(지금은 AI 셈이를 쓸 수 없어서 기본 도움말로 대답했어.)';}
+    else if(code==='rate_limited')bubble.textContent=kept+'질문이 많아서 셈이가 잠깐 쉬어야 해. 조금 있다가 다시 물어봐 줘.';
+    else if(code==='session_expired')bubble.textContent='다시 로그인해야 셈이가 대답할 수 있어. 부모님께 도와 달라고 해 줘.';
+    else if(code==='refused')bubble.textContent='그 이야기는 내가 도와주기 어려워. 수학 문제로 돌아가 볼까?';
+    else bubble.textContent=kept+'앗, 연결이 잠깐 끊겼어. 다시 보내 줄래?';
+  }finally{if(ASK.ctl===ctl)ASK.ctl=null;askBusy(false);}
+}
+document.querySelectorAll('.ask-face').forEach(s=>s.innerHTML=face('semi','happy'));
+$('#askFab').addEventListener('click',openAsk);
+$('#askClose').addEventListener('click',closeAsk);
+$('#askStop').addEventListener('click',()=>{if(ASK.ctl)ASK.ctl.abort();});
+$('#askForm').addEventListener('submit',e=>{e.preventDefault();askSend($('#askIn').value);});
+$('#askChips').addEventListener('click',e=>{const b=e.target.closest('button');if(b)askSend(b.textContent);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ASK.open)closeAsk();});
+(async()=>{try{if(window.claude&&typeof claude.use==='function'){const s=await claude.use('sample');if(s){ASK.sample=s;ASK.mode='ai';setAskMode();}}}catch(e){}})();
+
+function route(){
+  const h=decodeURIComponent(location.hash.slice(1))||'home';
+  const L=LESSONS.find(l=>l.id===h);
+  const boss=h.endsWith('-boss')&&R[h.slice(0,-5)]?h.slice(0,-5):null;
+  CUR={place:L?`${R[L.r].name} ${lessonsOf(L.r).indexOf(L)+1}화 "${L.t}"`:boss?`${R[boss].name} 대장 문제`:'모험 지도',lesson:L||(boss?{goal:`${R[boss].name}에서 배운 내용을 섞은 대장 문제`}:null),p:null,idx:0,total:0,tries:0,locked:false};
+  if(L)renderLesson(L);else if(boss)renderBoss(boss);else renderHome();
+  updateHeader();refreshAsk();window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',route);
+route();
+syncInit();
+</script>
+<script>if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});</script><!--SA-->
+</body><!--SA-->
+</html><!--SA-->
