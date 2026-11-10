@@ -26,7 +26,7 @@
 |---|---|---|---|
 | POST | `/api/learning/session?start=frac-1` | 기기 헤더 | 학습 페이지 1회용 URL 발급. `start`(선택)로 시작할 화 지정 |
 | GET | `/api/learning/progress` | 기기 헤더 | 내 진도 요약 `{lessons_done, stars_total, crystals}` |
-| GET | `/api/learning/family-progress` | 기기 헤더 | 가족 구성원별 진도 요약 (`total_lessons: 49`, `total_crystals: 13`) |
+| GET | `/api/learning/family-progress` | 기기 헤더 | 가족 구성원별 진도 요약 (`total_lessons: 76`, `total_crystals: 22`) |
 | GET | `/learn/` | 쿠키 | 학습 페이지 (WebView 전용) |
 | GET/PUT | `/learn/api/progress` | 쿠키 | 학습 페이지가 내부적으로 사용 |
 
@@ -38,14 +38,17 @@
 - 4학년: `port-1`~`port-3`, `light-1`~`light-3`
 - 5학년: `jungle-1`~`jungle-3`, `volcano-1`~`volcano-4`
 - 6학년: `canyon-1`~`canyon-3`, `observ-1`~`observ-3`
+- 국어: `kor-g1`~`kor-g3`(학년 지도), `hangul-1`~`3`, `spell-1`~`3`, `words-1`~`3`
+- 영어: `eng-g3`~`eng-g5`, `abc-1`~`3`, `vocab-1`~`3`, `talk-1`~`3`
+- 과학: `sci-g3`~`sci-g5`, `matter-1`~`3`, `change-1`~`3`, `space-1`~`3`
 - 대장 문제: `<지역>-boss` (예: `port-boss`), 처음 화면: `home`
 
 `family-progress` 응답 예:
 
 ```json
 {
-  "total_lessons": 49,
-  "total_crystals": 13,
+  "total_lessons": 76,
+  "total_crystals": 22,
   "members": [
     {"device_id": "…", "user_name": "회은", "updated_at": "2026-11-08T02:59:16",
      "lessons_done": 3, "stars_total": 7, "crystals": ["mul"]}

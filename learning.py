@@ -35,9 +35,9 @@ COOKIE_PATH = "/learn"
 TICKET_TTL = timedelta(minutes=5)
 SESSION_TTL = timedelta(days=30)
 MAX_BODY = 20_000
-# 학습 페이지 전체 규모 (1~6학년): 화 49개, 대장 문제 크리스탈 13개
-TOTAL_LESSONS = 49
-TOTAL_CRYSTALS = 13
+# 학습 페이지 전체 규모 (수학·국어·영어·과학): 화 76개, 대장 문제 크리스탈 22개
+TOTAL_LESSONS = 76
+TOTAL_CRYSTALS = 22
 _LESSON_RE = re.compile(r"^[a-z]{2,10}-[0-9a-z]{1,8}$")
 _REGION_RE = re.compile(r"^[a-z]{2,10}$")
 
@@ -189,7 +189,7 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
         device = await DB.fetchrow("SELECT id FROM devices WHERE id = ?", device_id)
         if not device:
             raise HTTPException(status_code=404, detail="등록되지 않은 기기예요")
-        if start and not (_LESSON_RE.match(start) or start == "home" or re.match(r"^g[1-6]$", start)):
+        if start and not (_LESSON_RE.match(start) or start == "home" or re.match(r"^(?:(?:kor|eng|sci)-)?g[1-6]$", start)):
             start = None
         ticket = secrets.token_urlsafe(32)
         expires = _utcnow() + TICKET_TTL
