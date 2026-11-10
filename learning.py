@@ -7,7 +7,11 @@
   2) 앱이 그 URL을 WebView로 염 → GET /learn/?ticket=...
      → 입장권 확인 후 로그인 쿠키(toh_learn, 30일)를 심고 /learn/ 으로 이동
   3) 학습 페이지가 /learn/api/progress 로 별·크리스탈 진도를 불러오고 저장(쿠키 인증)
-  4) 앱은 GET /api/learning/family-progress 로 가족 구성원별 학습 현황을 조회
+  4) 앱은 GET /api/learning/subjects 로 과목 목록(수학·국어·영어·과학)을 받아 과목별 버튼을 만들고,
+     GET /api/learning/family-progress 로 가족 구성원별·과목별 학습 현황을 조회
+
+과목·학년·화 구성은 learn_static/catalog.json(학습지 저장소가 만들어 주는 파일)에서 읽는다.
+과목이나 화가 늘어나도 scripts/sync_learn.sh 로 파일만 갱신하면 서버 코드는 그대로 둔다.
 
 /learn 아래 경로는 기기 인증 미들웨어에서 제외되고, 이 모듈이 쿠키로 직접 인증한다.
 """
@@ -34,10 +38,72 @@ COOKIE = "toh_learn"
 COOKIE_PATH = "/learn"
 TICKET_TTL = timedelta(minutes=5)
 SESSION_TTL = timedelta(days=30)
-MAX_BODY = 20_000
-# 학습 페이지 전체 규모 (수학·국어·영어·과학): 화 76개, 대장 문제 크리스탈 22개
-TOTAL_LESSONS = 76
-TOTAL_CRYSTALS = 22
+MAX_BODY = 64_000
+
+
+def _load_catalog() -> dict:
+    """learn_static/catalog.json: 과목 → 학년 → 지역(대장 문제 크리스탈) → 화."""
+    try:
+        with open(os.path.join(STATIC_DIR, "catalog.json"), encoding="utf-8") as f:
+            cat = json.load(f)
+        if isinstance(cat.get("subjects"), list) and cat["subjects"]:
+            return cat
+    except (OSError, ValueError):
+        pass
+    return {"title": "지혜섬 탐험대", "lessons_total": 76, "crystals_total": 22, "subjects": []}
+
+
+CATALOG = _load_catalog()
+TOTAL_LESSONS = CATALOG.get("lessons_total", 76)
+TOTAL_CRYSTALS = CATALOG.get("crystals_total", 22)
+# 화 id·지역 id → 과목 id
+LESSON_SUBJECT = {}
+REGION_SUBJECT = {}
+VALID_STARTS = {"home", "daily", "trophy"}
+for _s in CATALOG["subjects"]:
+    VALID_STARTS.add(_s["id"])
+    for _g in _s.get("grades", []):
+        VALID_STARTS.add(_g["start"])
+        VALID_STARTS.add(f"speed-{_s['id']}-g{_g['g']}")
+        for _r in _g.get("regions", []):
+            REGION_SUBJECT[_r["id"]] = _s["id"]
+            VALID_STARTS.add(_r["boss"])
+            for _l in _r.get("lessons", []):
+                LESSON_SUBJECT[_l["id"]] = _s["id"]
+                VALID_STARTS.add(_l["id"])
+
+
+def _valid_start(start: Optional[str]) -> bool:
+    if not start:
+        return False
+    if VALID_STARTS - {"home", "daily", "trophy"}:
+        return start in VALID_STARTS
+    # catalog.json 이 없을 때의 예전 규칙
+    return bool(_LESSON_RE.match(start) or start in ("home", "math", "kor", "eng", "sci", "daily", "trophy")
+                or re.match(r"^(?:(?:kor|eng|sci)-)?g[1-6]$", start))
+
+
+def _level(xp: int) -> int:
+    """학습 페이지와 같은 규칙: 레벨 n 이 되려면 경험치 20·n·(n+1) 이 필요."""
+    n = 1
+    while xp >= 20 * n * (n + 1):
+        n += 1
+    return n
+
+
+def _subjects_meta() -> list:
+    """앱의 과목 메뉴용 목록 (화 목록은 빼고 학년·지역 이름까지)."""
+    out = []
+    for s in CATALOG["subjects"]:
+        out.append({
+            "id": s["id"], "name": s["name"], "icon": s.get("icon", ""), "span": s.get("span", ""),
+            "desc": s.get("desc", ""), "start": s["id"],
+            "lessons_total": s.get("lessons_total", 0), "crystals_total": s.get("crystals_total", 0),
+            "grades": [{"g": g["g"], "name": f"{g['g']}학년", "island": g.get("island", ""), "focus": g.get("focus", ""),
+                        "start": g["start"], "regions": [r["name"] for r in g.get("regions", [])]}
+                       for g in s.get("grades", [])],
+        })
+    return out
 _LESSON_RE = re.compile(r"^[a-z]{2,10}-[0-9a-z]{1,8}$")
 _REGION_RE = re.compile(r"^[a-z]{2,10}$")
 
@@ -186,13 +252,31 @@ def _merge(old: dict, new: dict) -> dict:
 def _summary(progress: Optional[dict]) -> dict:
     p = progress or {"stars": {}, "crystals": {}}
     stars = p.get("stars", {})
+    crystals = p.get("crystals", {})
+    subjects = {}
+    for s in CATALOG["subjects"]:
+        sid = s["id"]
+        ls = {k: v for k, v in stars.items() if LESSON_SUBJECT.get(k) == sid}
+        subjects[sid] = {
+            "name": s["name"],
+            "lessons_done": sum(1 for v in ls.values() if v > 0),
+            "lessons_total": s.get("lessons_total", 0),
+            "stars_total": sum(ls.values()),
+            "stars_max": s.get("lessons_total", 0) * 3,
+            "crystals": sorted(k for k, v in crystals.items() if v and REGION_SUBJECT.get(k) == sid),
+            "crystals_total": s.get("crystals_total", 0),
+        }
+    xp = p.get("xp", 0) or 0
     return {
         "lessons_done": sum(1 for v in stars.values() if v > 0),
         "stars_total": sum(stars.values()),
         "crystals": sorted(k for k, v in p.get("crystals", {}).items() if v),
-        "xp": p.get("xp", 0) or 0,
+        "xp": xp,
+        "level": _level(xp),
+        "study_days": len(p.get("days", []) or []),
         "badges": len(p.get("badges", {}) or {}),
         "medals": len(p.get("medals", {}) or {}),
+        "subjects": subjects,
     }
 
 
@@ -243,12 +327,14 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
 
     @app.post("/api/learning/session")
     async def create_learning_session(request: Request, start: Optional[str] = None):
-        """학습 페이지를 열 1회용 URL 발급. start=g4(학년 지도), frac-1(화)처럼 시작 화면을 지정할 수 있음."""
+        """학습 페이지를 열 1회용 URL 발급.
+        start 로 시작 화면을 지정: kor(과목 페이지), eng-g4(과목·학년 지도), frac-1(화), daily(오늘의 도전) 등.
+        생략하면 과목 선택 첫 화면."""
         device_id = request.headers.get("X-Device-ID", "")
         device = await DB.fetchrow("SELECT id FROM devices WHERE id = ?", device_id)
         if not device:
             raise HTTPException(status_code=404, detail="등록되지 않은 기기예요")
-        if start and not (_LESSON_RE.match(start) or start in ("home", "math", "kor", "eng", "sci", "daily", "trophy") or re.match(r"^(?:(?:kor|eng|sci)-)?g[1-6]$", start)):
+        if not _valid_start(start):
             start = None
         ticket = secrets.token_urlsafe(32)
         expires = _utcnow() + TICKET_TTL
@@ -263,6 +349,12 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
             "url": f"{_public_base(request)}/learn/?ticket={ticket}",
             "expires_in": int(TICKET_TTL.total_seconds()),
         }
+
+    @app.get("/api/learning/subjects")
+    async def learning_subjects():
+        """과목 목록. 앱은 이걸로 과목별 버튼을 만들고, 버튼마다 session?start=<id> 로 연다."""
+        return {"title": CATALOG.get("title", "지혜섬 탐험대"), "lessons_total": TOTAL_LESSONS,
+                "crystals_total": TOTAL_CRYSTALS, "subjects": _subjects_meta()}
 
     @app.get("/api/learning/progress")
     async def my_learning_progress(request: Request):
@@ -294,7 +386,13 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
                 "updated_at": m.get("updated_at"),
                 **_summary(prog),
             })
-        return {"total_lessons": TOTAL_LESSONS, "total_crystals": TOTAL_CRYSTALS, "members": result}
+        return {
+            "total_lessons": TOTAL_LESSONS,
+            "total_crystals": TOTAL_CRYSTALS,
+            "subjects": [{"id": s["id"], "name": s["name"], "icon": s["icon"], "lessons_total": s["lessons_total"],
+                          "crystals_total": s["crystals_total"]} for s in _subjects_meta()],
+            "members": result,
+        }
 
     # ── 학습 페이지 (쿠키 인증) ──────────────────────────────────────────────
 

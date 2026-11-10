@@ -579,8 +579,12 @@ function pushProgress(){
   if(!SYNC.on)return;
   clearTimeout(SYNC.timer);
   SYNC.timer=setTimeout(()=>{
-    const body=JSON.stringify({progress:P,reset:SYNC.reset});SYNC.reset=false;
-    fetch('api/progress',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});
+    // only what the server keeps: the notebook and the log stay on this device
+    const keep=['stars','crystals','name','xp','maxCombo','correct','cleared','badges','medals','daily','speed','days'];
+    const body=JSON.stringify({progress:Object.fromEntries(keep.map(k=>[k,P[k]])),reset:SYNC.reset});SYNC.reset=false;
+    // keepalive lets the save finish when the page closes, but browsers refuse keepalive bodies over 64KB; a big 오답 노트 would then never sync.
+    const small=new Blob([body]).size<60000;
+    fetch('api/progress',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body,keepalive:small}).catch(()=>{});
   },600);
 }
 const save=()=>{lsSet(keyOf(PROF),JSON.stringify(P));pushProgress();};
