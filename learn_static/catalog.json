@@ -1,0 +1,680 @@
+{
+ "title": "지혜섬 탐험대",
+ "lessons_total": 76,
+ "crystals_total": 22,
+ "level_xp": "xpFor(n)=20*n*(n+1); level = smallest n with xp < xpFor(n)",
+ "badges_total": 23,
+ "extra_starts": [
+  "home",
+  "daily",
+  "trophy",
+  "review",
+  "report"
+ ],
+ "subjects": [
+  {
+   "id": "math",
+   "name": "수학",
+   "icon": "🧮",
+   "span": "1~6학년",
+   "desc": "수와 연산 중심으로 1학년부터 6학년까지. 학년이 곧 레벨이에요.",
+   "start": "math",
+   "grades_range": [
+    1,
+    6
+   ],
+   "lessons_total": 49,
+   "crystals_total": 13,
+   "grades": [
+    {
+     "g": 1,
+     "island": "새싹 들판",
+     "focus": "수 세기, 모으기와 가르기, 덧셈과 뺄셈, 시계 보기",
+     "start": "g1",
+     "regions": [
+      {
+       "id": "seed",
+       "name": "새싹 마을",
+       "sem": "1학기",
+       "boss": "seed-boss",
+       "lessons": [
+        {
+         "id": "seed-0",
+         "title": "9까지의 수"
+        },
+        {
+         "id": "seed-1",
+         "title": "수를 세고 크기를 비교해요"
+        },
+        {
+         "id": "seed-2",
+         "title": "모으기와 가르기"
+        },
+        {
+         "id": "seed-3",
+         "title": "10까지의 덧셈과 뺄셈"
+        }
+       ]
+      },
+      {
+       "id": "hill",
+       "name": "시계 언덕",
+       "sem": "2학기",
+       "boss": "hill-boss",
+       "lessons": [
+        {
+         "id": "hill-1",
+         "title": "10을 만들어 더하고 빼요"
+        },
+        {
+         "id": "hill-2",
+         "title": "100까지의 수"
+        },
+        {
+         "id": "hill-4",
+         "title": "짝수와 홀수, 몇십몇의 덧셈과 뺄셈"
+        },
+        {
+         "id": "hill-3",
+         "title": "시계 보기"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 2,
+     "island": "물결 계곡",
+     "focus": "세 자리 수, 받아올림·받아내림, 곱셈구구, 시각",
+     "start": "g2",
+     "regions": [
+      {
+       "id": "river",
+       "name": "받아올림 강",
+       "sem": "1학기",
+       "boss": "river-boss",
+       "lessons": [
+        {
+         "id": "river-1",
+         "title": "세 자리 수"
+        },
+        {
+         "id": "river-2",
+         "title": "받아올림이 있는 덧셈"
+        },
+        {
+         "id": "river-3",
+         "title": "받아내림이 있는 뺄셈"
+        }
+       ]
+      },
+      {
+       "id": "gugu",
+       "name": "구구단 언덕",
+       "sem": "1·2학기",
+       "boss": "gugu-boss",
+       "lessons": [
+        {
+         "id": "gugu-1",
+         "title": "곱셈의 뜻"
+        },
+        {
+         "id": "gugu-5",
+         "title": "몇의 몇 배"
+        },
+        {
+         "id": "gugu-2",
+         "title": "곱셈구구 6~9단, 0과 1의 곱"
+        },
+        {
+         "id": "gugu-4",
+         "title": "네 자리 수"
+        },
+        {
+         "id": "gugu-3",
+         "title": "시각과 시간"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 3,
+     "island": "탐험의 숲",
+     "focus": "곱셈·나눗셈 다지기, 분수 처음 배우기",
+     "start": "g3",
+     "regions": [
+      {
+       "id": "mul",
+       "name": "곱셈 숲",
+       "sem": "1·2학기",
+       "boss": "mul-boss",
+       "lessons": [
+        {
+         "id": "mul-0",
+         "title": "세 자리 수의 덧셈과 뺄셈"
+        },
+        {
+         "id": "mul-1",
+         "title": "묶어 세면 곱셈!"
+        },
+        {
+         "id": "mul-2",
+         "title": "올림을 잊지 마! 두 자리 × 한 자리"
+        },
+        {
+         "id": "mul-3",
+         "title": "쪼개면 쉬워! 큰 수의 곱셈"
+        }
+       ]
+      },
+      {
+       "id": "div",
+       "name": "나눗셈 동굴",
+       "sem": "1·2학기",
+       "boss": "div-boss",
+       "lessons": [
+        {
+         "id": "div-1",
+         "title": "똑같이 나누기"
+        },
+        {
+         "id": "div-2",
+         "title": "곱셈구구로 몫 찾기"
+        },
+        {
+         "id": "div-3",
+         "title": "나머지와 검산"
+        }
+       ]
+      },
+      {
+       "id": "frac",
+       "name": "분수 성",
+       "sem": "1·2학기",
+       "boss": "frac-boss",
+       "lessons": [
+        {
+         "id": "frac-1",
+         "title": "똑같이 나누어야 분수!"
+        },
+        {
+         "id": "frac-2",
+         "title": "분수의 이름, 분모와 분자"
+        },
+        {
+         "id": "frac-3",
+         "title": "어느 조각이 더 클까?"
+        },
+        {
+         "id": "frac-4",
+         "title": "묶음을 분수로"
+        },
+        {
+         "id": "frac-5",
+         "title": "진분수, 가분수, 대분수"
+        },
+        {
+         "id": "frac-7",
+         "title": "분수와 소수"
+        },
+        {
+         "id": "frac-6",
+         "title": "분수의 덧셈과 뺄셈"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 4,
+     "island": "등대 해안",
+     "focus": "큰 수, 큰 수의 곱셈·나눗셈, 분수와 소수의 계산",
+     "start": "g4",
+     "regions": [
+      {
+       "id": "port",
+       "name": "큰 수 항구",
+       "sem": "1학기",
+       "boss": "port-boss",
+       "lessons": [
+        {
+         "id": "port-1",
+         "title": "만, 억, 조: 큰 수 읽기"
+        },
+        {
+         "id": "port-2",
+         "title": "(세 자리)×(두 자리)"
+        },
+        {
+         "id": "port-3",
+         "title": "(세 자리)÷(두 자리)"
+        }
+       ]
+      },
+      {
+       "id": "light",
+       "name": "분수·소수 등대",
+       "sem": "2학기",
+       "boss": "light-boss",
+       "lessons": [
+        {
+         "id": "light-1",
+         "title": "분모가 같은 분수의 덧셈과 뺄셈"
+        },
+        {
+         "id": "light-2",
+         "title": "소수 두 자리 수"
+        },
+        {
+         "id": "light-3",
+         "title": "소수의 덧셈과 뺄셈"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 5,
+     "island": "화산 고원",
+     "focus": "혼합 계산, 약수와 배수, 약분·통분, 분수와 소수의 곱셈",
+     "start": "g5",
+     "regions": [
+      {
+       "id": "jungle",
+       "name": "약수 밀림",
+       "sem": "1학기",
+       "boss": "jungle-boss",
+       "lessons": [
+        {
+         "id": "jungle-1",
+         "title": "혼합 계산의 순서"
+        },
+        {
+         "id": "jungle-2",
+         "title": "약수와 배수"
+        },
+        {
+         "id": "jungle-3",
+         "title": "약분과 통분"
+        }
+       ]
+      },
+      {
+       "id": "volcano",
+       "name": "분수 화산",
+       "sem": "1·2학기",
+       "boss": "volcano-boss",
+       "lessons": [
+        {
+         "id": "volcano-1",
+         "title": "분모가 다른 분수의 덧셈과 뺄셈"
+        },
+        {
+         "id": "volcano-4",
+         "title": "수의 범위와 어림"
+        },
+        {
+         "id": "volcano-2",
+         "title": "분수의 곱셈"
+        },
+        {
+         "id": "volcano-3",
+         "title": "소수의 곱셈"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 6,
+     "island": "별빛 산맥",
+     "focus": "분수와 소수의 나눗셈, 비와 비율, 비례식, 원과 직육면체",
+     "start": "g6",
+     "regions": [
+      {
+       "id": "canyon",
+       "name": "비율 협곡",
+       "sem": "1·2학기",
+       "boss": "canyon-boss",
+       "lessons": [
+        {
+         "id": "canyon-1",
+         "title": "분수의 나눗셈"
+        },
+        {
+         "id": "canyon-2",
+         "title": "소수의 나눗셈"
+        },
+        {
+         "id": "canyon-3",
+         "title": "비와 비율, 백분율"
+        }
+       ]
+      },
+      {
+       "id": "observ",
+       "name": "비례 천문대",
+       "sem": "2학기",
+       "boss": "observ-boss",
+       "lessons": [
+        {
+         "id": "observ-1",
+         "title": "비례식과 비례배분"
+        },
+        {
+         "id": "observ-2",
+         "title": "원주와 원의 넓이"
+        },
+        {
+         "id": "observ-3",
+         "title": "직육면체의 겉넓이와 부피"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "kor",
+   "name": "국어",
+   "icon": "📖",
+   "span": "1~3학년",
+   "desc": "한글 떼기부터 맞춤법, 낱말과 속담까지. 받아쓰기는 소리를 듣고 풀어요.",
+   "start": "kor",
+   "grades_range": [
+    1,
+    3
+   ],
+   "lessons_total": 9,
+   "crystals_total": 3,
+   "grades": [
+    {
+     "g": 1,
+     "island": "한글 마을",
+     "focus": "자음과 모음, 받침 있는 글자, 듣고 쓰기",
+     "start": "kor-g1",
+     "regions": [
+      {
+       "id": "hangul",
+       "name": "한글 마을",
+       "sem": "1학기",
+       "boss": "hangul-boss",
+       "lessons": [
+        {
+         "id": "hangul-1",
+         "title": "자음과 모음"
+        },
+        {
+         "id": "hangul-2",
+         "title": "받침이 있는 글자"
+        },
+        {
+         "id": "hangul-3",
+         "title": "듣고 쓰기"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 2,
+     "island": "맞춤법 다리",
+     "focus": "소리와 글자가 다른 낱말, 헷갈리는 말, 문장 부호",
+     "start": "kor-g2",
+     "regions": [
+      {
+       "id": "spell",
+       "name": "맞춤법 다리",
+       "sem": "1·2학기",
+       "boss": "spell-boss",
+       "lessons": [
+        {
+         "id": "spell-1",
+         "title": "소리와 글자가 다른 낱말"
+        },
+        {
+         "id": "spell-2",
+         "title": "헷갈리는 말"
+        },
+        {
+         "id": "spell-3",
+         "title": "문장 부호"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 3,
+     "island": "낱말 숲",
+     "focus": "반대말과 비슷한 말, 국어사전 찾기, 속담",
+     "start": "kor-g3",
+     "regions": [
+      {
+       "id": "words",
+       "name": "낱말 숲",
+       "sem": "1·2학기",
+       "boss": "words-boss",
+       "lessons": [
+        {
+         "id": "words-1",
+         "title": "반대말과 비슷한 말"
+        },
+        {
+         "id": "words-2",
+         "title": "국어사전에서 낱말 찾기"
+        },
+        {
+         "id": "words-3",
+         "title": "속담"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "eng",
+   "name": "영어",
+   "icon": "🔤",
+   "span": "3~5학년",
+   "desc": "알파벳과 소리부터 단어, 문장 만들기까지. 단어와 문장을 원어민 발음으로 들을 수 있어요.",
+   "start": "eng",
+   "grades_range": [
+    3,
+    5
+   ],
+   "lessons_total": 9,
+   "crystals_total": 3,
+   "grades": [
+    {
+     "g": 3,
+     "island": "알파벳 항구",
+     "focus": "대문자와 소문자, 첫소리, 인사 표현",
+     "start": "eng-g3",
+     "regions": [
+      {
+       "id": "abc",
+       "name": "알파벳 항구",
+       "sem": "1·2학기",
+       "boss": "abc-boss",
+       "lessons": [
+        {
+         "id": "abc-1",
+         "title": "알파벳 대문자와 소문자"
+        },
+        {
+         "id": "abc-2",
+         "title": "첫소리 듣고 글자 찾기"
+        },
+        {
+         "id": "abc-3",
+         "title": "인사하고 소개하기"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 4,
+     "island": "단어 정원",
+     "focus": "색깔과 숫자, 동물과 음식, 요일과 날씨",
+     "start": "eng-g4",
+     "regions": [
+      {
+       "id": "vocab",
+       "name": "단어 정원",
+       "sem": "1·2학기",
+       "boss": "vocab-boss",
+       "lessons": [
+        {
+         "id": "vocab-1",
+         "title": "색깔과 숫자"
+        },
+        {
+         "id": "vocab-2",
+         "title": "동물과 음식"
+        },
+        {
+         "id": "vocab-3",
+         "title": "요일과 날씨"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 5,
+     "island": "문장 공방",
+     "focus": "am · is · are, can, 낱말 순서로 문장 만들기",
+     "start": "eng-g5",
+     "regions": [
+      {
+       "id": "talk",
+       "name": "문장 공방",
+       "sem": "1·2학기",
+       "boss": "talk-boss",
+       "lessons": [
+        {
+         "id": "talk-1",
+         "title": "am, is, are"
+        },
+        {
+         "id": "talk-2",
+         "title": "can으로 말하기"
+        },
+        {
+         "id": "talk-3",
+         "title": "낱말 순서로 문장 만들기"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sci",
+   "name": "과학",
+   "icon": "🔬",
+   "span": "3~5학년",
+   "desc": "물질, 생물, 지구와 우주. 분류하고 순서를 맞추고 간단한 실험 화면으로 확인해요.",
+   "start": "sci",
+   "grades_range": [
+    3,
+    5
+   ],
+   "lessons_total": 9,
+   "crystals_total": 3,
+   "grades": [
+    {
+     "g": 3,
+     "island": "물질 실험실",
+     "focus": "물체와 물질, 자석의 성질, 동물의 한살이",
+     "start": "sci-g3",
+     "regions": [
+      {
+       "id": "matter",
+       "name": "물질 실험실",
+       "sem": "1·2학기",
+       "boss": "matter-boss",
+       "lessons": [
+        {
+         "id": "matter-1",
+         "title": "물체와 물질"
+        },
+        {
+         "id": "matter-2",
+         "title": "자석의 성질"
+        },
+        {
+         "id": "matter-3",
+         "title": "동물의 한살이"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 4,
+     "island": "변화 관측소",
+     "focus": "식물의 한살이, 물의 상태 변화, 그림자와 거울",
+     "start": "sci-g4",
+     "regions": [
+      {
+       "id": "change",
+       "name": "변화 관측소",
+       "sem": "1·2학기",
+       "boss": "change-boss",
+       "lessons": [
+        {
+         "id": "change-1",
+         "title": "식물의 한살이"
+        },
+        {
+         "id": "change-2",
+         "title": "물의 상태 변화"
+        },
+        {
+         "id": "change-3",
+         "title": "그림자와 거울"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "g": 5,
+     "island": "날씨 천문대",
+     "focus": "태양계와 별, 온도와 열, 날씨와 우리 생활",
+     "start": "sci-g5",
+     "regions": [
+      {
+       "id": "space",
+       "name": "날씨 천문대",
+       "sem": "1·2학기",
+       "boss": "space-boss",
+       "lessons": [
+        {
+         "id": "space-1",
+         "title": "태양계와 별"
+        },
+        {
+         "id": "space-2",
+         "title": "온도와 열"
+        },
+        {
+         "id": "space-3",
+         "title": "날씨와 우리 생활"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
