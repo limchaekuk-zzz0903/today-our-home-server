@@ -240,8 +240,76 @@ export function Learning({ route }) {
 WebView 설정 체크리스트
 
 - JavaScript 켜기, DOM storage(localStorage) 켜기, 쿠키 허용(Android는 기본 허용, iOS는 `sharedCookiesEnabled` 권장)
-- **소리**: 국어 받아쓰기와 영어 듣기는 기기의 음성 합성(Web Speech)을 씁니다. Android WebView는 기기에 한국어·영어 TTS 음성이 있어야 하고, iOS는 `mediaPlaybackRequiresUserAction={false}`(Flutter는 `allowsInlineMediaPlayback`)를 권장합니다. 음성이 없는 기기에서는 스피커 버튼이 숨겨지고 문제는 그대로 풀 수 있습니다.
+- **소리**: 아래 "소리(읽어 주기) 연결"을 꼭 적용해 주세요. 특히 Android는 이것 없이는 소리가 나오지 않습니다.
 - **키보드**: 국어·영어 도전 단계는 직접 쓰는 문제가 많습니다. WebView 화면에 `resizeToAvoidBottomInset`(Flutter) / `KeyboardAvoidingView`(RN)를 적용해 입력 칸이 키보드에 가리지 않게 해 주세요.
+
+## 소리(읽어 주기) 연결 — 필수
+
+학습 페이지는 만화 읽어 주기, 국어 받아쓰기, 영어 듣기에 소리를 씁니다.
+
+- **Android WebView는 웹 음성 합성(Web Speech)을 지원하지 않아** 그대로 두면 소리가 나지 않습니다.
+- iOS WKWebView는 대체로 나오지만, 기기 음성 설정에 따라 안 나올 수 있습니다.
+
+그래서 학습 페이지는 **앱이 연결해 준 통로(브리지)가 있으면 앱의 TTS로 읽어 달라고 요청**합니다. 앱에서 아래 둘 중 하나를 연결해 주세요.
+브리지가 없고 소리도 안 나는 기기에서는 "이 기기에서는 소리가 나오지 않아요" 안내가 뜨고, 듣기 문제에 "부모님이 읽어 주기" 버튼이 나타납니다.
+
+학습 페이지가 보내는 메시지 (JSON)
+
+```json
+{"type": "speak", "text": "운동장", "lang": "ko-KR"}   // lang: ko-KR 또는 en-US
+{"type": "stop"}
+```
+
+### Flutter (`webview_flutter` + `flutter_tts`)
+
+채널 이름은 반드시 `TodayTTS`로 해 주세요.
+
+```dart
+final tts = FlutterTts();
+
+final controller = WebViewController()
+  ..setJavaScriptMode(JavaScriptMode.unrestricted)
+  ..addJavaScriptChannel('TodayTTS', onMessageReceived: (msg) async {
+    final m = jsonDecode(msg.message) as Map<String, dynamic>;
+    if (m['type'] == 'stop') { await tts.stop(); return; }
+    if (m['type'] == 'speak') {
+      final lang = m['lang'] as String? ?? 'ko-KR';
+      await tts.stop();
+      await tts.setLanguage(lang);
+      await tts.setSpeechRate(lang.startsWith('en') ? 0.42 : 0.47); // 아이가 알아듣기 쉬운 속도
+      await tts.speak(m['text'] as String);
+    }
+  })
+  ..loadRequest(Uri.parse(url));
+```
+
+`flutter_inappwebview`를 쓰면 `addJavaScriptHandler(handlerName: 'tts', callback: (args) { final m = args[0]; ... })`로 같은 메시지를 받습니다.
+
+### React Native (`react-native-webview` + `expo-speech` 또는 `react-native-tts`)
+
+```tsx
+import * as Speech from 'expo-speech';
+
+<WebView
+  source={{ uri: url }}
+  javaScriptEnabled domStorageEnabled sharedCookiesEnabled
+  onMessage={e => {
+    let m: any; try { m = JSON.parse(e.nativeEvent.data); } catch { return; }
+    if (m.source !== 'learn') return;
+    if (m.type === 'stop') { Speech.stop(); return; }
+    if (m.type === 'speak') {
+      Speech.stop();
+      Speech.speak(m.text, { language: m.lang, rate: m.lang?.startsWith('en') ? 0.85 : 0.92 });
+    }
+  }}
+/>
+```
+
+### 확인 방법
+
+1. 앱에서 학습 → 국어 → 1학년 → "듣고 쓰기" 화를 열고 "소리 듣기"를 누르면 낱말을 읽어 줍니다.
+2. 영어 → 3학년 → "첫소리 듣고 글자 찾기"에서 영어 발음이 나오는지 확인합니다.
+3. 소리가 안 나오면 기기 설정 → 접근성(또는 일반) → 텍스트 음성 변환(TTS)에서 한국어·영어 음성 데이터를 내려받았는지 확인합니다.
 
 ## 학습 페이지 갱신
 
