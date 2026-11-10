@@ -1,6 +1,6 @@
-# 학습 페이지(숫자섬 수학 탐험대) 앱 연동 가이드
+# 학습 페이지(지혜섬 탐험대) 앱 연동 가이드
 
-오늘우리집 회원이 앱 안에서 초등 1~6학년 수학 학습 페이지를 쓸 수 있도록 서버에 연동해 두었습니다.
+오늘우리집 회원이 앱 안에서 초등 수학(1~6학년)·국어·영어·과학 학습 페이지를 쓸 수 있도록 서버에 연동해 두었습니다.
 앱에서는 **버튼 하나와 WebView 화면 하나**만 추가하면 됩니다.
 
 ## 동작 방식
@@ -19,13 +19,14 @@
 - 앱을 거치지 않고 `/learn/` 을 열면 "오늘우리집 앱에서 열어 주세요" 안내만 보입니다.
 - 기기가 로그아웃되면(device secret 삭제) 학습 세션도 함께 무효가 됩니다.
 - 진도는 기기(회원) 단위로 저장되고, 여러 번 저장돼도 별은 가장 높은 값이 유지됩니다.
+- 경험치·배지·도전 메달·스피드 기록·연속 학습일도 함께 저장되며, 줄어들지 않게 합쳐집니다.
 
 ## API
 
 | 메서드 | 경로 | 인증 | 설명 |
 |---|---|---|---|
 | POST | `/api/learning/session?start=frac-1` | 기기 헤더 | 학습 페이지 1회용 URL 발급. `start`(선택)로 시작할 화 지정 |
-| GET | `/api/learning/progress` | 기기 헤더 | 내 진도 요약 `{lessons_done, stars_total, crystals}` |
+| GET | `/api/learning/progress` | 기기 헤더 | 내 진도 요약 `{lessons_done, stars_total, crystals, xp, badges, medals}` |
 | GET | `/api/learning/family-progress` | 기기 헤더 | 가족 구성원별 진도 요약 (`total_lessons: 76`, `total_crystals: 22`) |
 | GET | `/learn/` | 쿠키 | 학습 페이지 (WebView 전용) |
 | GET/PUT | `/learn/api/progress` | 쿠키 | 학습 페이지가 내부적으로 사용 |
@@ -41,7 +42,8 @@
 - 국어: `kor-g1`~`kor-g3`(학년 지도), `hangul-1`~`3`, `spell-1`~`3`, `words-1`~`3`
 - 영어: `eng-g3`~`eng-g5`, `abc-1`~`3`, `vocab-1`~`3`, `talk-1`~`3`
 - 과학: `sci-g3`~`sci-g5`, `matter-1`~`3`, `change-1`~`3`, `space-1`~`3`
-- 대장 문제: `<지역>-boss` (예: `port-boss`), 처음 화면: `home`
+- 대장 문제: `<지역>-boss` (예: `port-boss`), 처음 화면(과목 선택): `home`
+- 과목 페이지: `math`, `kor`, `eng`, `sci` · 오늘의 도전: `daily` · 트로피 방: `trophy`
 
 `family-progress` 응답 예:
 
@@ -51,7 +53,8 @@
   "total_crystals": 22,
   "members": [
     {"device_id": "…", "user_name": "회은", "updated_at": "2026-11-08T02:59:16",
-     "lessons_done": 3, "stars_total": 7, "crystals": ["mul"]}
+     "lessons_done": 3, "stars_total": 7, "crystals": ["mul"],
+     "xp": 260, "badges": 4, "medals": 1}
   ]
 }
 ```
@@ -72,7 +75,7 @@ Future<void> openLearning(BuildContext context, {String? start}) async {
     ..loadRequest(Uri.parse(url));
   Navigator.of(context).push(MaterialPageRoute(
     builder: (_) => Scaffold(
-      appBar: AppBar(title: const Text('수학 탐험대')),
+      appBar: AppBar(title: const Text('지혜섬 탐험대')),
       body: SafeArea(child: WebViewWidget(controller: controller)),
     ),
   ));

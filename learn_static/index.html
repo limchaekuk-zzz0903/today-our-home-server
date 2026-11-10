@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest"><!--SA-->
 <link rel="icon" href="icon.svg" type="image/svg+xml"><!--SA-->
 <link rel="apple-touch-icon" href="icon-192.png"><!--SA-->
-<title>숫자섬 수학 탐험대</title>
+<title>지혜섬 탐험대</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -381,11 +381,11 @@ body{word-break:keep-all;overflow-wrap:break-word}
 .stat{flex-wrap:wrap;justify-content:flex-end;min-width:0;row-gap:4px}
 body.low .bub{font-family:var(--f-body);font-weight:400;font-size:1.12rem;line-height:1.6}
 .pn{position:relative}
-.say{position:absolute;right:6px;bottom:6px;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--panel);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
-.say svg{width:18px;height:18px}
+button.say{position:absolute;right:6px;bottom:6px;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--panel);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+button.say svg{width:18px;height:18px}
 .pn .bub{margin-bottom:22px}
 .qtop .say{position:static}
-.no-tts .say,.no-tts .tts-only{display:none!important}
+.no-tts button.say,.no-tts .tts-only{display:none!important}
 .sec-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
 .stop.next{outline:3px solid var(--sun);outline-offset:2px}
 .missed{background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:12px 16px;margin-top:14px}
@@ -400,13 +400,71 @@ body.low .bub{font-family:var(--f-body);font-weight:400;font-size:1.12rem;line-h
 .bar-c{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;font-family:var(--f-display);font-size:.9rem;color:var(--ink2)}
 .bar-c i{display:block;width:70%;background:var(--sun);border:2px solid var(--line);border-radius:6px 6px 0 0;min-height:2px}
 /* subjects */
-.subj-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.subj{border:3px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;box-shadow:3px 3px 0 var(--shadow);min-width:0}
-.subj b{font-family:var(--f-display);font-weight:400;font-size:1.25rem}
-.subj span{font-size:.8rem;color:var(--ink2)}
-.subj.on{background:var(--rc);color:var(--onrc)}
-.subj.on span{color:var(--onrc)}
-@media (max-width:440px){.subj-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.subj-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:16px}
+.subj-card{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--ink);background:var(--panel);border:3px solid var(--line);border-left:14px solid var(--rc);border-radius:10px;box-shadow:5px 5px 0 var(--shadow);padding:16px;transition:transform .1s;min-width:0}
+.subj-card:hover{transform:translate(-2px,-2px)}
+.sc-ic{font-size:2.6rem;line-height:1;flex:none}
+.sc-b{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.sc-b b{font-family:var(--f-display);font-weight:400;font-size:1.5rem}
+.sc-span,.sc-stat{font-size:.9rem;color:var(--ink2)}
+.subj-head .say .bub{color:var(--ink);background:var(--bubble);border:2.5px solid var(--line);border-radius:14px;padding:8px 12px}
+.subj-head .say svg{width:56px;height:56px;flex:none}
+.sc-stat2{font-family:var(--f-display)}
+.me-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px}
+@media (max-width:640px){.me-row{grid-template-columns:1fr}}
+.me{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--ink);background:var(--panel);border:3px solid var(--line);border-radius:10px;box-shadow:4px 4px 0 var(--shadow);padding:14px;min-width:0}
+.me-lv{flex:none;width:64px;height:64px;border-radius:50%;background:var(--cave);color:#fff;border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:1.15rem}
+.me-b{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.me-b b{font-family:var(--f-display);font-weight:400;font-size:1.15rem}
+.me-s{font-size:.86rem;color:var(--ink2)}
+.xpbar{display:block;height:14px;border:2px solid var(--line);border-radius:999px;background:var(--paper2);overflow:hidden}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--sky),var(--cave))}
+.daily{display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--onsun);background:var(--sun);border:3px solid var(--line);border-radius:10px;box-shadow:4px 4px 0 var(--shadow);padding:14px}
+.daily.done{background:#B8EBCF;color:#1B2140}
+.daily b{display:block;font-family:var(--f-display);font-weight:400;font-size:1.2rem}
+.daily span span{font-size:.88rem}
+.d-ic{font-size:2rem;flex:none}
+details.story{background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:12px 14px}
+details.story summary{font-family:var(--f-display);font-size:1.15rem;cursor:pointer}
+details.story[open] summary{margin-bottom:12px}
+.hearts{letter-spacing:2px;font-size:1.05rem}
+.combo{font-family:var(--f-display);color:#fff;background:var(--castle);border:2px solid var(--line);border-radius:999px;padding:0 10px;animation:zoomin .3s ease-out}
+.combo-note{font-family:var(--f-display);color:var(--castle)}
+.qcard.chal{border-color:var(--castle);box-shadow:6px 6px 0 var(--castle)}
+.lockbox,.chbox{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--panel);border:3px dashed var(--line);border-radius:10px;padding:16px}
+.chbox{border-style:solid;background:var(--trickbg)}
+.lockbox div,.chbox div{flex:1;min-width:200px}
+.lockbox p,.chbox p{color:var(--ink2);font-size:.95rem}
+.lk{font-size:2.2rem;flex:none}
+#chQuiz{margin-top:14px}
+.bigmedal{font-size:5rem;line-height:1;animation:float 2.4s ease-in-out infinite}
+.medal{font-size:1rem;margin-left:4px}
+.autoread{display:inline-flex;gap:8px;align-items:center;font-family:var(--f-display);margin-bottom:10px;cursor:pointer}
+.autoread input{width:20px;height:20px}
+.speed-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.speed-card{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--onrc);background:var(--rc);border:3px solid var(--line);border-radius:10px;box-shadow:3px 3px 0 var(--shadow);padding:12px}
+.speed-card b{font-family:var(--f-display);font-weight:400;font-size:1.3rem}
+.speed-card span{font-size:.88rem}
+.speed{display:flex;flex-direction:column;gap:12px;align-items:stretch}
+.big-btn{font-size:1.6rem;padding:.7em 1.4em;align-self:center}
+.sp-top{display:flex;justify-content:space-between;font-family:var(--f-display);font-size:1.4rem}
+.sp-time.hurry{color:var(--bad);animation:zoomin .5s ease-in-out infinite alternate}
+.big-score{font-family:var(--f-display);font-size:3.4rem;color:var(--cave)}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.badge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;background:var(--paper2);border:3px solid var(--line);border-radius:10px;padding:12px;opacity:.65}
+.badge.got{background:var(--panel);opacity:1;box-shadow:3px 3px 0 var(--shadow)}
+.badge b{font-family:var(--f-display);font-weight:400;font-size:1.05rem}
+.badge span{font-size:.82rem;color:var(--ink2)}
+.badge small{font-size:.75rem;color:var(--ink2)}
+.b-ic{font-size:2.2rem;line-height:1.1}
+.toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:60;background:var(--panel);color:var(--ink);border:3px solid var(--line);border-radius:14px;box-shadow:4px 4px 0 var(--shadow);padding:10px 18px;font-family:var(--f-display);font-size:1.1rem;display:block;pointer-events:none;text-align:center;white-space:nowrap;max-width:calc(100vw - 32px)}
+.toast[hidden]{display:none}
+.toast b{font-weight:400;color:var(--castle);margin-right:6px}
+.toast.pop{animation:zoomin .35s ease-out}
+.t-ic{font-size:1.4rem;margin-right:6px;vertical-align:-2px}
+@keyframes zoomin{0%{transform:translateX(var(--tx,0)) scale(.8)}100%{transform:translateX(var(--tx,0)) scale(1)}}
+.toast{--tx:-50%}
+@media (max-width:460px){.hide-xs{display:none}}
 .pic{font-size:3.4rem;line-height:1.15}
 .opt .pic{font-size:2.6rem}
 .lt{font-family:var(--f-display);font-size:1.6rem}
@@ -477,6 +535,7 @@ button.chip:disabled{opacity:.3;cursor:default}
 <body><!--SA-->
 <header class="top"><div class="top-in" id="topbar"></div></header>
 <main class="wrap" id="app"></main>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <button class="ask-fab" id="askFab" type="button" aria-controls="askPanel" aria-expanded="false"><span class="ask-face"></span><span>셈이에게 질문</span></button>
 <aside class="ask" id="askPanel" hidden aria-label="셈이에게 질문하기">
   <div class="ask-h"><div class="ask-id"><span class="ask-face"></span><div><b>셈이에게 물어보기</b><span class="ask-mode" id="askMode">기본 도움말</span></div></div><button class="ask-x" id="askClose" type="button" aria-label="닫기">×</button></div>
@@ -499,14 +558,14 @@ const reduceMotion=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: r
 
 /* ---------- progress (this browser only) ---------- */
 const PKEY='math3-adventure-v1';
-const blank=()=>({stars:{},crystals:{},name:'',wrong:[],log:[]});
+const blank=()=>({stars:{},crystals:{},name:'',wrong:[],log:[],xp:0,days:[],badges:{},medals:{},speed:{},daily:{},maxCombo:0,correct:0,cleared:0,autoRead:true});
 const lsGet=k=>{try{return localStorage.getItem(k);}catch(e){return null;}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
 /* one record per child on this device: p1 keeps the original key so existing progress stays */
 let PROFILES=(()=>{try{const v=JSON.parse(lsGet('math3-profiles'));return Array.isArray(v)&&v.length?v:[{id:'p1',name:'아이 1'}];}catch(e){return [{id:'p1',name:'아이 1'}];}})();
 let PROF=lsGet('math3-profile')||'p1';if(!PROFILES.some(x=>x.id===PROF))PROF=PROFILES[0].id;
 const keyOf=id=>id==='p1'?PKEY:PKEY+':'+id;
-const loadP=()=>{try{const v=Object.assign(blank(),JSON.parse(lsGet(keyOf(PROF))||'{}'));if(!Array.isArray(v.wrong))v.wrong=[];if(!Array.isArray(v.log))v.log=[];return v;}catch(e){return blank();}};
+const loadP=()=>{try{const v=Object.assign(blank(),JSON.parse(lsGet(keyOf(PROF))||'{}'));if(!Array.isArray(v.wrong))v.wrong=[];if(!Array.isArray(v.log))v.log=[];if(!Array.isArray(v.days))v.days=[];for(const k of ['badges','medals','speed','daily'])if(!v[k]||typeof v[k]!=='object')v[k]={};for(const k of ['xp','maxCombo','correct','cleared'])v[k]=Number(v[k])||0;return v;}catch(e){return blank();}};
 let P=loadP();
 const profName=()=>(PROFILES.find(x=>x.id===PROF)||{}).name||'';
 function switchProfile(id){PROF=id;lsSet('math3-profile',id);P=loadP();route();}
@@ -536,6 +595,10 @@ async function syncInit(){
     for(const [k,v] of Object.entries(sp.stars||{}))P.stars[k]=Math.max(P.stars[k]||0,Number(v)||0);
     for(const [k,v] of Object.entries(sp.crystals||{}))if(v)P.crystals[k]=true;
     if(!P.name&&sp.name)P.name=String(sp.name);
+    for(const k of ['xp','maxCombo','correct','cleared'])P[k]=Math.max(P[k]||0,Number(sp[k])||0);
+    for(const k of ['badges','medals','daily'])for(const [x,v] of Object.entries(sp[k]||{}))if(!(x in P[k]))P[k][x]=v;
+    for(const [x,v] of Object.entries(sp.speed||{}))P.speed[x]=Math.max(P.speed[x]||0,Number(v)||0);
+    if(Array.isArray(sp.days))P.days=[...new Set(P.days.concat(sp.days.filter(d=>typeof d==='string')))].sort().slice(-400);
     save();
     updateHeader();
     if(!location.hash||location.hash==='#home')renderHome();
@@ -705,13 +768,13 @@ const regionsOf=(g,s='math')=>Object.keys(R).filter(k=>R[k].g===g&&(R[k].s||'mat
 const crystalCount=()=>Object.keys(R).filter(k=>P.crystals[k]).length;
 
 const PROLOGUE=[
-  N('어느 날, 하루는 낡은 수학 공책 사이에서 반짝이는 지도 한 장을 발견했어요.'),
-  S('wow','삐빅! 드디어 찾았다! 나는 숫자섬에서 온 계산 로봇 셈이야.'),
-  H('wow','숫자섬? 로봇이 말을 한다고?!'),
-  S('think','숫자섬의 지혜의 시계탑이 멈춰 버렸어. 장난꾸러기 뚱땅이가 섬 곳곳에 셈 크리스탈을 숨겼거든.'),
-  T('happy','히히! 크리스탈을 찾고 싶으면 내 문제를 풀어 봐. 난 계산을 얼렁뚱땅 하는 게 특기라고!'),
-  S('happy','숫자섬은 여섯 지역으로 나뉘어 있어. 1학년 새싹 들판부터 6학년 별빛 산맥까지, 학년이 올라갈수록 문제가 어려워져.'),
-  H('happy','좋아! 내 학년부터 시작해서 크리스탈을 모두 찾아 시계탑을 다시 움직이자!')
+  N('어느 날, 하루는 낡은 공책 사이에서 반짝이는 지도 한 장을 발견했어요.'),
+  S('wow','삐빅! 드디어 찾았다! 나는 지혜섬에서 온 로봇 셈이야.'),
+  H('wow','지혜섬? 로봇이 말을 한다고?!'),
+  S('think','지혜섬의 지혜의 시계탑이 멈춰 버렸어. 장난꾸러기 뚱땅이가 섬 곳곳에 지혜 크리스탈을 숨겼거든.'),
+  T('happy','히히! 크리스탈을 찾고 싶으면 내 문제를 풀어 봐. 계산도 맞춤법도 영어도 과학도 얼렁뚱땅 하는 게 내 특기라고!'),
+  S('happy','지혜섬에는 수학, 국어, 영어, 과학 지역이 있어. 학년이 올라갈수록 문제가 어려워지고, 화를 끝낼 때마다 경험치와 배지를 받을 수 있어.'),
+  H('happy','좋아! 과목을 골라서 크리스탈을 모두 찾고 시계탑을 다시 움직이자!')
 ];
 
 const LESSONS=[
@@ -1638,7 +1701,7 @@ const PROV_FILL=[['티끌 모아 □','태산',['바다','구름','모래']],['�
 const PUNCT=['.','?','!',','];
 LESSONS.push(
 {id:'hangul-1',r:'hangul',t:'자음과 모음',goal:'기본 자음 14개와 모음 10개를 알고, 자음과 모음을 합쳐 글자를 만들어요.',
- comic:[N('숫자섬 옆 한글 마을. 글자 블록이 여기저기 흩어져 있어요.'),
+ comic:[N('지혜섬의 한글 마을. 글자 블록이 여기저기 흩어져 있어요.'),
   S('happy','글자는 자음과 모음이 만나서 만들어져. ㄱ과 ㅏ를 합치면 "가"!'),
   SC('<p class="big">ㄱ + ㅏ = 가</p>','자음 + 모음'),
   T('happy','그럼 ㅏ를 먼저 쓰고 ㄱ을 뒤에 써도 되지?'),
@@ -1776,9 +1839,62 @@ const words=s=>s.replace(/[.?]/g,'').split(' ');
 const endP=s=>s.slice(-1);
 const enq=(q,a,hint,ex,o={})=>txq(q,a,hint,ex,Object.assign({en:true},o));
 const swatch=c=>`<span class="sw" style="background:${c}"></span>`;
-return [
+const CH_H='도전 단계에서는 힌트가 없어요.';
+const FILLG=[['처음 만나서 반가울 때','Nice to □ you.','meet'],['이름을 물을 때',"What's your □?",'name'],['나이를 물을 때','How □ are you?','old'],['아침 인사','Good □.','morning'],['고마울 때','Thank □.','you'],['안부를 물을 때','How □ you?','are'],['열 살이라고 말할 때',"I'm □ years old.",'ten'],['헤어질 때','See you □.','later'],['잠자기 전 인사','Good □.','night']];
+const KOSENT=[['나는 행복해요.','I am happy.'],['나는 사과를 좋아해요.','I like apples.'],['그녀는 내 여동생이에요.','She is my sister.'],['너는 수영할 수 있니?','Can you swim?'],['그것은 고양이예요.','It is a cat.'],['그들은 내 친구들이에요.','They are my friends.'],['나는 축구를 할 수 있어요.','I can play soccer.'],['그는 열 살이에요.','He is ten years old.']];
+const ENG_CH={
+ 'abc-1':()=>{
+  const a=()=>{const i=ri(0,23);return enq(`<p class="big" lang="en">${AZ[i]} □ ${AZ[i+2]}</p><p>□에 들어갈 알파벳을 써 보세요.</p>`,AZ[i+1],CH_H,`${AZ[i]}, ${AZ[i+1]}, ${AZ[i+2]}`);};
+  const b=()=>{const L=pick(AZ);return enq('<p>스피커를 눌러 듣고, 들은 알파벳을 써 보세요.</p>',L,CH_H,`들은 글자: ${L}`,{listen:EN(L)});};
+  const c=()=>{const i=ri(0,25);return num(`<p class="big" lang="en">${AZ[i]}</p><p>이 알파벳은 A부터 세어 몇 번째 글자일까요?</p>`,i+1,CH_H,`${AZ.slice(0,i+1).join(' ')} → ${i+1}번째`);};
+  const d=()=>{const ls=['b','d','p','q'],l=pick(ls);return MC(`<p class="big" lang="en">${l.toUpperCase()}</p><p>짝이 되는 소문자는? (헷갈리는 글자 주의!)</p>`,`<span lang="en" class="lt">${l}</span>`,ls.filter(x=>x!==l).map(x=>`<span lang="en" class="lt">${x}</span>`),CH_H,`${l.toUpperCase()} → ${l}`);};
+  return shuffle([a(),b(),c(),d(),b()]);},
+ 'abc-2':()=>{
+  const short=PH.filter(x=>x[0].length<=5);
+  const a=()=>{const [w,e]=pick(short);return enq(`${pic(e)}<p>스피커를 눌러 듣고, 낱말 전체를 영어로 써 보세요.</p>`,w,CH_H,`정답: ${w}`,{listen:EN(w)});};
+  const b=()=>{const [w,e]=pick(PH);return enq(`${pic(e)}<p>스피커를 눌러 듣고, 이 낱말의 <b>첫 글자</b>를 써 보세요.</p>`,w[0],CH_H,`${w} → ${w[0]}`,{listen:EN(w)});};
+  const c=()=>{const [w,e]=pick(short);return enq(`${pic(e)}<p class="big" lang="en">${w.slice(0,-1)}□</p><p>□에 들어갈 마지막 글자를 써 보세요.</p>`,w.slice(-1),CH_H,`정답: ${w}`,{listen:EN(w)});};
+  return shuffle([a(),a(),b(),c(),c()]);},
+ 'abc-3':()=>{
+  const fs=pickN(FILLG,3).map(([k,s,w])=>enq(`<p>${k}</p><p class="big" lang="en">${s}</p><p>□에 알맞은 낱말을 써 보세요.</p>`,w,CH_H,s.replace('□',w)));
+  const [q,ok,ws]=pick(QA);
+  return shuffle([...fs,MC('<p>스피커를 눌러 듣고, 알맞은 대답을 골라 보세요.</p>',`<span lang="en">${ok}</span>`,ws.map(x=>`<span lang="en">${x}</span>`),CH_H,`${q} → ${ok}`,{listen:EN(q)}),(()=>{const [s,o]=pick(GREET);return enq(`<p>${s} 하는 말을 영어로 써 보세요.</p><p class="note">(${shuffle([o,...pickN(GREET.filter(x=>x[1]!==o).map(x=>x[1]),2)]).join(' / ')} 중에서)</p>`,o,CH_H,`${s}: ${o}`);})()]);},
+ 'vocab-1':()=>{
+  const a2=()=>{const n=ri(11,20);return Object.assign(num('<p>스피커를 눌러 듣고, 들은 숫자를 써 보세요.</p>',n,CH_H,`${NUMW[n]} = ${n}`),{listen:EN(NUMW[n])});};
+  const b=()=>{const [w,c]=pick(COLORS);return enq(`<div class="viz">${swatch(c)}</div><p>이 색깔의 영어 이름을 써 보세요.</p>`,w,CH_H,`이 색: ${w}`);};
+  const c=()=>{const n=ri(1,12);return enq(`<p class="big">${n}</p><p>이 숫자를 영어 낱말로 써 보세요.</p>`,NUMW[n],CH_H,`${n} = ${NUMW[n]}`);};
+  const d=()=>{const x=ri(1,9),s=x+ri(1,10);return num(`<p class="big" lang="en">${NUMW[x]} + ${NUMW[s-x]} = ?</p><p>계산해서 숫자로 써 보세요.</p>`,s,CH_H,`${x} + ${s-x} = ${s} (${NUMW[s]})`);};
+  return shuffle([a2(),b(),c(),d(),b()]);},
+ 'vocab-2':()=>{
+  const all=[...ANIM,...FOOD];
+  const a=()=>{const [w,e]=pick(all.filter(x=>x[0].length<=6));return enq(`${pic(e)}<p>그림을 보고 영어로 써 보세요.</p>`,w,CH_H,`${e} = ${w}`);};
+  const b=()=>{const [w,e]=pick(all);return enq('<p>스피커를 눌러 듣고, 영어로 써 보세요.</p>',w,CH_H,`정답: ${w} ${e}`,{listen:EN(w)});};
+  const c=()=>{const a3=pickN(ANIM,3),f=pickN(FOOD,1)[0];return MC(`<p class="big">${[...a3,f].map(x=>x[1]).join(' ')}</p><p>그림을 모두 바르게 쓴 것은?</p>`,`<span lang="en">${[...a3,f].map(x=>x[0]).join(', ')}</span>`,[1,2,3].map(k=>{const arr=[...a3,f].map(x=>x[0]);arr[k%4]=pick(all.filter(x=>!arr.includes(x[0])))[0];return `<span lang="en">${arr.join(', ')}</span>`;}),CH_H,[...a3,f].map(x=>`${x[1]} ${x[0]}`).join(', '));};
+  return shuffle([a(),a(),b(),b(),c()]);},
+ 'vocab-3':()=>{
+  const a=()=>{const [e,k]=pick(DAYS);return enq(`<p class="big">${k}</p><p>영어로 써 보세요.</p>`,e,CH_H,`${k} = ${e}`);};
+  const b=()=>{const i=ri(0,6),j=(i+2)%7;return MC(`<p class="big" lang="en">Today is ${DAYS[i][0]}.</p><p>모레(이틀 뒤)는 무슨 요일일까요?</p>`,`<span lang="en">${DAYS[j][0]}</span>`,[DAYS[(i+1)%7][0],DAYS[(i+3)%7][0],DAYS[(i+6)%7][0]].map(x=>`<span lang="en">${x}</span>`),CH_H,`${DAYS[i][1]}의 이틀 뒤는 ${DAYS[j][1]}, ${DAYS[j][0]}예요.`);};
+  const c=()=>{const [w,e,k]=pick(WEA);return enq(`${pic(e)}<p class="big" lang="en">How's the weather? It's □.</p><p>□에 알맞은 낱말을 써 보세요.</p>`,w,CH_H,`${k}: It's ${w}.`);};
+  const d=()=>{const [w,e,k]=pick(WEA);return enq('<p>스피커를 눌러 듣고, 날씨 낱말을 써 보세요.</p>',w,CH_H,`It's ${w}. ${e} ${k}.`,{listen:EN(`It's ${w}.`)});};
+  return shuffle([a(),b(),c(),d(),a()]);},
+ 'talk-1':()=>{
+  const a=()=>{const [s,b]=pick(BE),c=pick(BEC);return enq(`<p class="big" lang="en">${s} □ ${c}.</p><p>□에 am, is, are 중 알맞은 말을 써 보세요.</p>`,b,CH_H,`${s} ${b} ${c}.`);};
+  const b=()=>{const [s,b]=pick(BE),c=pick(BEC);return enq(`<p>${SUBKO[s]} ${BEKO[c]}.</p><p>영어 문장으로 써 보세요. (낱말: <span lang="en">${shuffle([...s.split(' '),b,...c.split(' ')]).join(' / ')}</span>)</p>`,`${s} ${b} ${c}`,CH_H,`${s} ${b} ${c}.`);};
+  const c=()=>{const ps=pickN(BE,4),cc=pick(BEC),bad=ps[0],badB=['am','is','are'].find(x=>x!==bad[1]);return MC('<p>문장이 <b>틀린</b> 것은?</p>',`<span lang="en">${bad[0]} ${badB} ${cc}.</span>`,ps.slice(1).map(([s,b])=>`<span lang="en">${s} ${b} ${cc}.</span>`),CH_H,`바르게 쓰면 "${bad[0]} ${bad[1]} ${cc}."예요.`);};
+  return shuffle([a(),a(),b(),c(),a()]);},
+ 'talk-2':()=>{
+  const a=()=>{const [w,e,k]=pick(ACT),yes=Math.random()<.5;return enq(`<div class="pic">${e} ${yes?'⭕':'❌'}</div><p class="big" lang="en">I □ ${w}.</p><p>그림을 보고 can 또는 can't를 써 보세요.</p>`,yes?'can':"can't",CH_H,`I ${yes?'can':"can't"} ${w}.`);};
+  const b=()=>{const [w,e,k]=pick(ACT),yes=Math.random()<.5;return enq(`<p>나는 ${k} 수 ${yes?'있어요':'없어요'}.</p><p>영어 문장으로 써 보세요.</p>`,`I ${yes?'can':"can't"} ${w}`,CH_H,`I ${yes?'can':"can't"} ${w}.`);};
+  const c=()=>{const [w]=pick(ACT);return enq(`<p class="big" lang="en">Can you ${w}?</p><p>할 수 있다고 대답해 보세요.</p>`,'Yes, I can',CH_H,'Yes, I can.',{listen:EN(`Can you ${w}?`)});};
+  return shuffle([a(),b(),c(),a(),b()]);},
+ 'talk-3':()=>{
+  const ps=pickN(KOSENT,3).map(([k,e])=>enq(`<p>${k}</p><p class="big" lang="en">${shuffle(words(e)).join(' / ')}</p><p>뜻에 맞게 낱말을 늘어놓아 써 보세요.</p>`,e,CH_H,e));
+  const ds=pickN(SENT,2).map(s=>enq('<p>받아쓰기! 스피커를 눌러 듣고 문장을 써 보세요. (마침표는 쓰지 않아도 돼요)</p>',s,CH_H,s,{listen:EN(s)}));
+  return shuffle([...ps,...ds]);}
+};
+const ENG_LS=[
 {id:'abc-1',r:'abc',t:'알파벳 대문자와 소문자',goal:'알파벳 26자의 대문자와 소문자를 짝 짓고 순서를 알아요.',
- comic:[N('숫자섬 ABC 항구에 알파벳 배들이 도착했어요.'),
+ comic:[N('지혜섬 ABC 항구에 알파벳 배들이 도착했어요.'),
   S('happy','영어 글자는 알파벳 26자야. 대문자 A와 소문자 a는 같은 글자야.'),
   T('happy','b랑 d는 똑같이 생겼으니까 같은 글자지!'),
   H('oops','방향이 반대야! b는 동그라미가 오른쪽, d는 동그라미가 왼쪽에 있어.'),
@@ -1898,7 +2014,7 @@ return [
   const a=()=>{const s=pick(SENT),w=words(s);let alts=new Set();let guard=0;while(alts.size<2&&guard++<30){const x=shuffle(w).join(' ');if(x!==w.join(' '))alts.add(x);}return MC(`<p class="big" lang="en">${shuffle(w).join(' / ')}</p><p>낱말을 바른 순서로 놓은 문장은?</p>`,`<span lang="en">${w.join(' ')}${endP(s)}</span>`,[...alts].map(x=>`<span lang="en">${x}${endP(s)}</span>`),'누가 → 어떻다·한다 → 무엇을 순서를 생각해 봐. 묻는 문장은 Can, Is, What이 앞에 와.',s,{listen:EN(s)});};
   const b=()=>{const s=pick(SENT),w=words(s);return enq(`<p class="big" lang="en">${shuffle(w).join(' / ')}</p><p>낱말을 바른 순서로 써서 문장을 만들어 보세요. (마침표, 물음표는 쓰지 않아도 돼요)</p>`,s,'첫 낱말은 누구(주어)이거나, 묻는 문장이면 Can, Is, What이야.',s);};
   return [a(),b(),a(),b(),a()];}}
-];})(),
+];ENG_LS.forEach(l=>{if(ENG_CH[l.id])l.challenge=ENG_CH[l.id];});return ENG_LS;})(),
 
 /* ---------- 과학 ---------- */
 ...(()=>{
@@ -1914,8 +2030,100 @@ const PLANETS=['수성','금성','지구','화성','목성','토성','천왕성'
 const SPACE=[['태양에서 가장 가까운 행성은?','수성',['금성','지구','해왕성']],['태양계에서 가장 큰 행성은?','목성',['토성','지구','천왕성']],['지구 바로 바깥쪽에 있는 행성은?','화성',['금성','목성','수성']],['스스로 빛을 내는 것은?','태양',['달','지구','화성']],['태양계 행성은 모두 몇 개일까요?','8개',['7개','9개','10개']],['고리가 뚜렷하게 보이는 행성은?','토성',['화성','수성','금성']],['태양에서 가장 먼 행성은?','해왕성',['천왕성','토성','명왕성']],['북쪽 하늘에서 북극성을 찾을 때 이용하는 별자리는?','북두칠성',['오리온자리','전갈자리','백조자리']]];
 const HEAT=[['열은 어디에서 어디로 이동할까요?','온도가 높은 곳에서 낮은 곳으로',['낮은 곳에서 높은 곳으로','무거운 곳에서 가벼운 곳으로','항상 위에서 아래로']],['열이 가장 잘 전달되는 물질은?','구리',['나무','플라스틱','고무']],['냄비 손잡이를 나무나 플라스틱으로 만드는 까닭은?','열이 잘 전달되지 않아서',['열이 잘 전달되어서','무거워서','물에 잘 녹아서']],['주전자 속 물이 데워질 때 데워진 물은 어떻게 움직일까요?','위로 올라간다',['아래로 내려간다','움직이지 않는다','옆으로만 움직인다']],['에어컨을 높은 곳에 다는 까닭은?','차가운 공기가 아래로 내려오기 때문에',['차가운 공기가 위로 올라가기 때문에','전기가 덜 들어서','소리가 작아서']],['고체에서 열이 이동하는 방법은?','전도',['대류','증발','응결']],['온도를 정확하게 재려면 무엇을 쓸까요?','온도계',['저울','자','시계']],['방 안에서 데워진 공기는 어떻게 움직일까요?','위로 올라간다',['아래로 내려간다','움직이지 않는다','옆으로만 움직인다']],['뜨거운 물에 차가운 우유병을 담가 두면 우유병의 온도는?','높아진다',['낮아진다','변하지 않는다','낮아졌다가 다시 낮아진다']],['집을 지을 때 벽 속에 단열재를 넣는 까닭은?','열이 잘 이동하지 못하게 하려고',['열이 잘 이동하게 하려고','벽을 무겁게 하려고','소리를 크게 하려고']]];
 const WEATHER=[['공기 중에 수증기가 포함된 정도를 무엇이라고 할까요?','습도',['온도','기압','풍속']],['이른 아침 풀잎에 맺힌 물방울은?','이슬',['서리','우박','눈']],['구름이 만들어지는 까닭은?','공기 중 수증기가 하늘 높이 올라가 응결해서',['연기가 모여서','바닷물이 통째로 하늘로 올라가서','먼지가 쌓여서']],['바람은 어떻게 불까요?','기압이 높은 곳에서 낮은 곳으로',['기압이 낮은 곳에서 높은 곳으로','항상 북쪽에서 남쪽으로','온도와 상관없이 아무렇게나']],['맑은 날 낮에 바닷가에서 부는 바람의 방향은?','바다에서 육지로',['육지에서 바다로','하늘에서 땅으로','땅에서 하늘로']],['습도가 너무 높을 때 하면 좋은 일은?','제습기를 켜거나 환기한다',['가습기를 켠다','젖은 빨래를 방에 넌다','창문을 닫고 물을 뿌린다']],['지표면 가까이에서 수증기가 응결해 떠 있는 것은?','안개',['구름','이슬','비']],['비가 내리는 까닭은?','구름 속 물방울이 커지고 무거워져서',['하늘에 구멍이 나서','바람이 물을 실어 와서','태양이 물을 녹여서']],['맑은 날 밤에 바닷가에서 부는 바람의 방향은?','육지에서 바다로',['바다에서 육지로','하늘에서 땅으로','바람이 불지 않는다']],['일기 예보에서 내일 우산을 꼭 챙기라고 할 때 예상되는 날씨는?','비',['맑음','바람만 붊','무더위']]];
-const sciQ=(bank)=>()=>pickN(bank,5).map(([q,ok,ws])=>MC(`<p>${q}</p>`,ok,ws,'만화와 직접 해 보기에서 본 내용을 떠올려 봐.',`정답: ${ok}`));
-const mix=(bank,extra)=>()=>{const ps=pickN(bank,4).map(([q,ok,ws])=>MC(`<p>${q}</p>`,ok,ws,'만화와 직접 해 보기에서 본 내용을 떠올려 봐.',`정답: ${ok}`));ps.splice(ri(0,4),0,extra());return ps;};
+const SCI_EX={
+'잘 늘어나고 줄어들어 고무줄을 만드는 물질은?':'고무는 잡아당기면 늘어났다가 놓으면 원래대로 돌아와서 고무줄, 풍선, 장갑을 만들어요.',
+'단단하고 광택이 있어 냄비나 못을 만드는 물질은?':'금속은 단단하고 반짝이며 열이 잘 전달돼서 냄비, 못, 숟가락을 만들어요.',
+'투명해서 안이 잘 보여 창문을 만드는 물질은?':'유리는 투명해서 빛이 통과해요. 그래서 창문, 안경, 어항을 만들어요.',
+'가볍고 여러 가지 색을 내기 쉬워 장난감을 많이 만드는 물질은?':'플라스틱은 가볍고 원하는 모양과 색을 쉽게 만들 수 있어서 장난감, 그릇, 자를 만들어요.',
+'물에 뜨고 따뜻한 느낌이 나서 책상을 만드는 물질은?':'나무는 물에 뜨고 손에 닿으면 따뜻한 느낌이 나요. 무늬가 있어 책상과 의자를 만들어요.',
+'막대자석의 N극과 S극을 가까이 하면?':'다른 극끼리는 서로 끌어당겨요. N극과 S극은 짝꿍처럼 철썩 붙어요.',
+'막대자석의 N극과 N극을 가까이 하면?':'같은 극끼리는 서로 밀어내요. N극과 N극, S극과 S극은 가까이 가지 않으려 해요.',
+'나침반 바늘의 N극이 가리키는 방향은?':'나침반 바늘도 작은 자석이에요. 바늘의 N극은 북쪽을 가리켜서 길을 찾을 때 써요.',
+'막대자석에서 클립이 가장 많이 붙는 곳은?':'자석의 힘은 양쪽 끝인 극에서 가장 세요. 가운데에는 클립이 거의 붙지 않아요.',
+'금속이지만 자석에 붙지 않는 물체는?':'자석에는 철이 붙어요. 알루미늄은 금속이지만 철이 아니라서 붙지 않아요.',
+'배추흰나비 한살이에서 애벌레 다음 단계는?':'배추흰나비는 알 → 애벌레 → 번데기 → 어른벌레 순서로 자라요. 애벌레가 다 자라면 번데기가 돼요.',
+'번데기 시기가 없는 곤충은?':'잠자리는 알 → 애벌레 → 어른벌레로 자라요. 번데기가 없는 불완전 탈바꿈이에요.',
+'번데기 시기를 거치는 완전 탈바꿈을 하는 곤충은?':'배추흰나비는 번데기 시기를 거쳐요. 잠자리, 메뚜기, 사마귀는 번데기가 없어요.',
+'닭이 알에서 깨어난 뒤의 어린 모습은?':'닭은 알 → 병아리 → 큰 닭으로 자라요. 올챙이는 개구리, 애벌레는 곤충의 어린 모습이에요.',
+'배추흰나비 애벌레가 주로 먹는 것은?':'배추흰나비 애벌레는 배추, 케일, 무 같은 잎을 갉아 먹으며 자라요.',
+'어른벌레가 된 배추흰나비가 먹는 것은?':'어른벌레는 긴 대롱 모양의 입으로 꽃의 꿀을 빨아 먹어요.',
+'개구리의 어린 모습은?':'개구리는 알 → 올챙이 → 뒷다리가 나온 올챙이 → 개구리로 자라요.',
+'곤충의 몸은 몇 부분으로 나뉠까요?':'곤충의 몸은 머리, 가슴, 배 세 부분으로 되어 있어요.',
+'곤충의 다리는 모두 몇 개일까요?':'곤충은 가슴에 다리가 3쌍, 모두 6개 있어요. 다리가 8개인 거미는 곤충이 아니에요.',
+'알을 낳는 동물이 아닌 것은?':'강아지는 어미 배 속에서 자라서 새끼로 태어나요. 닭과 개구리는 알을 낳아요.',
+'씨가 싹 트는 데 꼭 필요한 조건은?':'씨는 물과 알맞은 온도가 있으면 싹이 터요. 햇빛은 싹이 튼 뒤에 필요해요.',
+'강낭콩 한살이에서 꽃이 핀 다음에는?':'꽃이 지고 나면 그 자리에 꼬투리 열매가 생기고, 그 안에 씨가 들어 있어요.',
+'한해살이 식물은?':'강낭콩, 벼, 옥수수는 한 해 안에 싹 트고 열매 맺고 죽어요. 그래서 한해살이 식물이에요.',
+'여러해살이 식물은?':'사과나무, 감나무 같은 나무는 여러 해 동안 살면서 해마다 꽃과 열매를 맺어요.',
+'싹이 튼 강낭콩이 잘 자라는 데 필요한 것은?':'싹이 튼 뒤에는 햇빛을 받아 양분을 만들고, 물도 있어야 잘 자라요.',
+'씨를 물에 불리면 어떻게 될까요?':'씨가 물을 빨아들여서 부풀고 껍질이 말랑해져요. 싹 틀 준비를 하는 거예요.',
+'강낭콩 씨가 싹 틀 때 가장 먼저 나오는 것은?':'뿌리가 먼저 나와 땅속으로 자라면서 물을 빨아들여요. 그다음 떡잎이 땅 위로 나와요.',
+'떡잎이 하는 일은?':'떡잎에는 양분이 저장되어 있어서, 본잎이 나오기 전까지 어린싹에 양분을 줘요.',
+'식물이 자라는 정도를 알아보려면 무엇을 재면 좋을까요?':'줄기 길이를 자로 재고 잎의 개수를 세어 기록하면 얼마나 자랐는지 알 수 있어요.',
+'열매 속에 들어 있는 것은?':'열매 속에는 씨가 들어 있어요. 씨를 다시 심으면 한살이가 되풀이돼요.',
+'고체 상태의 물은?':'얼음은 모양이 일정한 고체, 물은 흐르는 액체, 수증기는 눈에 보이지 않는 기체예요.',
+'기체 상태의 물은?':'수증기는 기체라서 눈에 보이지 않아요. 주전자에서 나오는 하얀 김은 수증기가 식어 생긴 작은 물방울이에요.',
+'물이 얼면 부피는 어떻게 될까요?':'물이 얼음이 되면 부피가 늘어나요. 그래서 얼음은 물에 떠요.',
+'젖은 빨래가 마르는 까닭은?':'빨래 속 물이 표면에서 수증기로 변해 날아가요. 이것을 증발이라고 해요.',
+'차가운 음료수 컵 표면에 물방울이 생기는 까닭은?':'공기 속 수증기가 차가운 컵에 닿아 식으면서 물방울로 변해요. 이것을 응결이라고 해요.',
+'물이 끓을 때 물속에서 생기는 기포는?':'물이 끓으면 물속에서도 물이 수증기로 변해요. 그 수증기가 보글보글 기포가 되어 올라와요.',
+'물이 끓는 온도는 약 몇 ℃일까요?':'물은 약 100℃에서 끓고, 약 0℃에서 얼어요.',
+'물이 빨리 증발하게 하려면?':'햇볕이 따뜻하고 바람이 잘 통하면 증발이 빨라져요. 그래서 빨래는 볕 좋고 바람 부는 곳에 널어요.',
+'얼음이 녹아 물이 되면 부피는?':'얼 때 부피가 늘어났으니, 반대로 녹으면 부피가 줄어들어요.',
+'겨울철에 수도관이 터지는 까닭은?':'관 속 물이 얼면 부피가 늘어나서 관을 밀어내요. 그래서 겨울에는 수도관을 감싸 줘요.',
+'그림자가 생기는 까닭은?':'빛은 곧게 나아가요. 빛이 불투명한 물체에 막히면 뒤쪽에 빛이 닿지 않아 그림자가 생겨요.',
+'손전등을 물체에 더 가까이 하면 그림자의 크기는?':'손전등이 가까우면 물체가 더 많은 빛을 가려서 그림자가 커져요.',
+'투명한 유리컵의 그림자는 어떻게 생길까요?':'투명한 물체는 빛이 대부분 통과해서 그림자가 연하게 생겨요. 종이컵은 빛을 막아 진하게 생겨요.',
+'거울에 비친 물체의 모습은?':'거울은 좌우가 바뀌어 보여요. 오른손을 들면 거울 속 나는 왼손을 든 것처럼 보여요.',
+'그림자는 물체의 어느 쪽에 생길까요?':'빛이 물체에 막힌 뒤쪽, 즉 빛이 오는 쪽의 반대쪽에 그림자가 생겨요.',
+'구급차 앞에 글자를 좌우로 바꾸어 쓴 까닭은?':'거울은 좌우를 바꿔 보여 주니까, 미리 바꿔 쓰면 앞차 운전자가 거울로 볼 때 바르게 읽혀요.',
+'물체와 손전등은 그대로 두고 스크린을 물체에서 멀리 하면 그림자는?':'빛은 퍼지면서 나아가서, 스크린이 멀어질수록 그림자가 넓게 퍼져 커져요.',
+'빛을 반사해서 물체의 모습을 비추는 도구는?':'거울은 빛을 반사해서 모습을 비춰요. 돋보기는 빛을 모으고, 손전등은 빛을 내요.',
+'그림자의 모양은 무엇과 비슷할까요?':'그림자는 빛을 가린 물체의 모양을 닮아요. 동그란 접시는 동그란 그림자를 만들어요.',
+'빛이 곧게 나아가기 때문에 생기는 것은?':'빛이 휘지 않고 곧게 나아가서 물체 뒤로 돌아가지 못해요. 그래서 그림자가 생겨요.',
+'태양에서 가장 가까운 행성은?':'"수금지화목토천해"의 첫 글자, 수성이 태양에서 가장 가까워요.',
+'태양계에서 가장 큰 행성은?':'목성이 가장 커요. 지구가 1,000개 넘게 들어갈 만큼 크답니다.',
+'지구 바로 바깥쪽에 있는 행성은?':'수금지화… 지구 다음은 붉은 행성 화성이에요.',
+'스스로 빛을 내는 것은?':'태양은 스스로 빛을 내는 별이에요. 달과 행성은 태양 빛을 반사해서 밝게 보여요.',
+'태양계 행성은 모두 몇 개일까요?':'수성, 금성, 지구, 화성, 목성, 토성, 천왕성, 해왕성 모두 8개예요.',
+'고리가 뚜렷하게 보이는 행성은?':'토성은 얼음과 돌 조각으로 된 커다란 고리가 뚜렷하게 보여요.',
+'태양에서 가장 먼 행성은?':'"수금지화목토천해"의 마지막, 해왕성이 가장 멀어요.',
+'북쪽 하늘에서 북극성을 찾을 때 이용하는 별자리는?':'북두칠성 국자 끝 두 별을 이은 길이의 다섯 배쯤 가면 북극성이 있어요.',
+'열은 어디에서 어디로 이동할까요?':'열은 항상 온도가 높은 곳에서 낮은 곳으로 이동해요. 그래서 뜨거운 국이 식어요.',
+'열이 가장 잘 전달되는 물질은?':'구리 같은 금속은 열이 아주 잘 전달돼요. 나무, 플라스틱, 고무는 잘 전달되지 않아요.',
+'냄비 손잡이를 나무나 플라스틱으로 만드는 까닭은?':'나무와 플라스틱은 열이 잘 전달되지 않아서 손잡이를 잡아도 뜨겁지 않아요.',
+'주전자 속 물이 데워질 때 데워진 물은 어떻게 움직일까요?':'데워진 물은 가벼워져 위로 올라가고, 차가운 물이 아래로 내려와요. 이것을 대류라고 해요.',
+'에어컨을 높은 곳에 다는 까닭은?':'차가운 공기는 무거워서 아래로 내려와요. 높은 곳에서 내보내면 방 전체가 시원해져요.',
+'고체에서 열이 이동하는 방법은?':'고체에서는 열이 물질을 따라 차례로 전해져요. 이것을 전도라고 해요.',
+'온도를 정확하게 재려면 무엇을 쓸까요?':'손으로 느끼는 온도는 사람마다 달라요. 온도계를 쓰면 정확한 숫자로 알 수 있어요.',
+'방 안에서 데워진 공기는 어떻게 움직일까요?':'데워진 공기는 가벼워져서 위로 올라가요. 그래서 난로는 아래쪽에 두면 좋아요.',
+'뜨거운 물에 차가운 우유병을 담가 두면 우유병의 온도는?':'열이 뜨거운 물에서 차가운 우유병으로 이동해서 우유가 따뜻해져요.',
+'집을 지을 때 벽 속에 단열재를 넣는 까닭은?':'단열재는 열이 이동하는 것을 막아서 겨울에는 따뜻하고 여름에는 시원하게 해 줘요.',
+'공기 중에 수증기가 포함된 정도를 무엇이라고 할까요?':'습도는 공기 속 수증기가 얼마나 많은지를 나타내요. 습도계로 잴 수 있어요.',
+'이른 아침 풀잎에 맺힌 물방울은?':'밤에 차가워진 풀잎에 공기 속 수증기가 응결해서 이슬이 맺혀요.',
+'구름이 만들어지는 까닭은?':'수증기를 품은 공기가 높이 올라가 차가워지면 응결해서 작은 물방울과 얼음 알갱이가 돼요.',
+'바람은 어떻게 불까요?':'공기는 기압이 높은 곳에서 낮은 곳으로 이동해요. 이 공기의 움직임이 바람이에요.',
+'맑은 날 낮에 바닷가에서 부는 바람의 방향은?':'낮에는 육지가 바다보다 빨리 데워져 기압이 낮아져요. 그래서 바다에서 육지로 바람이 불어요.',
+'습도가 너무 높을 때 하면 좋은 일은?':'제습기를 켜거나 창문을 열어 환기하면 공기 속 수증기가 줄어들어요.',
+'지표면 가까이에서 수증기가 응결해 떠 있는 것은?':'안개는 땅 가까이에서 생긴 작은 물방울이에요. 높은 하늘에서 생기면 구름이에요.',
+'비가 내리는 까닭은?':'구름 속 작은 물방울이 서로 합쳐져 커지고 무거워지면 떨어져서 비가 돼요.',
+'맑은 날 밤에 바닷가에서 부는 바람의 방향은?':'밤에는 육지가 바다보다 빨리 식어 기압이 높아져요. 그래서 육지에서 바다로 바람이 불어요.',
+'일기 예보에서 내일 우산을 꼭 챙기라고 할 때 예상되는 날씨는?':'우산이 필요한 날은 비가 올 것으로 예상되는 날이에요.'
+};
+const sciEx=(q,ok)=>SCI_EX[q]||`정답은 ${ok}.`;
+const sciMC=([q,ok,ws])=>MC(`<p>${q}</p>`,ok,ws,'만화와 직접 해 보기에서 본 내용을 떠올려 봐.',sciEx(q,ok));
+const sciQ=(bank)=>()=>pickN(bank,5).map(sciMC);
+const mix=(bank,extra)=>()=>{const ps=pickN(bank,4).map(sciMC);ps.splice(ri(0,4),0,extra());return ps;};
+/* 도전 단계: 설명 중 틀린 것 고르기 + 섞인 문제, 힌트 없이 */
+const sciCh=(bank,extra)=>()=>{
+  const out=[];
+  const truths=bank.filter(b=>SCI_EX[b[0]]);
+  const stem=q=>q.replace(/\s*(어떻게 될까요|무엇일까요|일까요|할까요|까요)?\?$/,'');
+  for(let k=0;k<2;k++){const [bad,...good]=pickN(truths,4);const wrongStmt=`${stem(bad[0])} → ${pick(bad[2])}`;out.push(MC('<p>다음 중 <b>틀린</b> 것은?</p>',wrongStmt,good.map(g=>`${stem(g[0])} → ${g[1]}`),'하나씩 맞는지 따져 봐.',`${bad[0]} 정답은 ${bad[1]}. ${SCI_EX[bad[0]]}`));}
+  pickN(bank,extra?2:3).forEach(b=>out.push(sciMC(b)));
+  if(extra)out.push(extra());
+  return shuffle(out);
+};
 return [
 {id:'matter-1',r:'matter',t:'물체와 물질',goal:'물체와 물질을 구분하고, 물질마다 성질이 다르다는 것을 알아요.',
  comic:[N('물질 실험실 책상 위에 여러 가지 컵이 놓여 있어요.'),
@@ -1925,6 +2133,7 @@ return [
   S('happy','물질마다 성질이 달라. 금속은 단단하고, 고무는 잘 늘어나고, 플라스틱은 가볍고 여러 가지 색을 낼 수 있어.'),
   H('think','그래서 고무줄은 고무로, 냄비는 금속으로 만드는구나!')],
  widget:mkSorter('물체인지 물질인지 골라 보세요.',['물체','물질'],[...pickN(MAT_OBJ,5).map(x=>[x,0]),...pickN(MAT_SUB,5).map(x=>[x,1])]),
+ challenge:sciCh(PROP),
  quiz:mix(PROP,()=>Math.random()<.5?MC('<p>다음 중 <b>물질</b>은 어느 것일까요?</p>',pick(MAT_SUB),pickN(MAT_OBJ,3),'물체를 만드는 재료가 물질이야.','유리, 나무, 고무, 금속, 플라스틱 같은 재료가 물질이에요.'):MC('<p>다음 중 <b>물체</b>는 어느 것일까요?</p>',pick(MAT_OBJ),pickN(MAT_SUB,3),'모양이 있고 쓰임새가 있는 물건이 물체야.','컵, 의자, 장갑처럼 모양이 있는 것이 물체예요.'))},
 {id:'matter-2',r:'matter',t:'자석의 성질',goal:'자석에 붙는 물체를 찾고, 자석의 극끼리 어떤 힘이 작용하는지 알아요.',
  comic:[N('실험실 서랍에서 막대자석을 꺼냈어요.'),
@@ -1934,6 +2143,7 @@ return [
   S('happy','자석의 N극과 S극은 서로 끌어당기고, 같은 극끼리는 서로 밀어내.'),
   H('happy','나침반 바늘의 N극은 북쪽을 가리켜!')],
  widget:mkSorter('자석에 붙는 물체인지 골라 보세요.',['자석에 붙어요','붙지 않아요'],[...pickN(MAG_Y,5).map(x=>[x,0]),...pickN(MAG_N,5).map(x=>[x,1,x==='알루미늄 캔'?'금속이지만 철이 아니에요':''])]),
+ challenge:sciCh(MAG),
  quiz:mix(MAG,()=>MC('<p>자석에 <b>붙는</b> 물체는?</p>',pick(MAG_Y),pickN(MAG_N,3),'철로 된 물체를 찾아봐.','철로 된 물체는 자석에 붙어요.'))},
 {id:'matter-3',r:'matter',t:'동물의 한살이',goal:'배추흰나비, 닭 같은 동물이 알에서 어른이 되기까지의 과정을 알아요.',
  comic:[N('실험실 사육 상자 속 배춧잎에 작은 알이 붙어 있어요.'),
@@ -1943,6 +2153,7 @@ return [
   S('oops','잠자리는 알 → 애벌레 → 어른벌레로, 번데기 시기가 없어. 이걸 불완전 탈바꿈이라고 해.'),
   H('happy','닭은 알 → 병아리 → 큰 닭이구나!')],
  widget:mkOrder('배추흰나비가 자라는 순서대로 눌러 보세요.',['알','애벌레','번데기','어른벌레']),
+ challenge:sciCh(LIFE),
  quiz:mix(LIFE,()=>{const seq=['알','애벌레','번데기','어른벌레'];return MC('<p>배추흰나비의 한살이를 바른 순서로 나타낸 것은?</p>',seq.join(' → '),['알 → 번데기 → 애벌레 → 어른벌레','애벌레 → 알 → 번데기 → 어른벌레','알 → 애벌레 → 어른벌레 → 번데기'],'알에서 깨어나 먹고 자란 뒤 움직이지 않는 시기를 거쳐.',seq.join(' → '));})},
 {id:'change-1',r:'change',t:'식물의 한살이',goal:'씨가 싹 트고 자라 꽃과 열매를 맺는 과정을 알아요.',
  comic:[N('변화 관측소 화단에 강낭콩을 심었어요.'),
@@ -1952,6 +2163,7 @@ return [
   S('happy','열매 속 씨를 다시 심으면 한살이가 되풀이돼.'),
   H('happy','강낭콩처럼 한 해 동안 한살이를 마치는 식물을 한해살이 식물이라고 해!')],
  widget:mkOrder('강낭콩이 자라는 순서대로 눌러 보세요.',['씨를 심어요','싹이 터요','잎과 줄기가 자라요','꽃이 피어요','열매와 씨가 생겨요']),
+ challenge:sciCh(PLANT),
  quiz:sciQ(PLANT)},
 {id:'change-2',r:'change',t:'물의 상태 변화',goal:'물이 얼음, 물, 수증기로 상태가 바뀌는 것을 알아요.',
  comic:[N('관측소 냉동실에서 얼음을 꺼냈어요.'),
@@ -1961,6 +2173,7 @@ return [
   S('oops','물이 얼면 부피가 늘어나. 그래서 물을 가득 채운 병을 얼리면 터질 수 있어.'),
   H('happy','차가운 컵 표면에 생긴 물방울은 공기 중 수증기가 물로 변한 거래. 이걸 응결이라고 해!')],
  widget:mkStates(),
+ challenge:sciCh(WATER),
  quiz:sciQ(WATER)},
 {id:'change-3',r:'change',t:'그림자와 거울',goal:'빛이 곧게 나아가 생기는 그림자와, 거울에 비친 모습의 특징을 알아요.',
  comic:[N('관측소 어두운 방에서 손전등을 켰어요.'),
@@ -1970,6 +2183,7 @@ return [
   S('happy','거울에 비친 모습은 좌우가 바뀌어 보여. 오른손을 들면 거울 속에서는 왼손을 든 것처럼 보이지.'),
   H('think','구급차 앞에 글자를 좌우로 바꿔 쓴 것도 앞차 거울로 보면 바르게 보이게 하려는 거구나!')],
  widget:mkShadow(),
+ challenge:sciCh(LIGHT),
  quiz:sciQ(LIGHT)},
 {id:'space-1',r:'space',t:'태양계와 별',goal:'태양계를 이루는 태양과 행성을 알고, 행성의 순서와 특징을 알아요.',
  comic:[N('날씨 천문대의 커다란 망원경으로 밤하늘을 봐요.'),
@@ -1979,6 +2193,7 @@ return [
   S('happy','태양에서 가까운 순서는 수성, 금성, 지구, 화성, 목성, 토성, 천왕성, 해왕성! "수금지화목토천해"로 외워.'),
   H('happy','가장 큰 행성은 목성, 고리가 뚜렷한 행성은 토성이구나!')],
  widget:mkOrder('태양에서 가까운 행성부터 순서대로 눌러 보세요.',PLANETS),
+ challenge:sciCh(SPACE),
  quiz:mix(SPACE,()=>{const i=ri(0,6);return MC(`<p class="big">${PLANETS.slice(Math.max(0,i-1),i+1).join(' → ')} → □</p><p>태양에서 가까운 순서로 □에 들어갈 행성은?</p>`,PLANETS[i+1],pickN(PLANETS.filter((_,j)=>j!==i+1&&j!==i),3),'"수금지화목토천해"를 떠올려 봐.',PLANETS.join(' → '));})},
 {id:'space-2',r:'space',t:'온도와 열',goal:'열이 온도가 높은 곳에서 낮은 곳으로 이동하고, 물질에 따라 열이 전달되는 정도가 다르다는 것을 알아요.',
  comic:[N('천문대 부엌에서 뜨거운 국을 끓여요.'),
@@ -1988,6 +2203,7 @@ return [
   S('happy','고체에서 열이 이동하는 것을 전도, 데워진 물이나 공기가 위로 올라가며 열이 이동하는 것을 대류라고 해.'),
   H('happy','에어컨은 위쪽에, 난로는 아래쪽에 두면 좋겠다!')],
  widget:mkSorter('열이 잘 전달되는 물질인지 골라 보세요.',['열이 잘 전달돼요','잘 전달되지 않아요'],[['구리',0],['철',0],['알루미늄',0],['은',0],['나무',1],['플라스틱',1],['유리',1],['고무',1],['스타이로폼',1],['천',1]]),
+ challenge:sciCh(HEAT),
  quiz:sciQ(HEAT)},
 {id:'space-3',r:'space',t:'날씨와 우리 생활',goal:'습도, 이슬·안개·구름이 생기는 과정, 바람이 부는 까닭을 알아요.',
  comic:[N('천문대 일기 예보 시간이에요.'),
@@ -1997,12 +2213,68 @@ return [
   H('think','그럼 바람은 왜 불까?'),
   S('happy','기압이 높은 곳에서 낮은 곳으로 공기가 이동하는 게 바람이야. 맑은 날 낮 바닷가에서는 바다에서 육지로 바람이 불어.')],
  widget:mkSorter('수증기가 응결해서 생기는 것인지 골라 보세요.',['응결로 생겨요','다른 변화예요'],[['이슬',0],['안개',0],['구름',0],['창문에 서린 김',0],['빨래가 마름',1,'증발이에요'],['얼음이 녹음',1,'녹는 변화예요'],['물이 끓음',1,'끓음이에요'],['고드름이 생김',1,'어는 변화예요']]),
+ challenge:sciCh(WEATHER),
  quiz:sciQ(WEATHER)}
 ];})()
 );
 
+/* ---------- 국어 도전 단계: 직접 쓰기·받아쓰기 중심, 힌트 없이 ---------- */
+const NOJONG_W=['나무','바다','우유','기차','오이','포도','나비','모자','토끼','하마','다리','가수','사자','두부','고기','지구','머리','버스'];
+const JONG_W=[['연필',2],['사탕',1],['구름',1],['책상',2],['신발',2],['동물',2],['눈사람',3],['딸기',1],['고구마',0],['운동장',3],['자전거',0],['선생님',3],['할머니',1],['무지개',0],['강아지',1],['꽃밭',2]];
+const DICTATE=['운동장','도서관','선생님','자전거','무지개','강아지','할머니','눈사람','코끼리','해바라기','달팽이','비행기','냉장고','손수건','젓가락'];
+const jamoOf=w=>[...w].map(ch=>decomp(ch).filter(Boolean).join(' + ')).join(' / ');
+const CH_HINT='도전 단계에서는 힌트가 없어요.';
+const KOR_CH={
+ 'hangul-1':()=>{
+  const a=()=>{const c=pick(BASIC_C),v=pick(BASIC_V),w=hg(c,v);return txq(`<p class="big">${c} + ${v}</p><p>두 글자를 합친 글자를 직접 써 보세요.</p>`,w,CH_HINT,`${c} + ${v} = ${w}`);};
+  const b=()=>{const w=hg(pick(BASIC_C),pick(BASIC_V));return txq('<p>스피커를 눌러 듣고, 들은 글자를 써 보세요.</p>',w,CH_HINT,`들은 글자: ${w}`,{listen:KO(w)});};
+  const c=()=>{const w=pick(NOJONG_W);return txq(`<p class="big">${jamoOf(w)}</p><p>자음과 모음을 합쳐 만든 낱말을 써 보세요.</p>`,w,CH_HINT,`${jamoOf(w)} → ${w}`);};
+  const d=()=>{const ch=hg(pick(BASIC_C),pick(BASIC_V)),[cc,vv]=decomp(ch);return MC(`<p class="big">${ch}</p><p>이 글자의 <b>모음</b>은 무엇일까요?</p>`,vv,pickN(BASIC_V.filter(x=>x!==vv),3),CH_HINT,`${ch} = ${cc} + ${vv}`);};
+  return shuffle([a(),b(),c(),d(),c()]);},
+ 'hangul-2':()=>{
+  const JS=['ㄱ','ㄴ','ㄹ','ㅁ','ㅂ','ㅇ'];
+  const a=()=>{const c=pick(BASIC_C),v=pick(['ㅏ','ㅓ','ㅗ','ㅜ','ㅣ']),t=pick(JS),w=hg(c,v,t);return txq(`<p class="big">${c} + ${v} + ${t}</p><p>합친 글자를 직접 써 보세요.</p>`,w,CH_HINT,`${c} + ${v} + ${t} = ${w}`);};
+  const b=()=>{const w=hg(pick(['ㄱ','ㄴ','ㄷ','ㅁ','ㅂ','ㅅ','ㅈ']),pick(['ㅏ','ㅗ','ㅜ','ㅣ']),pick(JS));return txq('<p>스피커를 눌러 듣고, 받침까지 바르게 써 보세요.</p>',w,CH_HINT,`들은 글자: ${w}`,{listen:KO(w)});};
+  const c=()=>{const [w,n]=pick(JONG_W);return num(`<p class="big">${w}</p><p>이 낱말에서 <b>받침이 있는 글자</b>는 몇 개일까요?</p>`,n,CH_HINT,`${[...w].map(ch=>`${ch}(${decomp(ch)[2]||'받침 없음'})`).join(', ')} → ${n}개`);};
+  const d=()=>{const [w]=pick(JONG_W.filter(x=>x[1]>0));return txq(`<p class="big">${jamoOf(w)}</p><p>합쳐서 만든 낱말을 써 보세요.</p>`,w,CH_HINT,`${jamoOf(w)} → ${w}`);};
+  return shuffle([a(),b(),c(),d(),b()]);},
+ 'hangul-3':()=>pickN(DICTATE,4).map(w=>txq('<p>받아쓰기! 스피커를 눌러 듣고 낱말을 써 보세요.</p>',w,CH_HINT,`정답: ${w}`,{listen:KO(w)})).concat([(()=>{const [w,e]=pick(KO_DICT);return txq(`${pic(e)}<p>그림에 알맞은 낱말을 직접 써 보세요.</p>`,w,CH_HINT,`정답: ${w}`);})()]),
+ 'spell-1':()=>{
+  const ps=pickN(SP1,5);
+  return [txq(`<p class="big">[${ps[0][0]}]</p><p>소리 나는 대로 적은 말이에요. 바르게 고쳐 써 보세요.</p>`,ps[0][1],CH_HINT,`[${ps[0][0]}] → ${ps[0][1]}`),
+   txq(`<p class="big">[${ps[1][0]}]</p><p>바르게 고쳐 써 보세요.</p>`,ps[1][1],CH_HINT,`[${ps[1][0]}] → ${ps[1][1]}`),
+   txq('<p>받아쓰기! 듣고 바르게 써 보세요.</p>',ps[2][1],CH_HINT,`정답: ${ps[2][1]} (소리: [${ps[2][0]}])`,{listen:KO(ps[2][1])}),
+   txq('<p>받아쓰기! 듣고 바르게 써 보세요.</p>',ps[3][1],CH_HINT,`정답: ${ps[3][1]} (소리: [${ps[3][0]}])`,{listen:KO(ps[3][1])}),
+   MC('<p>바르게 쓴 낱말끼리 묶은 것은?</p>',`${ps[4][1]}, ${ps[0][1]}`,[`${ps[4][0]}, ${ps[0][1]}`,`${ps[4][1]}, ${ps[0][0]}`,`${ps[4][0]}, ${ps[0][0]}`],CH_HINT,`${ps[4][1]}(소리 [${ps[4][0]}]), ${ps[0][1]}(소리 [${ps[0][0]}])`)];},
+ 'spell-2':()=>{
+  const ps=pickN(SP2,5);
+  const fill=([q,ok,no,ex])=>txq(`<p>${q}</p><p>( ) 안에 알맞은 말을 골라 써 보세요. (${shuffle([ok,no]).join(' / ')})</p>`,ok,CH_HINT,ex);
+  const judge=(x,y)=>MC('<p>낱말을 <b>바르게</b> 쓴 문장은?</p>',x[0].replace('( )',x[1]),[x[0].replace('( )',x[2]),y[0].replace('( )',y[2])],CH_HINT,x[3]);
+  return [fill(ps[0]),judge(ps[1],ps[2]),fill(ps[3]),judge(ps[4],ps[0]),fill(ps[2])];},
+ 'spell-3':()=>{
+  const ends=SP3.filter(x=>x[0].endsWith('□')),ps=pickN(ends,5);
+  const all=x=>MC(`<p>문장 부호를 <b>바르게</b> 쓴 것은?</p>`,x[0].replace('□',x[1]),PUNCT.filter(p=>p!==x[1]&&p!==',').map(p=>x[0].replace('□',p)),CH_HINT,x[2]);
+  const two=(x,y)=>{const okS=`${x[0].replace('□',x[1])} ${y[0].replace('□',y[1])}`;const bad=[`${x[0].replace('□',y[1]===x[1]?'.':y[1])} ${y[0].replace('□',y[1])}`,`${x[0].replace('□',x[1])} ${y[0].replace('□',x[1]===y[1]?'!':x[1])}`,`${x[0].replace('□',',')} ${y[0].replace('□',',')}`];return MC('<p>두 문장의 문장 부호가 모두 알맞은 것은?</p>',okS,[...new Set(bad)].filter(b=>b!==okS),CH_HINT,`${x[2]} ${y[2]}`);};
+  return [all(ps[0]),all(ps[1]),two(ps[2],ps[3]),all(ps[4]),two(ps[0],ps[3])];},
+ 'words-1':()=>{
+  const as=pickN(ANT,3),ss=pickN(SYN,2);
+  return shuffle([...as.map(([w,o])=>txq(`<p><b>${w}</b>의 반대말을 써 보세요.</p>`,[o,...ANT.filter(x=>x[0]===w&&x[1]!==o).map(x=>x[1])],CH_HINT,`${w} ↔ ${o}`)),
+   ...ss.map(([w,sy])=>txq(`<p><b>${w}</b>와(과) 뜻이 비슷한 말을 써 보세요. (${shuffle([sy,...pickN(SYN.filter(x=>x[0]!==w).map(x=>x[1]),2)]).join(' / ')} 중에서)</p>`,sy,CH_HINT,`${w} ≈ ${sy}`))]);},
+ 'words-2':()=>{
+  const fs=pickN(BASEF,3);
+  const ord=()=>{const ws=pickN(DICT_WORDS,3),ok=[...ws].sort();const perms=[[ok[1],ok[0],ok[2]],[ok[2],ok[1],ok[0]],[ok[0],ok[2],ok[1]]];return MC('<p>국어사전에 실린 순서대로 바르게 늘어놓은 것은?</p>',ok.join(' → '),perms.map(p=>p.join(' → ')),CH_HINT,`${ok.join(' → ')} 순서예요.`);};
+  return shuffle([...fs.map(([f,b])=>txq(`<p><b>${f}</b>의 기본형(국어사전에 실린 모양)을 써 보세요.</p>`,b,CH_HINT,`"${f}"의 기본형은 "${b}"예요.`)),ord(),ord()]);},
+ 'words-3':()=>{
+  const fills=pickN(PROV_FILL,2).map(([q,ok])=>txq(`<p class="big">${q}</p><p>□에 알맞은 말을 써 보세요.</p>`,ok,CH_HINT,q.replace('□',ok)));
+  const sit=pickN(SITU,2).map(([s,p])=>MC(`<p>${s}</p><p>이 상황에 어울리는 속담은?</p>`,p,pickN(PROV.map(x=>x[0]).filter(x=>x!==p),3),CH_HINT,`어울리는 속담: ${p}`));
+  const [p,m]=pick(PROV);
+  return shuffle([...fills,...sit,MC(`<p>"${m}"</p><p>이런 뜻의 속담은?</p>`,p,pickN(PROV.filter(x=>x[0]!==p).map(x=>x[0]),3),CH_HINT,`"${p}": ${m}`)]);}
+};
+LESSONS.forEach(l=>{if(KOR_CH[l.id])l.challenge=KOR_CH[l.id];});
+
 /* one set never repeats the same problem: a duplicate is regenerated from the same slot */
-LESSONS.forEach(L=>{const gen=L.quiz;L.quiz=()=>{const ps=gen(),seen=new Set();for(let i=0;i<ps.length;i++){let k=0;while(seen.has(ps[i].q+'|'+ps[i].show)&&k++<15)ps[i]=gen()[i];seen.add(ps[i].q+'|'+ps[i].show);}return ps;};});
+const dedupe=gen=>()=>{const ps=gen(),seen=new Set();for(let i=0;i<ps.length;i++){let k=0;while(seen.has(ps[i].q+'|'+ps[i].show)&&k++<15)ps[i]=gen()[i];seen.add(ps[i].q+'|'+ps[i].show);}return ps;};
+LESSONS.forEach(L=>{L.quiz=dedupe(L.quiz);if(L.challenge)L.challenge=dedupe(L.challenge);});
 
 /* ---------- interactive widgets ---------- */
 const stp=(k,label,v)=>`<div class="stp"><span>${label}</span><button type="button" data-k="${k}" data-d="-1" aria-label="${label} 줄이기">−</button><output aria-live="polite">${v}</output><button type="button" data-k="${k}" data-d="1" aria-label="${label} 늘리기">+</button></div>`;
@@ -2217,7 +2489,7 @@ function mountWidget(root,spec){
 }
 
 /* ---------- quiz ---------- */
-const PRAISE=['정답!','최고야!','완벽해!','바로 그거야!','수학 천재 등장!','멋지다!'];
+const PRAISE=['정답!','최고야!','완벽해!','바로 그거야!','천재 등장!','멋지다!'];
 function ansHtml(p){
   const inp=(id,cls='')=>`<input class="ans ${cls}" id="${id}" inputmode="numeric" pattern="[0-9]*" aria-label="${{ans:'답',an:'분자',ad:'분모',aw:'자연수 부분',aq:'몫',ar:'나머지'}[id]}">`;
   const go='<button class="btn" type="submit">확인</button>';
@@ -2248,47 +2520,6 @@ function burst(anchor){
   for(let i=0;i<10;i++){const s=document.createElement('i');const a=Math.random()*Math.PI*2,d=50+Math.random()*60;s.style.setProperty('--x',Math.cos(a)*d+'px');s.style.setProperty('--y',Math.sin(a)*d+'px');b.appendChild(s);}
   document.body.appendChild(b);setTimeout(()=>b.remove(),900);
 }
-function runQuiz(root,problems,onDone,ctx={}){
-  const st={i:0,tries:0,first:0,solved:0,locked:false,missed:[],t0:Date.now()};
-  const draw=()=>{
-    if(st.i>=problems.length){CUR.p=null;refreshAsk();if(ctx.id){addLog(ctx.id,st.first,problems.length,(Date.now()-st.t0)/1000);save();}onDone(st,problems.length);return;}
-    const p=problems[st.i];
-    Object.assign(CUR,{p,idx:st.i+1,total:problems.length,tries:0,locked:false});refreshAsk();
-    root.innerHTML=`<div class="qcard" id="qcard"><div class="qtop"><span>문제 ${st.i+1} / ${problems.length}</span><button type="button" class="say" data-say="q" aria-label="문제 읽어 주기">${SPEAKER}</button><button type="button" class="askq" data-ask>${face('semi','happy')}셈이에게 물어보기</button><span class="pips">${problems.map((_,j)=>`<i class="${j<st.i?'done':j===st.i?'now':''}"></i>`).join('')}</span></div><div class="qtext">${p.listen?`<button type="button" class="btn listen" data-speak="${esc(p.listen.t)}" data-lang="${p.listen.lang}">${SPEAKER} 소리 듣기</button>`:''}${p.q}</div><form class="qans" id="qform" autocomplete="off">${ansHtml(p)}</form><div class="fb" id="fb" aria-live="polite"></div><div class="row" id="qnext"></div></div>`;
-    $('#qform',root).addEventListener('submit',e=>{e.preventDefault();submit();});
-    root.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>submit(+b.dataset.i,b)));
-    $('[data-ask]',root).addEventListener('click',()=>openAsk());
-  };
-  function submit(choice,btn){
-    if(st.locked)return;
-    const p=problems[st.i],fb=$('#fb',root);
-    let ok;
-    if(p.type==='choice')ok=choice===p.a;
-    else{ok=readAns(p,root);if(ok===null){fb.className='fb warn';fb.textContent='빈칸에 숫자를 모두 써 줘!';return;}}
-    if(ok){
-      if(st.tries===0)st.first++;st.solved++;st.locked=true;
-      if(btn)btn.classList.add('right');
-      fb.className='fb ok';fb.innerHTML=`<b>${pick(PRAISE)}</b>${p.ex}`;burst(fb);finish();
-    }else{
-      st.tries++;CUR.tries=st.tries;
-      if(btn){btn.classList.add('wrong');btn.disabled=true;}
-      if(st.tries===1){fb.className='fb hint';fb.innerHTML=`<b>앗, 다시 생각해 볼까?</b>셈이의 힌트: ${p.hint}`;}
-      else{st.locked=true;fb.className='fb bad';fb.innerHTML=`<b>정답은 ${p.show}</b>${p.ex}`;if(p.type==='choice')root.querySelectorAll('.opt')[p.a].classList.add('right');finish();}
-    }
-  }
-  function finish(){
-    CUR.tries=st.tries;CUR.locked=true;refreshAsk();
-    const p=problems[st.i];
-    if(ctx.id){if(st.tries>0){st.missed.push(p);if(!ctx.review)addWrong(ctx.id,p);}else if(ctx.review){P.wrong=P.wrong.filter(w=>w.p.q!==p.q);}save();}
-    root.querySelectorAll('#qform input, #qform button').forEach(x=>x.disabled=true);
-    const b=document.createElement('button');b.type='button';b.className='btn';
-    b.textContent=st.i===problems.length-1?'결과 보기':'다음 문제';
-    b.addEventListener('click',()=>{st.i++;st.tries=0;st.locked=false;draw();const c=$('#qcard',root)||root;c.scrollIntoView({block:'start',behavior:reduceMotion()?'auto':'smooth'});const f=root.querySelector('#qform input, .opt');if(f)f.focus({preventScroll:true});});
-    $('#qnext',root).appendChild(b);b.focus({preventScroll:true});
-  }
-  draw();
-}
-
 /* ---------- views ---------- */
 const app=$('#app');
 const lessonsOf=k=>LESSONS.filter(l=>l.r===k);
@@ -2307,10 +2538,6 @@ const gradeHash=(s,g)=>(s||'math')==='math'?`g${g}`:`${s}-g${g}`;
 const gradeInfo=(s,g)=>subjOf(s).grades.find(x=>x.g===g);
 const curSubj=()=>P.subj&&SUBJECTS.some(x=>x.id===P.subj)?P.subj:'math';
 function setPlace(s,g){if(P.grade!==g||P.subj!==s){P.grade=g;P.subj=s;save();}}
-function updateHeader(){
-  const have=crystalCount(),tot=Object.keys(R).length,s=curSubj();
-  $('#topbar').innerHTML=`<a href="#home" class="logo">${CRYSTAL('var(--sun)',true)}<span class="lg-full">숫자섬 수학 탐험대</span><span class="lg-short">숫자섬</span></a><div class="stat">${!SYNC.on&&PROFILES.length>1?`<a class="lv" href="#home" style="text-decoration:none">${esc(profName())}</a>`:''}${P.grade&&gradeInfo(s,P.grade)?`<a class="lv" href="#${gradeHash(s,P.grade)}" style="text-decoration:none">${subjLabel(s)} ${P.grade}학년</a>`:''}<span class="st" aria-label="크리스탈 ${tot}개 중 ${have}개"><span class="crs">${CRYSTAL('var(--sky)',have>0)}</span>${have}/${tot}</span><span class="st" aria-label="별 ${totalStars()}개">${STAR(true)}${totalStars()}</span></div>`;
-}
 const gradeOf=k=>R[k].g;
 const lessonsOfGrade=(g,s)=>regionsOf(g,s).flatMap(lessonsOf);
 const gradeStars=(g,s)=>lessonsOfGrade(g,s).reduce((a,l)=>a+(P.stars[l.id]||0),0);
@@ -2323,7 +2550,7 @@ function nextTarget(g,s){
 function regionCard(k,idx){
   const r=R[k];
   const nx=nextTarget(r.g,r.s);
-  const stops=lessonsOf(k).map((l,i)=>`<a class="stop ${l.id===nx?'next':''}" href="#${l.id}"><span class="no">${i+1}화${l.preview?` · ${l.preview===true?'4학년 미리보기':l.preview}`:''}${l.id===nx?' · 다음 화':''}</span><span class="tt">${l.t}</span><span class="ss" aria-label="별 ${P.stars[l.id]||0}개">${[1,2,3].map(n=>STAR((P.stars[l.id]||0)>=n)).join('')}</span></a>`).join('');
+  const stops=lessonsOf(k).map((l,i)=>`<a class="stop ${l.id===nx?'next':''}" href="#${l.id}"><span class="no">${i+1}화${l.preview?` · ${l.preview===true?'4학년 미리보기':l.preview}`:''}${l.id===nx?' · 다음 화':''}</span><span class="tt">${l.t}</span><span class="ss" aria-label="별 ${P.stars[l.id]||0}개${P.medals[l.id]?', 도전 메달':''}">${[1,2,3].map(n=>STAR((P.stars[l.id]||0)>=n)).join('')}${P.medals[l.id]?'<span class="medal" aria-hidden="true">🏅</span>':''}</span></a>`).join('');
   return `${idx?'<div class="path-dash" aria-hidden="true"></div>':''}<article class="rg" style="--rc:${r.color}"><div class="rg-h"><div><span class="tag ${r.tag==='처음 배우기'?'new':''}">${r.tag?`${r.sem} · ${r.tag}`:r.sem}</span><h3>${r.name}</h3><p>${r.desc}</p></div><span class="crys" title="${r.crystal}">${CRYSTAL('var(--sun)',!!P.crystals[k])}</span></div><div class="stops">${stops}<a class="stop boss" href="#${k}-boss"><span class="no">대장 문제</span><span class="tt">${P.crystals[k]?r.crystal+' 획득!':'뚱땅이의 도전장'}</span><span class="ss">${CRYSTAL(r.color,!!P.crystals[k]).replace('<svg','<svg style="width:18px;height:22px"')}</span></a><a class="stop sheetlink" href="#ws-${k}-${newSeed()}"><span class="no">출력용</span><span class="tt">단원 문제지 · 정답과 풀이</span><span class="no">인쇄해서 종이로 풀기</span></a></div></article>`;
 }
 function gradeCard(G,s){
@@ -2359,47 +2586,247 @@ function parentsHtml(){
 }
 function certHtml(G,s){
   const ks=regionsOf(G.g,s);
-  return `<section><div class="cert"><h2>${subjLabel(s)} ${G.g}학년 탐험 인증서</h2><label for="kidname" class="lbl">탐험대원 이름</label><input id="kidname" value="${(P.name||'').replace(/"/g,'&quot;')}" placeholder="이름을 써 주세요" maxlength="12"><p>위 탐험대원은 숫자섬 ${G.island}의 ${ks.map(k=>R[k].name).join(', ')}을(를) 모두 탐험하고 크리스탈 ${ks.length}개를 되찾았으므로 이 증서를 드립니다.</p><p class="lbl">${subjLabel(s)} ${G.g}학년 · 별 ${gradeStars(G.g,s)}개 · 숫자섬 시계탑 관리 로봇 셈이</p></div></section>`;
+  return `<section><div class="cert"><h2>${subjLabel(s)} ${G.g}학년 탐험 인증서</h2><label for="kidname" class="lbl">탐험대원 이름</label><input id="kidname" value="${(P.name||'').replace(/"/g,'&quot;')}" placeholder="이름을 써 주세요" maxlength="12"><p>위 탐험대원은 지혜섬 ${G.island}의 ${fixJosa(ks.map(k=>R[k].name).join(', ')+'을(를)')} 모두 탐험하고 크리스탈 ${ks.length}개를 되찾았으므로 이 증서를 드립니다.</p><p class="lbl">${subjLabel(s)} ${G.g}학년 · 별 ${gradeStars(G.g,s)}개 · 지혜섬 시계탑 관리 로봇 셈이</p></div></section>`;
 }
 function bindHomeExtras(){
   const nm=$('#kidname');if(nm)nm.addEventListener('input',()=>{P.name=nm.value;save();});
   const rs=$('#reset');if(!rs)return;let armed=false;
   rs.addEventListener('click',()=>{if(!armed){armed=true;rs.textContent='정말 지울까요? 한 번 더 누르세요';$('#resetMsg').textContent='모든 과목의 별과 크리스탈이 사라져요.';return;}P=blank();SYNC.reset=true;save();route();});
 }
-function subjTabs(cur){
-  return `<div class="subj-tabs" role="tablist" aria-label="과목">${SUBJECTS.map(S=>`<button type="button" role="tab" class="subj ${S.id===cur?'on':''}" style="--rc:${S.color}" data-subj="${S.id}" aria-selected="${S.id===cur}"><b>${S.name}</b><span>${S.span}</span></button>`).join('')}</div>`;
+/* ---------- 성취 장치: 경험치·레벨·배지·연속 학습 ---------- */
+const LEVEL_TITLES=['새싹','꼬마','씩씩한','용감한','똑똑한','지혜로운','반짝이는','별빛','전설의'];
+const xpFor=n=>20*n*(n+1);
+function levelOf(xp){let n=1;while(xp>=xpFor(n))n++;return n;}
+const levelTitle=n=>`${LEVEL_TITLES[Math.min(n-1,LEVEL_TITLES.length-1)]} 탐험가`;
+const SUBJ_ICON={math:'🧮',kor:'📖',eng:'🔤',sci:'🔬'};
+const SUBJ_INTRO={math:'수학 지역에서는 수와 계산을 차근차근 정복해. 학년이 곧 레벨이야!',kor:'국어 지역에서는 한글, 맞춤법, 낱말을 배워. 스피커로 듣고 받아쓰기도 해 보자!',eng:'영어 지역에서는 알파벳부터 문장까지! 원어민 소리를 듣고 따라 말해 봐.',sci:'과학 지역에서는 실험하고 관찰해. 뚱땅이의 엉뚱한 생각을 바로잡아 줘!'};
+function hashStr(t){let h=2166136261;for(const c of String(t)){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+function markDay(){const d=today();if(!P.days.includes(d)){P.days.push(d);if(P.days.length>400)P.days=P.days.slice(-400);}}
+function streak(){const set=new Set(P.days);let n=0;const d=new Date();if(!set.has(today()))d.setDate(d.getDate()-1);for(;;){const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;if(!set.has(k))break;n++;d.setDate(d.getDate()-1);}return n;}
+const TOASTS=[];let toastBusy=false;
+function toast(html){TOASTS.push(html);if(!toastBusy)nextToast();}
+function nextToast(){const el=$('#toast');if(!el||!TOASTS.length){toastBusy=false;if(el)el.hidden=true;return;}toastBusy=true;el.innerHTML=fixJosa(TOASTS.shift());el.hidden=false;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');setTimeout(nextToast,2600);}
+function addXP(n){if(!n)return;const before=levelOf(P.xp);P.xp+=n;const after=levelOf(P.xp);if(after>before){toast(`<b>레벨 업!</b> Lv.${after} ${levelTitle(after)}`);const t=$('#toast');if(t)burst(t);}}
+const subjLessons=s=>subjOf(s).grades.flatMap(G=>lessonsOfGrade(G.g,s));
+const subjRegions=s=>subjOf(s).grades.flatMap(G=>regionsOf(G.g,s));
+const medalCount=()=>Object.keys(P.medals).length;
+const BADGES=[
+  {id:'first',ic:'🌱',name:'첫걸음',desc:'처음으로 한 화를 끝냈어요',t:()=>Object.keys(P.stars).length>=1},
+  {id:'ten',ic:'📚',name:'열 화 탐험',desc:'10화를 끝냈어요',t:()=>Object.keys(P.stars).length>=10},
+  {id:'thirty',ic:'🗺️',name:'서른 화 탐험',desc:'30화를 끝냈어요',t:()=>Object.keys(P.stars).length>=30},
+  {id:'perfect5',ic:'⭐',name:'별 수집가',desc:'5화에서 별 3개를 받았어요',t:()=>Object.values(P.stars).filter(v=>v===3).length>=5},
+  {id:'perfect20',ic:'🌟',name:'별빛 수집가',desc:'20화에서 별 3개를 받았어요',t:()=>Object.values(P.stars).filter(v=>v===3).length>=20},
+  {id:'crystal1',ic:'💎',name:'첫 크리스탈',desc:'대장 문제를 처음 통과했어요',t:()=>crystalCount()>=1},
+  {id:'master-math',ic:'🧮',name:'수학 정복',desc:'수학 크리스탈을 모두 모았어요',t:()=>subjRegions('math').every(k=>P.crystals[k])},
+  {id:'master-kor',ic:'📖',name:'국어 정복',desc:'국어 크리스탈을 모두 모았어요',t:()=>subjRegions('kor').every(k=>P.crystals[k])},
+  {id:'master-eng',ic:'🔤',name:'영어 정복',desc:'영어 크리스탈을 모두 모았어요',t:()=>subjRegions('eng').every(k=>P.crystals[k])},
+  {id:'master-sci',ic:'🔬',name:'과학 정복',desc:'과학 크리스탈을 모두 모았어요',t:()=>subjRegions('sci').every(k=>P.crystals[k])},
+  {id:'allsubj',ic:'🧭',name:'네 과목 탐험가',desc:'네 과목에서 모두 한 화 이상 끝냈어요',t:()=>SUBJECTS.every(S=>subjLessons(S.id).some(l=>P.stars[l.id]))},
+  {id:'combo5',ic:'🔥',name:'5콤보',desc:'첫 번째에 5문제 연속으로 맞혔어요',t:()=>P.maxCombo>=5},
+  {id:'combo10',ic:'☄️',name:'10콤보',desc:'첫 번째에 10문제 연속으로 맞혔어요',t:()=>P.maxCombo>=10},
+  {id:'correct100',ic:'💯',name:'정답 100개',desc:'문제를 100개 맞혔어요',t:()=>P.correct>=100},
+  {id:'correct500',ic:'🏆',name:'정답 500개',desc:'문제를 500개 맞혔어요',t:()=>P.correct>=500},
+  {id:'streak3',ic:'📅',name:'3일 연속',desc:'3일 연속으로 공부했어요',t:()=>streak()>=3},
+  {id:'streak7',ic:'🗓️',name:'일주일 연속',desc:'7일 연속으로 공부했어요',t:()=>streak()>=7},
+  {id:'medal1',ic:'🥇',name:'첫 도전 메달',desc:'도전 단계를 처음 통과했어요',t:()=>medalCount()>=1},
+  {id:'medal10',ic:'🎖️',name:'메달 10개',desc:'도전 메달을 10개 모았어요',t:()=>medalCount()>=10},
+  {id:'speed10',ic:'⚡',name:'번개 손',desc:'스피드 도전에서 10개 이상 맞혔어요',t:()=>Object.values(P.speed).some(v=>v>=10)},
+  {id:'speed20',ic:'🌩️',name:'천둥 손',desc:'스피드 도전에서 20개 이상 맞혔어요',t:()=>Object.values(P.speed).some(v=>v>=20)},
+  {id:'daily5',ic:'☀️',name:'매일 도전',desc:'오늘의 도전을 5일 해냈어요',t:()=>Object.keys(P.daily).length>=5},
+  {id:'note10',ic:'🧹',name:'오답 정리왕',desc:'오답 노트에서 10문제를 정리했어요',t:()=>P.cleared>=10}
+];
+function checkBadges(){const got=[];for(const b of BADGES)if(!P.badges[b.id]&&b.t()){P.badges[b.id]=today();got.push(b);toast(`<span class="t-ic">${b.ic}</span><b>배지 획득!</b> ${b.name}`);}if(got.length)save();return got;}
+function meCard(){const lv=levelOf(P.xp),a=lv>1?xpFor(lv-1):0,b=xpFor(lv),pct=Math.round((P.xp-a)/(b-a)*100),nb=Object.keys(P.badges).length;
+  return `<a class="me" href="#trophy"><span class="me-lv">Lv.${lv}</span><span class="me-b"><b>${esc(profName()||'탐험대원')} · ${levelTitle(lv)}</b><span class="xpbar" role="img" aria-label="다음 레벨까지 ${pct}%"><i style="width:${pct}%"></i></span><span class="me-s">경험치 ${P.xp-a} / ${b-a} · 🔥 ${streak()}일 연속 · 배지 ${nb}/${BADGES.length}</span></span></a>`;}
+function subjProgress(s){const ls=subjLessons(s),ks=subjRegions(s);return {n:ls.length,done:ls.filter(l=>P.stars[l.id]).length,st:ls.reduce((a,l)=>a+(P.stars[l.id]||0),0),max:ls.length*3,cr:ks.filter(k=>P.crystals[k]).length,ck:ks.length};}
+
+function updateHeader(){
+  const have=crystalCount(),tot=Object.keys(R).length,s=curSubj(),lv=levelOf(P.xp);
+  $('#topbar').innerHTML=`<a href="#home" class="logo">${CRYSTAL('var(--sun)',true)}<span class="lg-full">지혜섬 탐험대</span><span class="lg-short">지혜섬</span></a><div class="stat">${!SYNC.on&&PROFILES.length>1?`<a class="lv" href="#home" style="text-decoration:none">${esc(profName())}</a>`:''}${P.grade&&gradeInfo(s,P.grade)?`<a class="lv hide-xs" href="#${gradeHash(s,P.grade)}" style="text-decoration:none">${SUBJ_ICON[s]} ${subjLabel(s)} ${P.grade}학년</a>`:''}<a class="lv" href="#trophy" style="text-decoration:none" aria-label="레벨 ${lv}, 트로피 방">Lv.${lv}</a><span class="st" aria-label="크리스탈 ${tot}개 중 ${have}개"><span class="crs">${CRYSTAL('var(--sky)',have>0)}</span>${have}/${tot}</span><span class="st" aria-label="별 ${totalStars()}개">${STAR(true)}${totalStars()}</span></div>`;
 }
+
+/* ---------- 문제 풀이 (콤보·경험치·도전 하트) ---------- */
+function runQuiz(root,problems,onDone,ctx={}){
+  const st={i:0,tries:0,first:0,solved:0,locked:false,missed:[],t0:Date.now(),combo:0,maxRun:0,hearts:ctx.challenge?3:null,failed:false,xp:0};
+  const heartsHtml=()=>st.hearts===null?'':`<span class="hearts" aria-label="하트 ${st.hearts}개">${'❤️'.repeat(st.hearts)}${'🤍'.repeat(3-st.hearts)}</span>`;
+  const comboHtml=()=>st.combo>=2?`<span class="combo">🔥 ${st.combo}콤보</span>`:'';
+  const end=()=>{CUR.p=null;refreshAsk();if(ctx.id){addLog(ctx.id,st.first,problems.length,(Date.now()-st.t0)/1000);markDay();}addXP(st.xp);save();onDone(st,problems.length);checkBadges();updateHeader();};
+  const draw=()=>{
+    if(st.i>=problems.length){end();return;}
+    const p=problems[st.i];
+    Object.assign(CUR,{p,idx:st.i+1,total:problems.length,tries:0,locked:false});refreshAsk();
+    root.innerHTML=`<div class="qcard ${ctx.challenge?'chal':''}" id="qcard"><div class="qtop"><span>${ctx.challenge?'도전 ':''}문제 ${st.i+1} / ${problems.length}</span>${heartsHtml()}<span class="combo-slot">${comboHtml()}</span><button type="button" class="say" data-say="q" aria-label="문제 읽어 주기">${SPEAKER}</button>${ctx.challenge?'':`<button type="button" class="askq" data-ask>${face('semi','happy')}셈이에게 물어보기</button>`}<span class="pips">${problems.map((_,j)=>`<i class="${j<st.i?'done':j===st.i?'now':''}"></i>`).join('')}</span></div><div class="qtext">${p.listen?`<button type="button" class="btn listen" data-speak="${esc(p.listen.t)}" data-lang="${p.listen.lang}">${SPEAKER} 소리 듣기</button>`:''}${p.q}</div><form class="qans" id="qform" autocomplete="off">${ansHtml(p)}</form><div class="fb" id="fb" aria-live="polite"></div><div class="row" id="qnext"></div></div>`;
+    $('#qform',root).addEventListener('submit',e=>{e.preventDefault();submit();});
+    root.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>submit(+b.dataset.i,b)));
+    const ak=$('[data-ask]',root);if(ak)ak.addEventListener('click',()=>openAsk());
+    if(p.listen&&st.i>0)setTimeout(()=>speak(p.listen.t,p.listen.lang),300);
+    else if(P.autoRead&&document.body.classList.contains('low')&&st.i>0)setTimeout(()=>speak(sayText(p.q)),300);
+  };
+  function submit(choice,btn){
+    if(st.locked)return;
+    const p=problems[st.i],fb=$('#fb',root);
+    let ok;
+    if(p.type==='choice')ok=choice===p.a;
+    else{ok=readAns(p,root);if(ok===null){fb.className='fb warn';fb.textContent=p.type==='text'?'답을 써 줘!':'빈칸에 숫자를 모두 써 줘!';return;}}
+    if(ok){
+      if(st.tries===0){st.first++;st.combo++;st.maxRun=Math.max(st.maxRun,st.combo);P.maxCombo=Math.max(P.maxCombo,st.combo);st.xp+=10+(st.combo>=3?Math.min(st.combo,10)*2:0);}else{st.xp+=4;}
+      st.solved++;P.correct++;st.locked=true;
+      if(btn)btn.classList.add('right');
+      const praise=st.tries===0&&st.combo>=3?`${st.combo}연속 정답! ${pick(['불타오른다!','멈출 수 없어!','대단해!','천재 등장!'])}`:pick(PRAISE);
+      fb.className='fb ok';fb.innerHTML=`<b>${praise}</b>${p.ex}`;burst(fb);
+      const cs=$('.combo-slot',root);if(cs)cs.innerHTML=comboHtml();
+      finish();
+    }else if(ctx.challenge){
+      st.tries++;st.combo=0;st.hearts--;st.locked=true;CUR.tries=st.tries;
+      if(btn)btn.classList.add('wrong');
+      fb.className='fb bad';fb.innerHTML=`<b>${st.hearts>0?'앗! 하트가 하나 줄었어요.':'하트를 모두 썼어요.'}</b>정답은 ${p.show}. ${p.ex}`;
+      if(p.type==='choice')root.querySelectorAll('.opt')[p.a].classList.add('right');
+      const hs=$('.hearts',root);if(hs)hs.outerHTML=heartsHtml();
+      if(st.hearts<=0)st.failed=true;
+      finish();
+    }else{
+      st.tries++;st.combo=0;CUR.tries=st.tries;
+      const cs=$('.combo-slot',root);if(cs)cs.innerHTML='';
+      if(btn){btn.classList.add('wrong');btn.disabled=true;}
+      if(st.tries===1){fb.className='fb hint';fb.innerHTML=`<b>${pick(['앗, 다시 생각해 볼까?','거의 다 왔어!','한 번 더 해 보자!'])}</b>셈이의 힌트: ${p.hint}`;}
+      else{st.locked=true;fb.className='fb bad';fb.innerHTML=`<b>정답은 ${p.show}</b>${p.ex}`;if(p.type==='choice')root.querySelectorAll('.opt')[p.a].classList.add('right');finish();}
+    }
+  }
+  function finish(){
+    CUR.tries=st.tries;CUR.locked=true;refreshAsk();
+    const p=problems[st.i];
+    if(ctx.id){if(st.tries>0){st.missed.push(p);if(!ctx.review)addWrong(ctx.id,p);}else if(ctx.review){const n=P.wrong.length;P.wrong=P.wrong.filter(w=>w.p.q!==p.q);if(P.wrong.length<n)P.cleared++;}save();}
+    root.querySelectorAll('#qform input, #qform button').forEach(x=>x.disabled=true);
+    const b=document.createElement('button');b.type='button';b.className='btn';
+    const last=st.failed||st.i===problems.length-1;
+    b.textContent=last?'결과 보기':'다음 문제';
+    b.addEventListener('click',()=>{if(st.failed)st.i=problems.length;else st.i++;st.tries=0;st.locked=false;draw();const c=$('#qcard',root)||root;c.scrollIntoView({block:'start',behavior:reduceMotion()?'auto':'smooth'});const f=root.querySelector('#qform input, .opt');if(f)f.focus({preventScroll:true});});
+    $('#qnext',root).appendChild(b);b.focus({preventScroll:true});
+  }
+  draw();
+}
+
+/* ---------- 첫 화면: 과목 선택 ---------- */
 function renderHome(){
-  const have=crystalCount(),tot=Object.keys(R).length,all=have===tot,g=P.grade,s=curSubj(),SB=subjOf(s);
-  const cont=g&&gradeInfo(s,g);
-  app.innerHTML=`<section class="hero"><div><p class="eyebrow">초등 수학 · 국어 · 영어 · 과학 · 만화로 배우는 모험</p><h1>숫자섬 <em>수학</em> 탐험대</h1><p class="lead">멈춰 버린 지혜의 시계탑을 다시 움직여라! 하루와 로봇 셈이와 함께 과목별·학년별 지역을 돌며 장난꾸러기 뚱땅이가 숨긴 셈 크리스탈 ${tot}개를 찾아요.</p>${SYNC.on?`<p class="sync">${SYNC.name?`${SYNC.name.replace(/[<>&"]/g,'')}님의 `:''}별과 크리스탈이 오늘우리집에 저장돼요</p>`:''}<div class="row">${cont?`<a class="btn" href="#${nextTarget(g,s)}">${SB.name} ${g}학년 이어서 하기</a><a class="btn ghost" href="#${gradeHash(s,g)}">${SB.name} ${g}학년 지도</a>`:`<a class="btn" href="#grades-pick" data-scroll="grades">과목과 학년 고르기</a>`}</div></div><div class="hero-art">${tower()}</div></section>
+  const have=crystalCount(),tot=Object.keys(R).length,all=have===tot,g=P.grade,s=curSubj(),SB=subjOf(s),cont=g&&gradeInfo(s,g)&&Object.keys(P.stars).length;
+  const dailyDone=!!P.daily[today()];
+  app.innerHTML=`<section class="hero"><div><p class="eyebrow">초등 수학 · 국어 · 영어 · 과학 · 만화로 배우는 모험</p><h1>지혜섬 <em>탐험대</em></h1><p class="lead">멈춰 버린 지혜의 시계탑을 다시 움직여라! 하루와 로봇 셈이와 함께 과목별 지역을 돌며 장난꾸러기 뚱땅이가 숨긴 크리스탈 ${tot}개를 찾아요.</p>${SYNC.on?`<p class="sync">${SYNC.name?`${SYNC.name.replace(/[<>&"]/g,'')}님의 `:''}별과 크리스탈이 오늘우리집에 저장돼요</p>`:''}<div class="row">${cont?`<a class="btn" href="#${nextTarget(g,s)}">${SUBJ_ICON[s]} ${SB.name} ${g}학년 이어서 하기</a>`:`<a class="btn" href="#subjects-pick" data-scroll="subjects">과목 고르기</a>`}</div></div><div class="hero-art">${tower()}</div></section>
   ${profilesHtml()}
-  <section><div class="row"><a class="btn ghost" href="#review">오답 노트 (${P.wrong.length})</a><a class="btn ghost" href="#report">학습 기록 (부모님용)</a></div></section>
-  <section><h2 class="sec">프롤로그 · 멈춰 버린 시계탑</h2>${comicHtml(PROLOGUE)}</section>
-  <section id="grades"><h2 class="sec">과목과 학년을 골라요</h2>${subjTabs(s)}<p class="intro" id="subjDesc">${SB.desc}</p><div class="grades" id="gradeCards">${SB.grades.map(G=>gradeCard(G,s)).join('')}</div></section>
-  ${all?`<section><h2 class="sec">에필로그 · 다시 움직이는 시계탑</h2>${comicHtml([N(`크리스탈 ${tot}개를 모두 시계탑에 끼우자, 째깍째깍! 멈췄던 시계탑이 다시 움직이기 시작했어요.`),S('happy','해냈어! 수학, 국어, 영어, 과학까지 숫자섬을 모두 탐험했어.'),T('oops','쳇, 이번엔 졌다. 중학교에서 더 어려운 문제로 돌아올 거야!'),H('happy','언제든지 와! 이제 어떤 문제도 무섭지 않거든!')])}</section>`:''}
+  <section><h2 class="sec">나의 탐험</h2><div class="me-row">${meCard()}<a class="daily ${dailyDone?'done':''}" href="#daily"><span class="d-ic">${dailyDone?'✅':'🎯'}</span><span><b>오늘의 도전</b><span>${dailyDone?'오늘 완료! 다시 풀어도 돼요':'5문제 · 보너스 경험치 40'}</span></span></a></div></section>
+  <section id="subjects"><h2 class="sec">과목을 골라요</h2><div class="subj-cards">${SUBJECTS.map(S=>{const pr=subjProgress(S.id);return `<a class="subj-card" href="#${S.id}" style="--rc:${S.color}"><span class="sc-ic" aria-hidden="true">${SUBJ_ICON[S.id]}</span><span class="sc-b"><b>${S.name}</b><span class="sc-span">${S.span} · ${pr.n}화</span><span class="meter" role="img" aria-label="별 ${pr.max}개 중 ${pr.st}개"><i style="width:${Math.round(pr.st/Math.max(1,pr.max)*100)}%"></i></span><span class="sc-stat">별 ${pr.st}/${pr.max} · 크리스탈 ${pr.cr}/${pr.ck}</span></span></a>`;}).join('')}</div></section>
+  <section><div class="row"><a class="btn ghost" href="#trophy">🏆 트로피 방</a><a class="btn ghost" href="#review">오답 노트 (${P.wrong.length})</a><a class="btn ghost" href="#report">학습 기록 (부모님용)</a></div></section>
+  <section><details class="story" ${Object.keys(P.stars).length?'':'open'}><summary>프롤로그 · 멈춰 버린 시계탑</summary>${comicHtml(PROLOGUE)}</details></section>
+  ${all?`<section><h2 class="sec">에필로그 · 다시 움직이는 시계탑</h2>${comicHtml([N(`크리스탈 ${tot}개를 모두 시계탑에 끼우자, 째깍째깍! 멈췄던 시계탑이 다시 움직이기 시작했어요.`),S('happy','해냈어! 수학, 국어, 영어, 과학까지 지혜섬을 모두 탐험했어.'),T('oops','쳇, 이번엔 졌다. 중학교에서 더 어려운 문제로 돌아올 거야!'),H('happy','언제든지 와! 이제 어떤 문제도 무섭지 않거든!')])}</section>`:''}
   <section>${parentsHtml()}</section>`;
-  app.querySelectorAll('[data-subj]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.subj,SS=subjOf(id);app.querySelectorAll('[data-subj]').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-selected',on);});$('#subjDesc').textContent=SS.desc;$('#gradeCards').innerHTML=fixJosa(SS.grades.map(G=>gradeCard(G,id)).join(''));}));
-  const sc=app.querySelector('[data-scroll]');if(sc)sc.addEventListener('click',e=>{e.preventDefault();$('#grades').scrollIntoView({behavior:reduceMotion()?'auto':'smooth'});});
+  const sc=app.querySelector('[data-scroll]');if(sc)sc.addEventListener('click',e=>{e.preventDefault();$('#subjects').scrollIntoView({behavior:reduceMotion()?'auto':'smooth'});});
   bindHomeExtras();bindProfiles();
 }
+
+/* ---------- 과목 페이지 ---------- */
+function renderSubject(s){
+  const SB=subjOf(s),pr=subjProgress(s);
+  if(P.subj!==s){P.subj=s;if(!gradeInfo(s,P.grade))P.grade=SB.grades[0].g;save();}
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><span>${SB.name}</span></nav>
+  <header class="ghead subj-head" style="--rc:${SB.color}"><span class="tag">${SUBJ_ICON[s]} ${SB.name} · ${SB.span}</span><h1>${SB.name} 탐험</h1><p>${SB.desc}</p><div class="say">${face('semi','happy')}<p class="bub">${SUBJ_INTRO[s]}</p></div><p class="sc-stat2">푼 화 ${pr.done}/${pr.n} · 별 ${pr.st}/${pr.max} · 크리스탈 ${pr.cr}/${pr.ck}</p></header>
+  <section><h2 class="sec">학년을 골라요</h2><div class="grades">${SB.grades.map(G=>gradeCard(G,s)).join('')}</div></section>
+  <section><h2 class="sec">⚡ 스피드 도전</h2><p class="intro">60초 동안 최대한 많이 맞혀 보세요. 학년마다 최고 기록이 남아요.</p><div class="speed-list">${SB.grades.map(G=>`<a class="speed-card" href="#speed-${s}-g${G.g}" style="--rc:${G.color}"><b>${G.g}학년</b><span>최고 기록 ${P.speed[`${s}-${G.g}`]||0}개</span></a>`).join('')}</div></section>
+  <nav class="lnav"><a class="btn ghost" href="#home">과목 고르기로</a><a class="btn ghost" href="#daily">🎯 오늘의 도전</a></nav>`;
+}
+
+/* ---------- 화별 도전 단계 ---------- */
+function challengeHtml(L){
+  const stars=P.stars[L.id]||0,medal=P.medals[L.id];
+  if(stars<2)return `<div class="lockbox"><span class="lk" aria-hidden="true">🔒</span><div><b>별 2개 이상 받으면 열려요</b><p>하트 3개로 힌트 없이 5문제를 버티면 이 화의 메달을 받아요.</p></div></div>`;
+  return `<div class="chbox"><span class="lk" aria-hidden="true">${medal?'🏅':'⚔️'}</span><div><b>${medal?'메달을 받았어요! 다시 도전해도 돼요':'도전 단계가 열렸어요'}</b><p>하트 3개 · 힌트 없음 · 셈이 도움 없음. 틀리면 하트가 하나씩 줄어요.</p></div><button type="button" class="btn" id="chStart">도전 시작</button></div><div id="chQuiz"></div>`;
+}
+function bindChallenge(L){
+  const b=$('#chStart');if(!b)return;
+  b.addEventListener('click',()=>{const box=$('#chQuiz');b.disabled=true;
+    runQuiz(box,L.challenge?L.challenge():L.quiz(),(st,total)=>{
+      const win=!st.failed;let bonus=0;
+      if(win&&!P.medals[L.id]){P.medals[L.id]=today();bonus=30;}
+      addXP(bonus);save();
+      box.innerHTML=`<div class="qcard result chal"><h3>${win?'도전 성공!':'아쉬워요, 다시 도전!'}</h3>${win?'<div class="bigmedal">🏅</div>':''}<p>${win?`하트 ${st.hearts}개를 남기고 ${total}문제를 모두 버텼어요.`:`${st.i+1}번째 문제에서 하트를 모두 썼어요.`} · 경험치 +${st.xp+bonus}</p><div class="say">${face('semi',win?'wow':'happy')}<p class="bub">${win?(bonus?'메달 획득! 이 화는 완전히 정복했어!':'이번에도 성공! 실력이 단단해졌어.'):'틀린 문제의 풀이를 읽어 보고 다시 도전해 보자. 할 수 있어!'}</p></div><div class="row"><button type="button" class="btn" id="chAgain">다시 도전</button></div></div>`;
+      $('#chAgain').addEventListener('click',()=>{const sec=$('#chSec');sec.querySelector('.ch-body').innerHTML=fixJosa(challengeHtml(L));bindChallenge(L);});
+      updateHeader();
+    },{id:L.id,challenge:true});
+  });
+}
+
+/* ---------- 오늘의 도전 ---------- */
+function renderDaily(){
+  const d=today(),done=P.daily[d]!=null;
+  const pool=LESSONS.filter(l=>P.stars[l.id]);
+  const s=curSubj(),src=pool.length>=3?pool:lessonsOfGrade(gradeInfo(s,P.grade)?P.grade:subjOf(s).grades[0].g,s);
+  const probs=seeded(hashStr(d+PROF),()=>shuffle(src).concat(shuffle(src)).slice(0,5).map(l=>{const ps=l.quiz().filter(p=>!p.listen);return Object.assign({},pick(ps.length?ps:l.quiz()),{from:l.t});}));
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><span>오늘의 도전</span></nav>
+  <header class="ghead" style="--rc:var(--castle)"><span class="tag">🎯 ${d}</span><h1>오늘의 도전</h1><p>${pool.length>=3?'지금까지 푼 화에서 골라 낸 오늘의 5문제예요.':'아직 푼 화가 적어서, 지금 학년의 문제로 골랐어요.'} ${done?'오늘은 이미 해냈어요. 다시 풀어도 돼요(보너스는 하루 한 번).':'끝까지 풀면 보너스 경험치 40을 받아요.'} 연속 학습 🔥 ${streak()}일</p></header>
+  <section><div id="quiz"></div></section>`;
+  const q=$('#quiz');
+  runQuiz(q,probs,(st,total)=>{
+    const first=P.daily[d]==null;P.daily[d]=Math.max(P.daily[d]||0,st.first);if(first)addXP(40);save();
+    q.innerHTML=missedHtml(st,true)+`<div class="qcard result"><h3>${first?'오늘의 도전 완료!':'다시 풀기 완료!'}</h3><div class="stars">${[1,2,3,4,5].map(n=>STAR(st.first>=n)).join('')}</div><p>첫 번째에 맞힌 문제 ${st.first} / ${total} · 경험치 +${st.xp+(first?40:0)}</p><div class="say">${face('semi','wow')}<p class="bub">${first?`연속 학습 ${streak()}일째! 내일도 만나자.`:'복습은 실력의 비결이야!'}</p></div><div class="row"><a class="btn" href="#home">모험 지도로</a><a class="btn ghost" href="#trophy">트로피 방</a></div></div>`;
+  },{id:'daily'});
+}
+
+/* ---------- 스피드 도전 ---------- */
+let SPEED_TIMER=null;
+function renderSpeed(s,g){
+  const SB=subjOf(s),key=`${s}-${g}`,ls=lessonsOfGrade(g,s);
+  const best=()=>P.speed[key]||0;
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><a href="#${s}">${SB.name}</a><span>›</span><span>${g}학년 스피드 도전</span></nav>
+  <header class="ghead" style="--rc:${gradeInfo(s,g).color}"><span class="tag">⚡ 스피드 도전</span><h1>${SB.name} ${g}학년 60초 도전</h1><p>60초 동안 최대한 많이 맞혀요. 틀려도 바로 다음 문제로 넘어가요. 최고 기록: <b>${best()}개</b></p></header>
+  <section><div class="speed" id="spd"><button type="button" class="btn big-btn" id="spStart">시작!</button></div></section>`;
+  const box=$('#spd');
+  const nextP=()=>{let p,k=0;do{p=pick(pick(ls).quiz());}while(p.listen&&k++<30);return p;};
+  $('#spStart').addEventListener('click',()=>{
+    let left=60,score=0,wrong=0,cur,busy=false;
+    const show=()=>{busy=false;cur=nextP();box.innerHTML=fixJosa(`<div class="sp-top"><span class="sp-time" id="spT">⏱ ${left}초</span><span class="sp-score" id="spS">✔ ${score}</span></div><div class="qcard"><div class="qtext">${cur.q}</div><form class="qans" id="qform" autocomplete="off">${ansHtml(cur)}</form><div class="fb" id="fb"></div></div>`);
+      $('#qform',box).addEventListener('submit',e=>{e.preventDefault();answer();});
+      box.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>answer(+b.dataset.i,b)));
+      const f=box.querySelector('#qform input');if(f)f.focus({preventScroll:true});};
+    const answer=(choice,btn)=>{if(busy||left<=0)return;let ok;if(cur.type==='choice')ok=choice===cur.a;else{ok=readAns(cur,box);if(ok===null)return;}
+      busy=true;const fb=$('#fb',box);
+      if(ok){score++;P.correct++;fb.className='fb ok';fb.innerHTML='<b>정답!</b>';if(btn)btn.classList.add('right');}
+      else{wrong++;fb.className='fb bad';fb.innerHTML=`<b>정답은 ${cur.show}</b>`;if(btn)btn.classList.add('wrong');}
+      const sS=$('#spS');if(sS)sS.textContent=`✔ ${score}`;
+      setTimeout(()=>{if(left>0)show();},ok?350:900);};
+    const finish=()=>{clearInterval(SPEED_TIMER);SPEED_TIMER=null;const rec=score>best();if(rec)P.speed[key]=score;markDay();addXP(score*5);save();
+      box.innerHTML=fixJosa(`<div class="qcard result"><h3>${rec?'새 기록!':'시간 끝!'}</h3><div class="big-score">${score}개</div><p>맞힌 문제 ${score}개 · 틀린 문제 ${wrong}개 · 경험치 +${score*5}</p><p>최고 기록 ${best()}개</p><div class="say">${face('semi',rec?'wow':'happy')}<p class="bub">${rec?'와, 최고 기록을 바꿨어!':score>=5?'좋아! 조금만 더 빨리 하면 새 기록이야.':'처음엔 천천히! 문제 유형에 익숙해지면 빨라져.'}</p></div><div class="row"><button type="button" class="btn" id="spAgain">다시 도전</button><a class="btn ghost" href="#${s}">${SB.name} 페이지로</a></div></div>`);
+      $('#spAgain').addEventListener('click',()=>renderSpeed(s,g));checkBadges();updateHeader();};
+    show();
+    SPEED_TIMER=setInterval(()=>{left--;const t=$('#spT');if(t){t.textContent=`⏱ ${left}초`;t.classList.toggle('hurry',left<=10);}if(left<=0)finish();},1000);
+  });
+}
+
+/* ---------- 트로피 방 ---------- */
+function renderTrophy(){
+  const lv=levelOf(P.xp),nb=Object.keys(P.badges).length;
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><span>트로피 방</span></nav>
+  <header class="ghead" style="--rc:var(--cave)"><span class="tag">🏆 트로피 방</span><h1>${esc(profName()||'탐험대원')}의 트로피 방</h1><p>문제를 풀면 경험치가 쌓이고 레벨이 올라요. 도전 과제를 해내면 배지를 받아요.</p></header>
+  <section>${meCard()}</section>
+  <section><h2 class="sec">기록</h2><div class="kpis"><div><b>${P.correct}</b><span>맞힌 문제</span></div><div><b>${P.maxCombo}</b><span>최대 콤보</span></div><div><b>${streak()}일</b><span>연속 학습</span></div><div><b>${medalCount()}</b><span>도전 메달</span></div><div><b>${crystalCount()}/${Object.keys(R).length}</b><span>크리스탈</span></div><div><b>${Object.keys(P.daily).length}</b><span>오늘의 도전</span></div></div></section>
+  <section><h2 class="sec">배지 ${nb} / ${BADGES.length}</h2><div class="badges">${BADGES.map(b=>{const got=P.badges[b.id];return `<div class="badge ${got?'got':''}"><span class="b-ic" aria-hidden="true">${got?b.ic:'🔒'}</span><b>${b.name}</b><span>${b.desc}</span>${got?`<small>${got}</small>`:''}</div>`;}).join('')}</div></section>
+  <section><h2 class="sec">⚡ 스피드 도전 최고 기록</h2><div class="tbl"><table style="min-width:0;width:100%"><thead><tr><th>과목·학년</th><th>최고 기록</th><th></th></tr></thead><tbody>${SUBJECTS.flatMap(S=>S.grades.map(G=>`<tr><td>${SUBJ_ICON[S.id]} ${S.name} ${G.g}학년</td><td>${P.speed[`${S.id}-${G.g}`]||0}개</td><td><a href="#speed-${S.id}-g${G.g}">도전</a></td></tr>`)).join('')}</tbody></table></div></section>`;
+}
+
 function renderGrade(g,s){
   s=s||'math';
   const SB=subjOf(s),G=gradeInfo(s,g),ks=regionsOf(g,s),all=ks.every(k=>P.crystals[k]);
   setPlace(s,g);
   const i=SB.grades.indexOf(G),prev=SB.grades[i-1],next=SB.grades[i+1];
-  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><span>${SB.name}</span><span>›</span><span>${g}학년</span></nav>
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><a href="#${s}">${SB.name}</a><span>›</span><span>${g}학년</span></nav>
   <header class="ghead" style="--rc:${G.color}"><span class="tag">${SB.name} · ${g}학년${s==='math'?` · Lv.${g}`:''}</span><h1>${G.island}</h1><p>${G.focus}</p><div class="row"><a class="btn" href="#${nextTarget(g,s)}">${lessonsOfGrade(g,s).some(l=>P.stars[l.id])?'이어서 하기':'첫 화 시작하기'}</a></div></header>
   <section><h2 class="sec">${SB.name} ${g}학년 과정</h2><div class="regions">${ks.map(regionCard).join('')}</div></section>
   ${all?certHtml(G,s):''}
-  <nav class="lnav">${prev?`<a class="btn ghost" href="#${gradeHash(s,prev.g)}">${SB.name} ${prev.g}학년으로</a>`:'<a class="btn ghost" href="#home">모험 지도</a>'}${next?`<a class="btn ghost" href="#${gradeHash(s,next.g)}">${SB.name} ${next.g}학년으로</a>`:''}</nav>`;
+  <nav class="lnav">${prev?`<a class="btn ghost" href="#${gradeHash(s,prev.g)}">${SB.name} ${prev.g}학년으로</a>`:`<a class="btn ghost" href="#${s}">${SB.name} 페이지로</a>`}${next?`<a class="btn ghost" href="#${gradeHash(s,next.g)}">${SB.name} ${next.g}학년으로</a>`:''}</nav>`;
   bindHomeExtras();
 }
 function resultHtml(L,st,total){
-  const stars=st.first===total?3:st.first>=Math.ceil(total*.6)?2:1;
-  P.stars[L.id]=Math.max(P.stars[L.id]||0,stars);save();updateHeader();
-  const msg=stars===3?'한 번에 다 맞혔어! 너 진짜 수학 천재구나!':stars===2?'아주 잘했어! 틀린 문제는 힌트를 떠올리며 다시 풀어 보자.':'끝까지 풀었구나! 만화와 해 보기를 다시 보고 도전하면 별이 늘어날 거야.';
-  return `<div class="qcard result"><h3>${L.t} 완료!</h3><div class="stars" aria-label="별 ${stars}개">${[1,2,3].map(n=>STAR(stars>=n)).join('')}</div><p>첫 번째에 맞힌 문제 ${st.first} / ${total}</p><div class="say">${face('semi',stars===3?'wow':'happy')}<p class="bub">${msg}</p></div><div class="row"><button type="button" class="btn ghost" id="again">다시 도전</button>${navNext(L)}</div></div>`;
+  const stars=st.first===total?3:st.first>=Math.ceil(total*.6)?2:1,before=P.stars[L.id]||0,bonus=Math.max(0,stars-before)*10;
+  P.stars[L.id]=Math.max(before,stars);addXP(bonus);save();updateHeader();checkBadges();
+  const msg=stars===3?'한 번에 다 맞혔어! 정말 대단해! 이제 아래의 도전 단계에서 메달에 도전해 봐.':stars===2?'아주 잘했어! 도전 단계가 열렸어. 틀린 문제는 풀이를 읽고 다시 풀어 보자.':'끝까지 풀었구나! 만화와 해 보기를 다시 보고 도전하면 별이 늘어날 거야. 별 2개부터 도전 단계가 열려.';
+  return `<div class="qcard result"><h3>${L.t} 완료!</h3><div class="stars" aria-label="별 ${stars}개">${[1,2,3].map(n=>STAR(stars>=n)).join('')}</div><p>첫 번째에 맞힌 문제 ${st.first} / ${total} · 경험치 +${st.xp+bonus}${bonus?` (새 별 보너스 ${bonus})`:''}</p>${st.maxRun>=3?`<p class="combo-note">🔥 최고 ${st.maxRun}콤보!</p>`:''}<div class="say">${face('semi',stars===3?'wow':'happy')}<p class="bub">${msg}</p></div><div class="row"><button type="button" class="btn ghost" id="again">다시 도전</button>${navNext(L)}</div></div>`;
 }
 function missedHtml(st,top){
   if(!st.missed.length)return '';
@@ -2412,32 +2839,35 @@ function navNext(L){
 function renderLesson(L){
   const r=R[L.r],g=r.g,sj=r.s||'math',ls=lessonsOf(L.r),i=ls.indexOf(L),W=typeof L.widget==='string'?WIDGETS[L.widget]:L.widget;
   setPlace(sj,g);
-  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><a href="#${gradeHash(sj,g)}">${subjLabel(sj)} ${g}학년</a><span>›</span><span>${r.name}</span><span>›</span><span>${i+1}화</span></nav>
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><a href="#${sj}">${subjLabel(sj)}</a><span>›</span><a href="#${gradeHash(sj,g)}">${g}학년</a><span>›</span><span>${r.name}</span><span>›</span><span>${i+1}화</span></nav>
   <header class="lhead" style="--rc:${r.color}"><span class="tag ${r.tag==='처음 배우기'?'new':''}">${sj==='math'?`Lv.${g}`:`${subjLabel(sj)} ${g}학년`} · ${L.preview?(L.preview===true?'4학년 미리보기':L.preview):r.tag||r.sem}</span><h1>${i+1}화. ${L.t}</h1><p class="goal"><b>오늘의 목표</b>${L.goal}</p></header>
   <section><div class="sec-row"><h2 class="sec">만화로 보기</h2><span class="row tts-only"><button type="button" class="btn ghost" data-say="comic">만화 전체 듣기</button><button type="button" class="btn ghost" data-say="stop">멈추기</button></span></div>${comicHtml(L.comic)}</section>
   <section><h2 class="sec">직접 해 보기</h2><p class="intro">${W.intro}</p><div class="widget" id="w"></div></section>
-  <section><h2 class="sec">도전 문제</h2><p class="intro">5문제예요. 틀리면 셈이가 힌트를 줘요. 첫 번째에 맞힐수록 별이 많아져요.</p><div id="quiz"></div></section>
+  <section><h2 class="sec">연습 문제</h2><p class="intro">5문제예요. 틀리면 셈이가 힌트를 줘요. 첫 번째에 맞힐수록 별이 많아지고, 연속으로 맞히면 콤보 경험치를 받아요.</p>${g<=2?`<label class="autoread"><input type="checkbox" id="autoRead" ${P.autoRead?'checked':''}> 다음 문제를 자동으로 읽어 주기</label>`:''}<div id="quiz"></div></section>
+  <section id="chSec"><h2 class="sec">⚔️ 도전 단계</h2><div class="ch-body">${challengeHtml(L)}</div></section>
   <section><h2 class="sec">종이로 풀기</h2><p class="intro">이 화의 문제 10개로 문제지를 만들어요. 정답과 풀이는 따로 볼 수 있어요.</p><div class="row"><a class="btn ghost" href="#ws-${L.id}-${newSeed()}">문제지 만들기</a><a class="btn ghost" href="#ws-${L.r}-${newSeed()}">${r.name} 단원 문제지</a></div></section>
   <nav class="lnav">${i>0?`<a class="btn ghost" href="#${ls[i-1].id}">이전 화</a>`:`<a class="btn ghost" href="#${gradeHash(sj,g)}">${subjLabel(sj)} ${g}학년 지도</a>`}${navNext(L)}</nav>`;
   mountWidget($('#w'),W);
   const q=$('#quiz');
-  const start=()=>runQuiz(q,L.quiz(),(st,total)=>{q.innerHTML=resultHtml(L,st,total)+missedHtml(st);$('#again').addEventListener('click',()=>{start();q.scrollIntoView({block:'start'});});},{id:L.id});
-  start();
+  const ar=$('#autoRead');if(ar)ar.addEventListener('change',()=>{P.autoRead=ar.checked;save();});
+  const refreshCh=()=>{const b=$('#chSec .ch-body');if(b&&!$('#chQuiz .qcard:not(.result)')){b.innerHTML=fixJosa(challengeHtml(L));bindChallenge(L);}};
+  const start=()=>runQuiz(q,L.quiz(),(st,total)=>{q.innerHTML=fixJosa(resultHtml(L,st,total)+missedHtml(st));$('#again').addEventListener('click',()=>{start();q.scrollIntoView({block:'start'});});refreshCh();},{id:L.id});
+  start();bindChallenge(L);
 }
 function renderBoss(k){
   const r=R[k],g=r.g,sj=r.s||'math';
   setPlace(sj,g);
-  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><a href="#${gradeHash(sj,g)}">${subjLabel(sj)} ${g}학년</a><span>›</span><span>${r.name}</span><span>›</span><span>대장 문제</span></nav>
+  app.innerHTML=`<nav class="crumb"><a href="#home">모험 지도</a><span>›</span><a href="#${sj}">${subjLabel(sj)}</a><span>›</span><a href="#${gradeHash(sj,g)}">${g}학년</a><span>›</span><span>${r.name}</span><span>›</span><span>대장 문제</span></nav>
   <header class="lhead" style="--rc:${r.color}"><span class="tag">${sj==='math'?`Lv.${g}`:`${subjLabel(sj)} ${g}학년`} · 대장 문제</span><h1>뚱땅이의 도전장</h1><p class="goal"><b>통과 조건</b>6문제 중 4문제 이상을 첫 번째 시도에 맞히면 ${r.crystal}을 얻어요.</p></header>
   <section>${comicHtml([T('happy',`${r.crystal}을 갖고 싶다고? ${r.name}에서 배운 걸 모두 섞어서 낼 거야. 각오해!`),H('happy','좋아, 해 보자! 셈이야, 도와줘.'),S('happy','대장 문제는 첫 번째에 맞혀야 인정돼. 천천히 읽고 침착하게 풀어!')])}</section>
   <section><h2 class="sec">대장 문제 6개</h2><div id="quiz"></div></section>`;
   const q=$('#quiz');
   const start=()=>{const probs=shuffle(lessonsOf(k).flatMap(l=>shuffle(l.quiz()).slice(0,2))).slice(0,6);
     runQuiz(q,probs,(st,total)=>{
-      const pass=st.first>=4;
-      if(pass){P.crystals[k]=true;save();updateHeader();}
+      const pass=st.first>=4,newC=pass&&!P.crystals[k];
+      if(pass){P.crystals[k]=true;if(newC)addXP(50);save();updateHeader();checkBadges();}
       const gradeDone=regionsOf(g,sj).every(x=>P.crystals[x]);
-      q.innerHTML=missedHtml(st,true)+`<div class="qcard result"><h3>${pass?r.crystal+' 획득!':'아깝다! 다시 도전!'}</h3>${pass?`<div class="bigcrystal">${CRYSTAL(r.color,true)}</div>`:''}<p>첫 번째에 맞힌 문제 ${st.first} / ${total}</p><div class="say">${face('ttung',pass?'oops':'happy')}<p class="bub">${pass?(gradeDone?`으앙, ${subjLabel(sj)} ${g}학년 크리스탈을 모두 빼앗겼다! 다음 지역에서는 안 질 거야!`:'으앙, 크리스탈을 빼앗겼다! 다음 지역에서는 안 질 거야!'):'히히, 크리스탈은 아직 내 거야! 앞의 화를 복습하고 다시 와.'}</p></div><div class="row"><button type="button" class="btn ghost" id="again">${pass?'한 번 더 풀기':'다시 도전'}</button><a class="btn" href="#${gradeHash(sj,g)}">${gradeDone?'인증서 보러 가기':`${subjLabel(sj)} ${g}학년 지도로`}</a></div></div>`;
+      q.innerHTML=missedHtml(st,true)+`<div class="qcard result"><h3>${pass?r.crystal+' 획득!':'아깝다! 다시 도전!'}</h3>${pass?`<div class="bigcrystal">${CRYSTAL(r.color,true)}</div>`:''}<p>첫 번째에 맞힌 문제 ${st.first} / ${total} · 경험치 +${st.xp+(newC?50:0)}</p><div class="say">${face('ttung',pass?'oops':'happy')}<p class="bub">${pass?(gradeDone?`으앙, ${subjLabel(sj)} ${g}학년 크리스탈을 모두 빼앗겼다! 다음 지역에서는 안 질 거야!`:'으앙, 크리스탈을 빼앗겼다! 다음 지역에서는 안 질 거야!'):'히히, 크리스탈은 아직 내 거야! 앞의 화를 복습하고 다시 와.'}</p></div><div class="row"><button type="button" class="btn ghost" id="again">${pass?'한 번 더 풀기':'다시 도전'}</button><a class="btn" href="#${gradeHash(sj,g)}">${gradeDone?'인증서 보러 가기':`${subjLabel(sj)} ${g}학년 지도로`}</a></div></div>`;
       $('#again').addEventListener('click',()=>{start();q.scrollIntoView({block:'start'});});
     },{id:k+'-boss'});};
   start();
@@ -2547,7 +2977,7 @@ function renderSheet(mode,id,seed){
     <header class="sheet-h"><div><span class="lbl">${src.sub}</span><h1>${src.title.replace(' 단원 문제지','')} ${ans?'정답과 풀이':src.kind==='unit'?'단원 문제지':'문제지'}</h1></div>
     ${ans?`<div class="sheet-meta"><span>문제 ${probs.length}개</span><span>세트 ${seed}</span></div>`:`<div class="sheet-meta"><span>이름 <i></i></span><span>날짜 <i></i></span><span>점수 <i style="width:3em"></i>/ ${probs.length}</span></div>`}</header>
     <ol class="sheet-list ${ans?'keys':''}">${probs.map((p,i)=>`<li class="sq"><span class="sq-n">${i+1}</span><div class="sq-b">${sheetQ(p)}${ans?`<div class="ans-line"><span><b>정답</b> ${p.type==='choice'?`${CIRC[p.a]} `:''}${p.show}</span><span><b>풀이</b> ${p.ex}</span>${p.from?`<span class="lbl">복습: ${p.from}</span>`:''}</div>`:`<div class="sq-a">${blankFor(p)}</div>`}</div></li>`).join('')}</ol>
-    <footer class="sheet-foot"><span>숫자섬 수학 탐험대</span><span>세트 ${seed}${ans?'':' · 정답은 같은 세트 번호의 풀이지에서 확인'}</span></footer>
+    <footer class="sheet-foot"><span>지혜섬 탐험대</span><span>세트 ${seed}${ans?'':' · 정답은 같은 세트 번호의 풀이지에서 확인'}</span></footer>
   </article>
   <nav class="lnav no-print"><a class="btn ghost" href="${src.back}">돌아가기</a><a class="btn" href="${other}">${ans?'문제지 보기':'정답과 풀이 보기'}</a></nav>`;
   const pb=$('#printBtn');if(pb)pb.addEventListener('click',()=>{try{window.print();}catch(e){}});
@@ -2558,7 +2988,7 @@ const newSeed=()=>1000+Math.floor(Math.random()*9000);
 // AI mode uses the viewer's Claude via the artifact `sample` capability; otherwise a built-in offline helper answers.
 let CUR={place:'모험 지도',grade:0,lesson:null,p:null,idx:0,total:0,tries:0,locked:false};
 const ASK={sample:null,mode:'offline',turns:[],busy:false,ctl:null,open:false};
-const ASK_RULES=`너는 초등학생 학습 웹앱 "숫자섬 수학 탐험대"에 나오는 로봇 선생님 '셈이'야. 수학, 국어, 영어, 과학을 도와줘. 지금 초등학생과 대화하고 있어. [지금 화면]의 학년을 보고 그 학년 아이에게 맞게 말해.
+const ASK_RULES=`너는 초등학생 학습 웹앱 "지혜섬 탐험대"에 나오는 로봇 선생님 '셈이'야. 수학, 국어, 영어, 과학을 도와줘. 지금 초등학생과 대화하고 있어. [지금 화면]의 학년을 보고 그 학년 아이에게 맞게 말해.
 규칙:
 - 그 학년 아이가 이해할 쉬운 한국어 반말로 다정하게 말해. 한 번에 2~4문장으로 짧게.
 - 마크다운, 표, 목록 기호, 이모지는 쓰지 마. 분수는 "4분의 1(1/4)"처럼 써.
@@ -2715,6 +3145,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ASK.open)closeAsk()
 (async()=>{try{if(window.claude&&typeof claude.use==='function'){const s=await claude.use('sample');if(s){ASK.sample=s;ASK.mode='ai';setAskMode();}}}catch(e){}})();
 
 function route(){
+  if(SPEED_TIMER){clearInterval(SPEED_TIMER);SPEED_TIMER=null;}
   const h=decodeURIComponent(location.hash.slice(1))||'home';
   const sm=/^(ws|ans)-(.+)-(\d{1,9})$/.exec(h);
   if(sm&&sheetSource(sm[2])){const src=sheetSource(sm[2]);CUR={place:`${src.title} ${sm[1]==='ws'?'문제지':'풀이지'}`,grade:src.g,lesson:null,p:null,idx:0,total:0,tries:0,locked:false};renderSheet(sm[1],sm[2],+sm[3]);updateHeader();refreshAsk();window.scrollTo(0,0);return;}
@@ -2723,7 +3154,13 @@ function route(){
   const gm=/^(?:(kor|eng|sci)-)?g([1-6])$/.exec(h),gms=gm?(gm[1]||'math'):null,gmOk=gm&&gradeInfo(gms,+gm[2]);
   const gr=L?R[L.r].g:boss?R[boss].g:gmOk?+gm[2]:(P.grade||0),sj=L?(R[L.r].s||'math'):boss?(R[boss].s||'math'):gmOk?gms:curSubj();
   CUR={subj:sj,place:L?`${subjLabel(sj)} ${gr}학년 ${R[L.r].name} ${lessonsOf(L.r).indexOf(L)+1}화 "${L.t}"`:boss?`${subjLabel(sj)} ${gr}학년 ${R[boss].name} 대장 문제`:gmOk?`${subjLabel(sj)} ${gr}학년 지도`:'모험 지도',grade:gr,lesson:L||(boss?{goal:`${R[boss].name}에서 배운 내용을 섞은 대장 문제`}:null),p:null,idx:0,total:0,tries:0,locked:false};
+  const spm=/^speed-(math|kor|eng|sci)-g([1-6])$/.exec(h),spOk=spm&&gradeInfo(spm[1],+spm[2]);
+  const subjPage=SUBJECTS.some(x=>x.id===h)?h:null;
+  if(spOk){CUR.subj=spm[1];CUR.grade=+spm[2];CUR.place=`${subjLabel(spm[1])} ${spm[2]}학년 스피드 도전`;}
+  if(subjPage){CUR.subj=subjPage;CUR.place=`${subjLabel(subjPage)} 과목 페이지`;}
   if(h==='review'){CUR.place='오답 노트';renderReview();}else if(h==='report'){CUR.place='학습 기록';renderReport();}
+  else if(h==='trophy'){CUR.place='트로피 방';renderTrophy();}else if(h==='daily'){CUR.place='오늘의 도전';renderDaily();}
+  else if(spOk)renderSpeed(spm[1],+spm[2]);else if(subjPage)renderSubject(subjPage);
   else if(L)renderLesson(L);else if(boss)renderBoss(boss);else if(gmOk)renderGrade(+gm[2],gms);else renderHome();
   document.body.classList.toggle('low',!!CUR.grade&&CUR.grade<=2);
   updateHeader();refreshAsk();window.scrollTo(0,0);

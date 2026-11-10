@@ -1,5 +1,5 @@
 """
-학습 페이지(숫자섬 수학 탐험대) 연동
+학습 페이지(지혜섬 탐험대) 연동
 
 흐름
   1) 앱이 인증 헤더(X-Device-ID, X-Device-Secret)와 함께 POST /api/learning/session 호출
@@ -63,13 +63,13 @@ INIT_STMTS = [
 ]
 
 _NEED_APP_PAGE = """<!doctype html><html lang="ko"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>숫자섬 수학 탐험대</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>지혜섬 탐험대</title>
 <style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
 font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#F2F4FB;color:#1B2140;padding:24px;box-sizing:border-box}
 main{max-width:360px;text-align:center;background:#fff;border:3px solid #1B2140;border-radius:12px;padding:28px;box-shadow:6px 6px 0 #1B2140}
 h1{font-size:1.4rem;margin:0 0 12px}p{line-height:1.6;margin:0}</style></head>
 <body><main><h1>오늘우리집 앱에서 열어 주세요</h1>
-<p>숫자섬 수학 탐험대는 오늘우리집 회원 전용 학습 페이지예요.<br>앱에 로그인한 뒤 학습 메뉴에서 다시 열어 주세요.</p>
+<p>지혜섬 탐험대는 오늘우리집 회원 전용 학습 페이지예요.<br>앱에 로그인한 뒤 학습 메뉴에서 다시 열어 주세요.</p>
 </main></body></html>"""
 
 
@@ -96,35 +96,91 @@ def _public_base(request: Request) -> str:
     return f"{proto}://{host}"
 
 
+_BADGE_RE = re.compile(r"^[a-z0-9-]{1,20}$")
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_SPEED_RE = re.compile(r"^(?:math|kor|eng|sci)-[1-6]$")
+
+
+def _int(v, hi: int) -> int:
+    try:
+        n = int(v)
+    except (TypeError, ValueError):
+        return 0
+    return n if 0 <= n <= hi else 0
+
+
 def _clean_progress(raw) -> dict:
     """앱이 보낸 진도를 검증해서 정해진 모양으로만 저장한다."""
     if not isinstance(raw, dict):
         raw = {}
     stars = {}
-    for k, v in list((raw.get("stars") or {}).items())[:60]:
+    for k, v in list((raw.get("stars") or {}).items())[:200]:
         if isinstance(k, str) and _LESSON_RE.match(k):
-            try:
-                n = int(v)
-            except (TypeError, ValueError):
-                continue
-            if 0 < n <= 3:
+            n = _int(v, 3)
+            if n > 0:
                 stars[k] = n
     crystals = {}
-    for k, v in list((raw.get("crystals") or {}).items())[:12]:
+    for k, v in list((raw.get("crystals") or {}).items())[:60]:
         if isinstance(k, str) and _REGION_RE.match(k) and v is True:
             crystals[k] = True
     name = raw.get("name")
     name = name.strip()[:20] if isinstance(name, str) else ""
-    return {"stars": stars, "crystals": crystals, "name": name}
+
+    def dated(key, key_re, limit):
+        out = {}
+        src = raw.get(key)
+        for k, v in list((src if isinstance(src, dict) else {}).items())[:limit]:
+            if isinstance(k, str) and key_re.match(k) and isinstance(v, (str, int)) and not isinstance(v, bool):
+                out[k] = v if isinstance(v, int) else str(v)[:10]
+        return out
+
+    speed = {}
+    src = raw.get("speed")
+    for k, v in list((src if isinstance(src, dict) else {}).items())[:40]:
+        if isinstance(k, str) and _SPEED_RE.match(k):
+            n = _int(v, 200)
+            if n:
+                speed[k] = n
+    days = raw.get("days")
+    days = sorted({d for d in (days if isinstance(days, list) else [])[-400:] if isinstance(d, str) and _DATE_RE.match(d)})
+    return {
+        "stars": stars,
+        "crystals": crystals,
+        "name": name,
+        # 성취 장치(경험치·배지·메달·기록). 여러 기기에서 저장돼도 줄지 않게 합친다.
+        "xp": _int(raw.get("xp"), 10_000_000),
+        "maxCombo": _int(raw.get("maxCombo"), 1000),
+        "correct": _int(raw.get("correct"), 10_000_000),
+        "cleared": _int(raw.get("cleared"), 1_000_000),
+        "badges": dated("badges", _BADGE_RE, 60),
+        "medals": dated("medals", _LESSON_RE, 200),
+        "daily": dated("daily", _DATE_RE, 400),
+        "speed": speed,
+        "days": days,
+    }
 
 
 def _merge(old: dict, new: dict) -> dict:
-    """여러 번 저장돼도 진도가 줄지 않도록 별은 큰 값, 크리스탈은 하나라도 있으면 유지."""
+    """여러 번 저장돼도 진도가 줄지 않도록 별·기록은 큰 값, 크리스탈·배지·메달은 하나라도 있으면 유지."""
     stars = dict(old.get("stars", {}))
     for k, v in new["stars"].items():
         stars[k] = max(stars.get(k, 0), v)
     crystals = {**old.get("crystals", {}), **new["crystals"]}
-    return {"stars": stars, "crystals": crystals, "name": new["name"] or old.get("name", "")}
+    speed = dict(old.get("speed", {}))
+    for k, v in new.get("speed", {}).items():
+        speed[k] = max(speed.get(k, 0), v)
+    merged = {
+        "stars": stars,
+        "crystals": crystals,
+        "name": new["name"] or old.get("name", ""),
+        "speed": speed,
+        "days": sorted(set(old.get("days", [])) | set(new.get("days", [])))[-400:],
+    }
+    for k in ("xp", "maxCombo", "correct", "cleared"):
+        merged[k] = max(old.get(k, 0) or 0, new.get(k, 0) or 0)
+    for k in ("badges", "medals", "daily"):
+        merged[k] = {**new.get(k, {}), **old.get(k, {})}
+    return merged
 
 
 def _summary(progress: Optional[dict]) -> dict:
@@ -134,6 +190,9 @@ def _summary(progress: Optional[dict]) -> dict:
         "lessons_done": sum(1 for v in stars.values() if v > 0),
         "stars_total": sum(stars.values()),
         "crystals": sorted(k for k, v in p.get("crystals", {}).items() if v),
+        "xp": p.get("xp", 0) or 0,
+        "badges": len(p.get("badges", {}) or {}),
+        "medals": len(p.get("medals", {}) or {}),
     }
 
 
@@ -189,7 +248,7 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
         device = await DB.fetchrow("SELECT id FROM devices WHERE id = ?", device_id)
         if not device:
             raise HTTPException(status_code=404, detail="등록되지 않은 기기예요")
-        if start and not (_LESSON_RE.match(start) or start == "home" or re.match(r"^(?:(?:kor|eng|sci)-)?g[1-6]$", start)):
+        if start and not (_LESSON_RE.match(start) or start in ("home", "math", "kor", "eng", "sci", "daily", "trophy") or re.match(r"^(?:(?:kor|eng|sci)-)?g[1-6]$", start)):
             start = None
         ticket = secrets.token_urlsafe(32)
         expires = _utcnow() + TICKET_TTL
