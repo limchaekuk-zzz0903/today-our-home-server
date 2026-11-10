@@ -457,7 +457,7 @@ details.story[open] summary{margin-bottom:12px}
 .badge span{font-size:.82rem;color:var(--ink2)}
 .badge small{font-size:.75rem;color:var(--ink2)}
 .b-ic{font-size:2.2rem;line-height:1.1}
-.toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:60;background:var(--panel);color:var(--ink);border:3px solid var(--line);border-radius:14px;box-shadow:4px 4px 0 var(--shadow);padding:10px 18px;font-family:var(--f-display);font-size:1.1rem;display:block;pointer-events:none;text-align:center;white-space:nowrap;max-width:calc(100vw - 32px)}
+.toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:60;background:var(--panel);color:var(--ink);border:3px solid var(--line);border-radius:14px;box-shadow:4px 4px 0 var(--shadow);padding:10px 18px;font-family:var(--f-display);font-size:1.1rem;display:block;pointer-events:none;text-align:center;max-width:min(520px,calc(100vw - 32px));width:max-content}
 .toast[hidden]{display:none}
 .toast b{font-weight:400;color:var(--castle);margin-right:6px}
 .toast.pop{animation:zoomin .35s ease-out}
@@ -474,6 +474,11 @@ details.story[open] summary{margin-bottom:12px}
 .ans.wide{width:min(100%,11em);font-size:1.4rem}
 .btn.listen{align-self:center}
 .btn[data-speak],.btn.listen{white-space:nowrap}
+.listen-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.btn.reveal{display:none;font-size:.9rem}
+.tts-fail .btn.reveal,.no-tts .btn.reveal{display:inline-flex}
+.reveal-box{font-family:var(--f-display);background:var(--hintbg);border:2px dashed var(--line);border-radius:10px;padding:6px 12px}
+.no-tts .btn.listen{display:none}
 .blank{color:var(--castle)}
 .sort-item{font-family:var(--f-display);font-size:1.6rem;border:3px solid var(--line);border-radius:12px;padding:12px 20px;background:var(--narr);text-align:center}
 .sort-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;width:100%}
@@ -2659,12 +2664,12 @@ function runQuiz(root,problems,onDone,ctx={}){
     if(st.i>=problems.length){end();return;}
     const p=problems[st.i];
     Object.assign(CUR,{p,idx:st.i+1,total:problems.length,tries:0,locked:false});refreshAsk();
-    root.innerHTML=`<div class="qcard ${ctx.challenge?'chal':''}" id="qcard"><div class="qtop"><span>${ctx.challenge?'도전 ':''}문제 ${st.i+1} / ${problems.length}</span>${heartsHtml()}<span class="combo-slot">${comboHtml()}</span><button type="button" class="say" data-say="q" aria-label="문제 읽어 주기">${SPEAKER}</button>${ctx.challenge?'':`<button type="button" class="askq" data-ask>${face('semi','happy')}셈이에게 물어보기</button>`}<span class="pips">${problems.map((_,j)=>`<i class="${j<st.i?'done':j===st.i?'now':''}"></i>`).join('')}</span></div><div class="qtext">${p.listen?`<button type="button" class="btn listen" data-speak="${esc(p.listen.t)}" data-lang="${p.listen.lang}">${SPEAKER} 소리 듣기</button>`:''}${p.q}</div><form class="qans" id="qform" autocomplete="off">${ansHtml(p)}</form><div class="fb" id="fb" aria-live="polite"></div><div class="row" id="qnext"></div></div>`;
+    root.innerHTML=`<div class="qcard ${ctx.challenge?'chal':''}" id="qcard"><div class="qtop"><span>${ctx.challenge?'도전 ':''}문제 ${st.i+1} / ${problems.length}</span>${heartsHtml()}<span class="combo-slot">${comboHtml()}</span><button type="button" class="say" data-say="q" aria-label="문제 읽어 주기">${SPEAKER}</button>${ctx.challenge?'':`<button type="button" class="askq" data-ask>${face('semi','happy')}셈이에게 물어보기</button>`}<span class="pips">${problems.map((_,j)=>`<i class="${j<st.i?'done':j===st.i?'now':''}"></i>`).join('')}</span></div><div class="qtext">${p.listen?`<div class="listen-row"><button type="button" class="btn listen" data-speak="${esc(p.listen.t)}" data-lang="${p.listen.lang}">${SPEAKER} 소리 듣기</button><button type="button" class="btn ghost reveal" data-reveal="${esc(p.listen.t)}">소리가 안 나와요 · 부모님이 읽어 주기</button><span class="reveal-box" hidden></span></div>`:''}${p.q}</div><form class="qans" id="qform" autocomplete="off">${ansHtml(p)}</form><div class="fb" id="fb" aria-live="polite"></div><div class="row" id="qnext"></div></div>`;
     $('#qform',root).addEventListener('submit',e=>{e.preventDefault();submit();});
     root.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>submit(+b.dataset.i,b)));
     const ak=$('[data-ask]',root);if(ak)ak.addEventListener('click',()=>openAsk());
-    if(p.listen&&st.i>0)setTimeout(()=>speak(p.listen.t,p.listen.lang),300);
-    else if(P.autoRead&&document.body.classList.contains('low')&&st.i>0)setTimeout(()=>speak(sayText(p.q)),300);
+    if(p.listen&&st.i>0)speak(p.listen.t,p.listen.lang);
+    else if(P.autoRead&&document.body.classList.contains('low')&&st.i>0)speak(sayText(p.q));
   };
   function submit(choice,btn){
     if(st.locked)return;
@@ -2876,23 +2881,71 @@ function renderBoss(k){
     },{id:k+'-boss'});};
   start();
 }
-/* ---------- read aloud (speechSynthesis) ---------- */
+/* ---------- read aloud ---------- */
+// 1) The 오늘우리집 app can hand speech to the phone's own TTS through a bridge (Android WebView has no working Web Speech).
+// 2) Otherwise the browser's speechSynthesis, with workarounds for its known quirks.
+// 3) If neither makes a sound, say so once and let a grown-up read listening questions aloud.
 const CAN_SPEAK='speechSynthesis' in window&&typeof SpeechSynthesisUtterance==='function';
-if(!CAN_SPEAK)document.documentElement.classList.add('no-tts');
+const TTS={voices:[],started:false,failed:false,told:false,unlocked:false,timer:null};
+function ttsBridge(){
+  try{
+    if(window.TodayTTS&&typeof window.TodayTTS.postMessage==='function')return m=>window.TodayTTS.postMessage(JSON.stringify(m)); // webview_flutter JavaScriptChannel
+    if(window.flutter_inappwebview&&typeof window.flutter_inappwebview.callHandler==='function')return m=>window.flutter_inappwebview.callHandler('tts',m);
+    if(window.ReactNativeWebView&&typeof window.ReactNativeWebView.postMessage==='function')return m=>window.ReactNativeWebView.postMessage(JSON.stringify(Object.assign({source:'learn'},m)));
+    if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.tts)return m=>window.webkit.messageHandlers.tts.postMessage(m);
+  }catch(e){}
+  return null;
+}
 function sayText(html){
   return plain(html).replace(/\(\d+\/\d+\)/g,'').replace(/×/g,' 곱하기 ').replace(/÷/g,' 나누기 ').replace(/−/g,' 빼기 ').replace(/\+/g,' 더하기 ').replace(/=/g,' 는 ').replace(/□/g,' 네모 ').replace(/○/g,' 동그라미 ').replace(/\[그림:[^\]]*\]/g,'').replace(/\s+/g,' ').trim();
 }
-function speak(texts,lang='ko-KR'){
-  if(!CAN_SPEAK)return;
-  try{speechSynthesis.cancel();const pre=lang.slice(0,2),v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith(pre));[].concat(texts).filter(Boolean).forEach(t=>{const u=new SpeechSynthesisUtterance(t);u.lang=lang;u.rate=pre==='en'?.85:.92;if(v)u.voice=v;speechSynthesis.speak(u);});}catch(e){}
+function loadVoices(){try{TTS.voices=speechSynthesis.getVoices()||[];}catch(e){TTS.voices=[];}return TTS.voices;}
+if(CAN_SPEAK){loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices);}catch(e){}}
+if(!CAN_SPEAK&&!ttsBridge())document.documentElement.classList.add('no-tts');
+function pickVoice(lang){
+  const vs=TTS.voices.length?TTS.voices:loadVoices(),L=lang.toLowerCase().replace('_','-'),pre=L.slice(0,2);
+  const norm=v=>String(v.lang||'').toLowerCase().replace('_','-');
+  return vs.find(v=>norm(v)===L&&v.localService)||vs.find(v=>norm(v)===L)||vs.find(v=>norm(v).startsWith(pre))||null;
 }
+function ttsFail(msg){
+  TTS.failed=true;document.documentElement.classList.add('tts-fail');
+  if(!TTS.told){TTS.told=true;toast(msg||'🔇 이 기기에서는 소리가 나오지 않아요. 듣기 문제는 "부모님이 읽어 주기"를 눌러 주세요.');}
+}
+// Chrome stops long utterances after ~15s, so read sentence by sentence.
+const chunks=t=>String(t).replace(/([.!?。])\s+/g,'$1\n').split('\n').flatMap(x=>x.length>140?x.match(/.{1,140}(\s|$)/g)||[x]:[x]).map(x=>x.trim()).filter(Boolean);
+function speak(texts,lang='ko-KR'){
+  const list=[].concat(texts).filter(Boolean).flatMap(chunks);if(!list.length)return;
+  const br=ttsBridge();
+  if(br){try{br({type:'speak',text:list.join(' '),lang});return;}catch(e){}}
+  if(!CAN_SPEAK){ttsFail();return;}
+  const run=()=>{
+    try{
+      speechSynthesis.resume();
+      const v=pickVoice(lang);
+      if(!v&&TTS.voices.length&&!TTS.started)ttsFail(`🔇 이 기기에 ${lang.startsWith('en')?'영어':'한국어'} 음성이 없어요. 기기 설정에서 음성(TTS)을 내려받으면 소리가 나와요.`);
+      list.forEach((t,k)=>{const u=new SpeechSynthesisUtterance(t);u.lang=lang;u.rate=lang.startsWith('en')?.85:.92;if(v)u.voice=v;
+        if(k===0)u.onstart=()=>{TTS.started=true;clearTimeout(TTS.timer);document.documentElement.classList.remove('tts-fail');};
+        u.onerror=e=>{if(e&&/not-allowed|synthesis-unavailable|audio-hardware|language-unavailable|voice-unavailable/.test(e.error||''))ttsFail();};
+        speechSynthesis.speak(u);});
+      // nothing started within a few seconds: this browser accepts speech but stays silent (common in app WebViews)
+      clearTimeout(TTS.timer);if(!TTS.started)TTS.timer=setTimeout(()=>{if(!TTS.started)ttsFail();},3500);
+    }catch(e){ttsFail();}
+  };
+  // speaking right after cancel() is dropped by some Chrome versions; only wait when something was playing
+  let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending;speechSynthesis.cancel();}catch(e){}
+  if(busy)setTimeout(run,80);else run();
+}
+function stopSpeak(){const br=ttsBridge();if(br){try{br({type:'stop'});}catch(e){}}if(CAN_SPEAK){try{speechSynthesis.cancel();}catch(e){}}}
+// iOS only lets a page speak after a tap: warm the engine up on the first one
+document.addEventListener('pointerdown',()=>{if(TTS.unlocked||!CAN_SPEAK||ttsBridge())return;TTS.unlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}},{capture:true});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-speak]');if(b){e.preventDefault();speak(b.dataset.speak,b.dataset.lang||'ko-KR');}});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-reveal]');if(b){e.preventDefault();const box=b.parentElement.querySelector('.reveal-box');if(box){box.hidden=false;box.textContent=`부모님이 읽어 주세요: ${b.dataset.reveal}`;}b.hidden=true;}});
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-say]');if(!b)return;
   if(b.dataset.say==='pn'){const pn=b.closest('.pn');const t=pn.querySelector('.bub,p');const who=pn.querySelector('.who');speak((who?who.textContent+'. ':'')+sayText(t?t.innerHTML:''));}
   else if(b.dataset.say==='q'){const c=b.closest('.qcard');const q=c&&c.querySelector('.qtext');speak(sayText(q?q.innerHTML:''));}
   else if(b.dataset.say==='comic'){const sec=b.closest('section');speak([...sec.querySelectorAll('.pn')].map(pn=>{const t=pn.querySelector('.bub,p,figcaption');const who=pn.querySelector('.who');return (who?who.textContent+'. ':'')+sayText(t?t.innerHTML:'');}));}
-  else if(b.dataset.say==='stop'){try{speechSynthesis.cancel();}catch(err){}}
+  else if(b.dataset.say==='stop')stopSpeak();
 });
 
 /* ---------- profiles on the home page ---------- */
