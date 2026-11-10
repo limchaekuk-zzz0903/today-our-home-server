@@ -477,6 +477,7 @@ details.story[open] summary{margin-bottom:12px}
 .listen-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
 .btn.reveal{display:none;font-size:.9rem}
 .tts-fail .btn.reveal,.no-tts .btn.reveal{display:inline-flex}
+.tts-report{white-space:pre-wrap;word-break:break-all;font-size:.85rem;background:var(--paper2);border:2px solid var(--line);border-radius:8px;padding:10px;margin-top:8px}
 .reveal-box{font-family:var(--f-display);background:var(--hintbg);border:2px dashed var(--line);border-radius:10px;padding:6px 12px}
 .no-tts .btn.listen{display:none}
 .blank{color:var(--castle)}
@@ -2587,6 +2588,9 @@ function parentsHtml(){
   <li><b>읽어 주기</b>: 만화 칸과 문제마다 스피커 버튼을 누르면 소리 내어 읽어 줘요. 1·2학년은 말풍선이 또박또박한 글씨로 바뀌어요.</li></ul>
   <h4>과목·학년별 과정 (2022 개정 교육과정 기준, 교과서마다 단원 이름은 조금 다를 수 있어요)</h4>
   <div class="tbl"><table><thead><tr><th>과목·학년</th><th>지역(학기)</th><th>화</th></tr></thead><tbody>${curriculumRows()}</tbody></table></div>
+  <h4>소리 점검</h4>
+  <p>읽어 주기·받아쓰기 소리가 안 나오면 눌러 보세요. 이 기기에서 어떤 방식으로 소리를 내는지 알려 줘요.</p>
+  <div class="row"><button type="button" class="btn ghost" id="ttsTest">🔊 소리 점검</button></div><pre class="tts-report" id="ttsReport" hidden></pre>
   <h4>사용 팁</h4>
   <ul><li>하루 1~2화, 10~20분이면 충분해요. 만화는 소리 내어 함께 읽으면 더 좋아요.</li>
   <li>문제는 열 때마다 바뀌어서 여러 번 풀어도 새로워요.</li>
@@ -2598,6 +2602,15 @@ function certHtml(G,s){
   return `<section><div class="cert"><h2>${subjLabel(s)} ${G.g}학년 탐험 인증서</h2><label for="kidname" class="lbl">탐험대원 이름</label><input id="kidname" value="${(P.name||'').replace(/"/g,'&quot;')}" placeholder="이름을 써 주세요" maxlength="12"><p>위 탐험대원은 지혜섬 ${G.island}의 ${fixJosa(ks.map(k=>R[k].name).join(', ')+'을(를)')} 모두 탐험하고 크리스탈 ${ks.length}개를 되찾았으므로 이 증서를 드립니다.</p><p class="lbl">${subjLabel(s)} ${G.g}학년 · 별 ${gradeStars(G.g,s)}개 · 지혜섬 시계탑 관리 로봇 셈이</p></div></section>`;
 }
 function bindHomeExtras(){
+  const tb=$('#ttsTest');if(tb)tb.addEventListener('click',()=>{const out=$('#ttsReport');out.hidden=false;out.textContent='소리를 내 보는 중… (안녕! 소리가 잘 들리니? / Hello!)';
+    speak('안녕! 소리가 잘 들리니?','ko-KR');
+    setTimeout(()=>{const r=ttsReport();out.textContent=[
+      r.bridge?'✅ 앱 음성 연결(브리지): 있음 → 휴대폰 음성으로 읽어요':'· 앱 음성 연결(브리지): 없음',
+      r.webview&&!r.bridge?'⚠️ Android 앱 화면이에요. 앱에 음성 연결이 없으면 소리가 나지 않아요.':'',
+      r.speech?`· 브라우저 음성: 있음 (음성 ${r.voices}개, 한국어 ${r.ko}개, 영어 ${r.en}개)`:'· 브라우저 음성: 없음',
+      r.started?'✅ 소리 재생 시작됨':r.bridge?'':'❌ 소리가 시작되지 않았어요',
+      !r.bridge&&r.speech&&!r.ko?'→ 기기 설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환에서 한국어 음성을 내려받아 주세요.':'',
+      `기기 정보: ${r.ua}`].filter(Boolean).join('\n');},3500);});
   const nm=$('#kidname');if(nm)nm.addEventListener('input',()=>{P.name=nm.value;save();});
   const rs=$('#reset');if(!rs)return;let armed=false;
   rs.addEventListener('click',()=>{if(!armed){armed=true;rs.textContent='정말 지울까요? 한 번 더 누르세요';$('#resetMsg').textContent='모든 과목의 별과 크리스탈이 사라져요.';return;}P=blank();SYNC.reset=true;save();route();});
@@ -2886,7 +2899,7 @@ function renderBoss(k){
 // 2) Otherwise the browser's speechSynthesis, with workarounds for its known quirks.
 // 3) If neither makes a sound, say so once and let a grown-up read listening questions aloud.
 const CAN_SPEAK='speechSynthesis' in window&&typeof SpeechSynthesisUtterance==='function';
-const TTS={voices:[],started:false,failed:false,told:false,unlocked:false,timer:null};
+const TTS={voices:[],started:false,failed:false,told:false,unlocked:false,timer:null,retryTimer:null};
 function ttsBridge(){
   try{
     if(window.TodayTTS&&typeof window.TodayTTS.postMessage==='function')return m=>window.TodayTTS.postMessage(JSON.stringify(m)); // webview_flutter JavaScriptChannel
@@ -2913,31 +2926,44 @@ function ttsFail(msg){
 }
 // Chrome stops long utterances after ~15s, so read sentence by sentence.
 const chunks=t=>String(t).replace(/([.!?。])\s+/g,'$1\n').split('\n').flatMap(x=>x.length>140?x.match(/.{1,140}(\s|$)/g)||[x]:[x]).map(x=>x.trim()).filter(Boolean);
+const UA=navigator.userAgent||'';
+const IS_IOS=/iPad|iPhone|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
+const IS_ANDROID_WEBVIEW=/Android/.test(UA)&&/; wv\)/.test(UA);
 function speak(texts,lang='ko-KR'){
   const list=[].concat(texts).filter(Boolean).flatMap(chunks);if(!list.length)return;
   const br=ttsBridge();
   if(br){try{br({type:'speak',text:list.join(' '),lang});return;}catch(e){}}
-  if(!CAN_SPEAK){ttsFail();return;}
-  const run=()=>{
+  // an Android app screen without the TTS bridge never makes a sound: say so right away
+  if(!CAN_SPEAK||(IS_ANDROID_WEBVIEW&&!TTS.started)){ttsFail(IS_ANDROID_WEBVIEW?'🔇 앱 화면에서는 아직 소리가 나오지 않아요. 듣기 문제는 "부모님이 읽어 주기"를 눌러 주세요.':undefined);return;}
+  const run=(useVoice)=>{
     try{
       speechSynthesis.resume();
-      const v=pickVoice(lang);
-      if(!v&&TTS.voices.length&&!TTS.started)ttsFail(`🔇 이 기기에 ${lang.startsWith('en')?'영어':'한국어'} 음성이 없어요. 기기 설정에서 음성(TTS)을 내려받으면 소리가 나와요.`);
-      list.forEach((t,k)=>{const u=new SpeechSynthesisUtterance(t);u.lang=lang;u.rate=lang.startsWith('en')?.85:.92;if(v)u.voice=v;
-        if(k===0)u.onstart=()=>{TTS.started=true;clearTimeout(TTS.timer);document.documentElement.classList.remove('tts-fail');};
-        u.onerror=e=>{if(e&&/not-allowed|synthesis-unavailable|audio-hardware|language-unavailable|voice-unavailable/.test(e.error||''))ttsFail();};
+      const v=useVoice?pickVoice(lang):null;
+      let retried=false;
+      const retry=()=>{if(retried||!useVoice||TTS.started)return;retried=true;try{speechSynthesis.cancel();}catch(e){}setTimeout(()=>run(false),60);};
+      list.forEach((t,k)=>{const u=new SpeechSynthesisUtterance(t);u.lang=lang;u.rate=lang.startsWith('en')?.85:.92;u.volume=1;if(v)u.voice=v;
+        if(k===0)u.onstart=()=>{TTS.started=true;clearTimeout(TTS.timer);clearTimeout(TTS.retryTimer);document.documentElement.classList.remove('tts-fail');};
+        // Android lists voices that are not downloaded; speaking with one fails, so retry once with the language only
+        u.onerror=e=>{const er=(e&&e.error)||'';if(er==='interrupted'||er==='canceled')return;if(useVoice&&v&&!TTS.started){retry();return;}if(/not-allowed|synthesis-unavailable|synthesis-failed|audio-hardware|language-unavailable|voice-unavailable/.test(er))ttsFail();};
         speechSynthesis.speak(u);});
-      // nothing started within a few seconds: this browser accepts speech but stays silent (common in app WebViews)
-      clearTimeout(TTS.timer);if(!TTS.started)TTS.timer=setTimeout(()=>{if(!TTS.started)ttsFail();},3500);
+      if(!TTS.started){
+        clearTimeout(TTS.retryTimer);if(useVoice&&v)TTS.retryTimer=setTimeout(retry,2500);
+        // the first utterance on Android can take a few seconds while the engine starts
+        clearTimeout(TTS.timer);TTS.timer=setTimeout(()=>{if(!TTS.started)ttsFail();},7000);
+      }
     }catch(e){ttsFail();}
   };
-  // speaking right after cancel() is dropped by some Chrome versions; only wait when something was playing
   let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending;speechSynthesis.cancel();}catch(e){}
-  if(busy)setTimeout(run,80);else run();
+  if(busy)setTimeout(()=>run(true),80);else run(true);
+}
+if(IS_ANDROID_WEBVIEW&&!ttsBridge())document.documentElement.classList.add('tts-fail');
+function ttsReport(){
+  const vs=CAN_SPEAK?loadVoices():[],ko=vs.filter(v=>/^ko/i.test(v.lang||'')),en=vs.filter(v=>/^en/i.test(v.lang||''));
+  return {bridge:!!ttsBridge(),speech:CAN_SPEAK,webview:IS_ANDROID_WEBVIEW,voices:vs.length,ko:ko.length,en:en.length,started:TTS.started,failed:TTS.failed,ua:UA};
 }
 function stopSpeak(){const br=ttsBridge();if(br){try{br({type:'stop'});}catch(e){}}if(CAN_SPEAK){try{speechSynthesis.cancel();}catch(e){}}}
 // iOS only lets a page speak after a tap: warm the engine up on the first one
-document.addEventListener('pointerdown',()=>{if(TTS.unlocked||!CAN_SPEAK||ttsBridge())return;TTS.unlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}},{capture:true});
+document.addEventListener('pointerdown',()=>{if(TTS.unlocked||!IS_IOS||!CAN_SPEAK||ttsBridge())return;TTS.unlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}},{capture:true});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-speak]');if(b){e.preventDefault();speak(b.dataset.speak,b.dataset.lang||'ko-KR');}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-reveal]');if(b){e.preventDefault();const box=b.parentElement.querySelector('.reveal-box');if(box){box.hidden=false;box.textContent=`부모님이 읽어 주세요: ${b.dataset.reveal}`;}b.hidden=true;}});
 document.addEventListener('click',e=>{
