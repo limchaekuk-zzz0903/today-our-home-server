@@ -1,0 +1,42 @@
+name: Diagnose read-aloud
+
+# Checks the TTS engine from a machine with internet access, and probes the live server's
+# read-aloud endpoints. Set the repository variable LEARN_BASE_URL to the server address
+# (Settings → Secrets and variables → Actions → Variables) to probe it directly.
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the server's requirements
+        run: pip install -r requirements.txt
+      - name: Engines the server uses (edge-tts from requirements.txt, Google translate voice)
+        run: python scripts/diagnose_tts.py
+      - name: Server code makes a voice (edge, then gtranslate fallback)
+        run: |
+          python - <<'PY'
+          import asyncio, learning
+          for eng in ("edge", "gtranslate"):
+              d = asyncio.run(learning.TTS_ENGINES[eng]("드디어 분수 성! 성 안에서는 커다란 케이크 잔치가 열리고 있어요.", "ko-KR"))
+              print(eng, "OK", len(d), d[:4].hex())
+          PY
+      - name: Engine and live server check
+        env:
+          LEARN_BASE_URL: ${{ vars.LEARN_BASE_URL }}
+        run: >
+          python scripts/diagnose_tts.py "$LEARN_BASE_URL"
+          https://today-our-home-server-production.up.railway.app
+          https://mindful-happiness-production.up.railway.app
+          https://web-production.up.railway.app
