@@ -247,6 +247,32 @@ async def synthesize(text: str, lang: str, ip: str = "") -> Optional[bytes]:
     return data
 
 
+def _audio_response(request: Request, data: bytes) -> Response:
+    """mp3 응답. 아이폰(WebKit/AVFoundation)은 오디오를 'Range: bytes=0-1' 같은 부분 요청으로 먼저 받아 보고,
+    서버가 206 부분 응답을 주지 않으면 재생하지 않는다. 그래서 Range 요청을 지원한다."""
+    total = len(data)
+    headers = {"Cache-Control": "public, max-age=31536000, immutable", "Accept-Ranges": "bytes"}
+    rng = request.headers.get("range", "")
+    m = re.match(r"^bytes=(\d*)-(\d*)$", rng.strip())
+    if m and (m.group(1) or m.group(2)):
+        if m.group(1):
+            start = int(m.group(1))
+            end = int(m.group(2)) if m.group(2) else total - 1
+        else:  # bytes=-N : 마지막 N바이트
+            start = max(0, total - int(m.group(2)))
+            end = total - 1
+        end = min(end, total - 1)
+        if start >= total or start > end:
+            return Response(status_code=416, headers={"Content-Range": f"bytes */{total}", "Accept-Ranges": "bytes"})
+        part = data[start:end + 1]
+        headers["Content-Range"] = f"bytes {start}-{end}/{total}"
+        body = b"" if request.method == "HEAD" else part
+        return Response(body, status_code=206, media_type="audio/mpeg",
+                        headers={**headers, "Content-Length": str(len(part))})
+    body = b"" if request.method == "HEAD" else data
+    return Response(body, media_type="audio/mpeg", headers={**headers, "Content-Length": str(total)})
+
+
 def _utcnow() -> datetime:
     return datetime.utcnow()
 
@@ -583,7 +609,7 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
         return {"enabled": tts_enabled(), "engine": TTS_ENGINE if tts_enabled() else "off",
                 "langs": list(TTS_LANGS), "max_chars": TTS_MAX_CHARS}
 
-    @app.get("/learn/api/tts", include_in_schema=False)
+    @app.api_route("/learn/api/tts", methods=["GET", "HEAD"], include_in_schema=False)
     async def learn_tts(request: Request, t: str = "", l: str = "ko-KR"):
         """읽어 주기 음성(mp3). 누구나 쓸 수 있다(학습 페이지에는 로그인이 없음). 길이·언어·횟수 제한."""
         text = " ".join(t.split())
@@ -599,8 +625,7 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
             return JSONResponse({"detail": "잠시 뒤에 다시 들어 주세요"}, status_code=429)
         if not data:
             return JSONResponse({"detail": "음성을 만들지 못했어요"}, status_code=503)
-        return Response(data, media_type="audio/mpeg",
-                        headers={"Cache-Control": "public, max-age=31536000, immutable"})
+        return _audio_response(request, data)
 
     @app.get("/learn/{name}", include_in_schema=False)
     async def learn_static(name: str):

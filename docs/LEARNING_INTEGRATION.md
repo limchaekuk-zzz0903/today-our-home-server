@@ -285,6 +285,29 @@ WebView 설정 체크리스트
 - `GET /learn/api/tts/status`로 켜져 있는지 확인할 수 있습니다.
 - 서버가 바깥 인터넷(엔진)에 연결할 수 있어야 합니다. 연결이 안 되면 503을 주고, 학습 페이지는 "부모님이 읽어 주기"로 넘어갑니다.
 
+### 아이폰 앱: 무음 모드에서도 소리가 나게 (권장)
+
+아이폰은 앱의 오디오 설정(AVAudioSession)이 기본값이면, 무음 스위치를 켰을 때 앱 안 웹 화면의 소리까지 꺼질 수 있습니다.
+학습 페이지는 iOS 17 이상에서 스스로 "미디어 재생"으로 요청하지만(`navigator.audioSession`), 확실하게 하려면 앱에서 한 줄을 넣어 주세요.
+
+Swift (`AppDelegate.swift`의 `application(_:didFinishLaunchingWithOptions:)`):
+
+```swift
+import AVFoundation
+try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.mixWithOthers])
+```
+
+Flutter (`audio_session` 패키지):
+
+```dart
+final session = await AudioSession.instance;
+await session.configure(const AudioSessionConfiguration.speech().copyWith(
+  avAudioSessionCategory: AVAudioSessionCategory.playback,
+));
+```
+
+React Native: `react-native-sound`의 `Sound.setCategory('Playback', true)` 또는 Expo `Audio.setAudioModeAsync({ playsInSilentModeIOS: true })`.
+
 ### (선택) 앱 음성 연결
 
 앱에서 휴대폰 TTS로 읽게 하고 싶으면 아래처럼 연결합니다. 연결하면 서버 음성보다 먼저 쓰입니다(인터넷 없이도 동작).

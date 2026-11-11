@@ -1,6 +1,6 @@
-// Offline support. The deploy workflow replaces 48cff7b7e85d with the commit SHA,
+// Offline support. The deploy workflow replaces 83a89ade2bc0 with the commit SHA,
 // so every release gets a fresh cache and old caches are deleted on activate.
-const CACHE = 'math3-adventure-48cff7b7e85d';
+const CACHE = 'math3-adventure-83a89ade2bc0';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -27,6 +27,9 @@ self.addEventListener('fetch', e => {
   const sameOrigin = url.origin === self.location.origin;
   const isFont = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
   if (!sameOrigin && !isFont) return;
+  // Server calls (progress, read-aloud voice) always go to the network: caching them would show stale progress,
+  // and answering an audio Range request with a cached full response makes iPhone refuse to play it.
+  if (url.pathname.includes('/api/') || req.headers.has('range')) return;
 
   // Pages: network first so a new release shows up right away; cache when offline.
   if (req.mode === 'navigate' || url.pathname.endsWith('.html')) {

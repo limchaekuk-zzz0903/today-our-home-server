@@ -189,3 +189,21 @@ def test_tts_off(client, monkeypatch):
     assert client.get("/learn/api/tts/status").json()["enabled"] is False
     assert client.get("/learn/api/tts", params={"t": "안녕"}).status_code == 503
     assert_learning_page(client.get("/learn/"))
+
+
+def test_tts_supports_range_requests_for_iphone(client, fake_tts):
+    """아이폰은 'Range: bytes=0-1'로 먼저 요청하고 206이 아니면 재생하지 않는다."""
+    full = client.get("/learn/api/tts", params={"t": "안녕하세요"})
+    assert full.headers["accept-ranges"] == "bytes"
+    data = full.content
+    r = client.get("/learn/api/tts", params={"t": "안녕하세요"}, headers={"Range": "bytes=0-1"})
+    assert r.status_code == 206 and r.content == data[:2]
+    assert r.headers["content-range"] == f"bytes 0-1/{len(data)}" and r.headers["content-length"] == "2"
+    r = client.get("/learn/api/tts", params={"t": "안녕하세요"}, headers={"Range": "bytes=2-"})
+    assert r.status_code == 206 and r.content == data[2:]
+    r = client.get("/learn/api/tts", params={"t": "안녕하세요"}, headers={"Range": "bytes=-3"})
+    assert r.status_code == 206 and r.content == data[-3:]
+    r = client.get("/learn/api/tts", params={"t": "안녕하세요"}, headers={"Range": f"bytes={len(data) + 5}-"})
+    assert r.status_code == 416
+    h = client.head("/learn/api/tts", params={"t": "안녕하세요"})
+    assert h.status_code == 200 and h.headers["content-length"] == str(len(data))
