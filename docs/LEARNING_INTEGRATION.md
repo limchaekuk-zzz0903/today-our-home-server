@@ -274,15 +274,19 @@ WebView 설정 체크리스트
 
 | 변수 | 값 | 설명 |
 |---|---|---|
-| `TTS_ENGINE` | `edge` (기본) | Microsoft Edge 읽어 주기 음성(한국어 SunHi, 영어 Ana). 키가 필요 없지만 공식 유료 API가 아니라서 서비스 정책이 바뀌면 멈출 수 있어요 |
+| `TTS_ENGINE` | `edge` (기본) | Microsoft Edge 읽어 주기 음성(한국어 SunHi, 영어 Ana). 키가 필요 없지만 공식 API가 아니에요. **edge-tts 7.3.1 이상 필요**(2026-11 Microsoft 규칙 변경으로 7.2.7 이하는 403) |
+| | `gtranslate` | Google 번역 읽기 음성. 키 불필요 |
 | | `google` | Google Cloud Text-to-Speech(공식 API). `GOOGLE_TTS_API_KEY`가 필요하고 사용량만큼 요금이 나와요 |
 | | `off` | 끔 |
+| `TTS_FALLBACK` | `gtranslate` (기본) | 기본 엔진이 실패하면 쓰는 예비 엔진. `none`이면 예비 없음 |
 | `GOOGLE_TTS_API_KEY` | API 키 | `google` 엔진일 때만 |
 | `TTS_CACHE_DIR` | 경로 | 만든 음성을 저장하는 곳(기본 `.tts_cache/`). 같은 글은 다시 만들지 않아요 |
 
 - 만화 대사처럼 같은 글은 한 번 만든 뒤 캐시에서 바로 나갑니다(브라우저도 1년 동안 캐시).
 - 남용 방지: 글 400자 이하, 한국어·영어만, IP당 10분에 새 음성 240개까지(캐시된 음성은 제한 없음).
-- `GET /learn/api/tts/status`로 켜져 있는지 확인할 수 있습니다.
+- `GET /learn/api/tts/status`: 켜짐 여부, 마지막 성공·실패 원인(`last_error`), 실제 쓴 엔진(`engine_used`)
+- `GET /learn/api/tts/selftest`: 지금 음성을 새로 만들어 보고 결과를 알려 줍니다. **소리가 안 날 때 브라우저로 `https://<서버>/learn/api/tts/selftest`를 열어 보세요.**
+- GitHub Actions `Diagnose read-aloud`: 엔진이 데이터센터에서 동작하는지 점검(저장소 변수 `LEARN_BASE_URL`에 서버 주소를 넣으면 운영 서버도 점검)
 - 서버가 바깥 인터넷(엔진)에 연결할 수 있어야 합니다. 연결이 안 되면 503을 주고, 학습 페이지는 "부모님이 읽어 주기"로 넘어갑니다.
 
 ### 아이폰 앱: 무음 모드에서도 소리가 나게 (권장)
@@ -311,6 +315,8 @@ React Native: `react-native-sound`의 `Sound.setCategory('Playback', true)` 또�
 ### (선택) 앱 음성 연결
 
 앱에서 휴대폰 TTS로 읽게 하고 싶으면 아래처럼 연결합니다. 연결하면 서버 음성보다 먼저 쓰입니다(인터넷 없이도 동작).
+
+> ⚠️ 학습 페이지는 앱이 **명시적으로 알릴 때만** 앱 TTS를 씁니다: Flutter 채널 이름 `TodayTTS`, iOS 메시지 핸들러 `TodayTTS`, 또는 페이지에 `window.TodayTTSEnabled = true`를 넣은 경우(React Native는 `injectedJavaScriptBeforeContentLoaded="window.TodayTTSEnabled=true;"`). React Native·flutter_inappwebview가 기본으로 만드는 통로만으로는 쓰지 않습니다(앱이 처리하지 않으면 소리가 사라지기 때문).
 
 학습 페이지가 보내는 메시지 (JSON)
 

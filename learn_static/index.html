@@ -2903,12 +2903,18 @@ function renderBoss(k){
 // 3) If neither makes a sound, say so once and let a grown-up read listening questions aloud.
 const CAN_SPEAK='speechSynthesis' in window&&typeof SpeechSynthesisUtterance==='function';
 const TTS={voices:[],started:false,failed:false,told:false,unlocked:false,timer:null,retryTimer:null};
+// The app's own TTS is used only when the app says it handles it. Every React Native WebView has
+// window.ReactNativeWebView and every flutter_inappwebview page has window.flutter_inappwebview, whether or not
+// the app listens for speech messages, so their mere presence must not count: treating them as a bridge sent
+// all read-aloud to an app that ignored it, and nothing played on Android or iPhone.
 function ttsBridge(){
   try{
-    if(window.TodayTTS&&typeof window.TodayTTS.postMessage==='function')return m=>window.TodayTTS.postMessage(JSON.stringify(m)); // webview_flutter JavaScriptChannel
-    if(window.flutter_inappwebview&&typeof window.flutter_inappwebview.callHandler==='function')return m=>window.flutter_inappwebview.callHandler('tts',m);
-    if(window.ReactNativeWebView&&typeof window.ReactNativeWebView.postMessage==='function')return m=>window.ReactNativeWebView.postMessage(JSON.stringify(Object.assign({source:'learn'},m)));
-    if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.tts)return m=>window.webkit.messageHandlers.tts.postMessage(m);
+    if(window.TodayTTS&&typeof window.TodayTTS.postMessage==='function')return m=>window.TodayTTS.postMessage(JSON.stringify(m)); // webview_flutter channel named TodayTTS
+    if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.TodayTTS)return m=>window.webkit.messageHandlers.TodayTTS.postMessage(m); // iOS handler named TodayTTS
+    if(window.TodayTTSEnabled===true){ // set by the app (injected script) to opt in
+      if(window.ReactNativeWebView&&typeof window.ReactNativeWebView.postMessage==='function')return m=>window.ReactNativeWebView.postMessage(JSON.stringify(Object.assign({source:'learn'},m)));
+      if(window.flutter_inappwebview&&typeof window.flutter_inappwebview.callHandler==='function')return m=>window.flutter_inappwebview.callHandler('tts',m);
+    }
   }catch(e){}
   return null;
 }

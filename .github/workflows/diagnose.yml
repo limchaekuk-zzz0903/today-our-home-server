@@ -20,11 +20,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install edge-tts==7.2.7
-      - name: Engines (edge-tts 7.2.7, Google translate voice)
+      - name: Install the server's requirements
+        run: pip install -r requirements.txt
+      - name: Engines the server uses (edge-tts from requirements.txt, Google translate voice)
         run: python scripts/diagnose_tts.py
-      - name: Engine with the newest edge-tts
-        run: pip install -U edge-tts && python scripts/diagnose_tts.py
+      - name: Server code makes a voice (edge, then gtranslate fallback)
+        run: |
+          python - <<'PY'
+          import asyncio, learning
+          for eng in ("edge", "gtranslate"):
+              d = asyncio.run(learning.TTS_ENGINES[eng]("드디어 분수 성! 성 안에서는 커다란 케이크 잔치가 열리고 있어요.", "ko-KR"))
+              print(eng, "OK", len(d), d[:4].hex())
+          PY
       - name: Engine and live server check
         env:
           LEARN_BASE_URL: ${{ vars.LEARN_BASE_URL }}

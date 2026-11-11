@@ -25,6 +25,7 @@ import base64
 import hashlib
 import json
 import time
+import urllib.parse
 import urllib.request
 import os
 import re
@@ -144,8 +145,12 @@ INIT_STMTS = [
 # 그래서 서버가 글을 mp3로 만들어 주고, 학습 페이지가 <audio>로 재생한다(앱 수정 불필요).
 #   TTS_ENGINE=edge   (기본) Microsoft Edge 읽어 주기 음성. 키가 필요 없다.
 #   TTS_ENGINE=google Google Cloud Text-to-Speech. GOOGLE_TTS_API_KEY 필요(공식 유료 API).
+#   TTS_ENGINE=gtranslate Google 번역 읽기 음성. 키가 필요 없다.
 #   TTS_ENGINE=off    끔. 학습 페이지는 "부모님이 읽어 주기"로 대신한다.
+# 기본 엔진이 실패하면 TTS_FALLBACK(기본 gtranslate)으로 한 번 더 만든다.
+# (2026-11: Microsoft가 접속 규칙을 바꿔 edge-tts 7.2.7 이하는 403으로 막혔다. 7.3.1 이상 필요.)
 TTS_ENGINE = os.environ.get("TTS_ENGINE", "edge").strip().lower()
+TTS_FALLBACK = os.environ.get("TTS_FALLBACK", "gtranslate").strip().lower()
 TTS_MAX_CHARS = 400
 TTS_LANGS = {
     "ko-KR": {"edge": "ko-KR-SunHiNeural", "google": "ko-KR-Wavenet-A", "rate": "-8%", "speed": 0.92},
@@ -155,7 +160,7 @@ TTS_CACHE_DIR = os.environ.get("TTS_CACHE_DIR") or os.path.join(os.path.dirname(
 _TTS_MEM: dict = {}          # 최근 음성 (메모리)
 _TTS_MEM_MAX = 300
 _TTS_HITS: dict = {}         # IP별 최근 요청 시각 (남용 방지)
-TTS_LAST = {"ok_at": None, "error": None, "error_at": None}  # 마지막 성공·실패 (점검용)
+TTS_LAST = {"ok_at": None, "error": None, "error_at": None, "engine_used": None}  # 마지막 성공·실패 (점검용)
 TTS_RATE = (240, 600)        # IP당 10분에 새 음성 240개까지 (캐시된 음성은 세지 않음)
 
 
@@ -189,7 +194,47 @@ async def _tts_google(text: str, lang: str) -> bytes:
     return await asyncio.to_thread(call)
 
 
-TTS_ENGINES = {"edge": _tts_edge, "google": _tts_google}
+def _split_for(text: str, limit: int) -> list:
+    """문장·쉼표·띄어쓰기 기준으로 limit 글자 이하 조각으로 나눈다."""
+    parts, cur = [], ""
+    for tok in re.split(r"(?<=[.!?。,])\s+|\s+", text):
+        if not tok:
+            continue
+        cand = (cur + " " + tok).strip()
+        if len(cand) <= limit:
+            cur = cand
+        else:
+            if cur:
+                parts.append(cur)
+            while len(tok) > limit:
+                parts.append(tok[:limit])
+                tok = tok[limit:]
+            cur = tok
+    if cur:
+        parts.append(cur)
+    return parts
+
+
+async def _tts_gtranslate(text: str, lang: str) -> bytes:
+    """Google 번역 읽기 음성. 한 번에 200자 남짓까지라서 나눠 받아 mp3를 이어 붙인다(mp3 프레임은 이어 붙여도 재생된다)."""
+    tl = lang.split("-")[0]
+
+    def fetch(piece: str) -> bytes:
+        q = urllib.parse.urlencode({"ie": "UTF-8", "client": "tw-ob", "tl": tl, "q": piece})
+        req = urllib.request.Request("https://translate.google.com/translate_tts?" + q,
+                                     headers={"User-Agent": "Mozilla/5.0", "Referer": "https://translate.google.com/"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            if r.status != 200 or "audio" not in (r.headers.get("Content-Type") or ""):
+                raise RuntimeError(f"gtranslate {r.status} {r.headers.get('Content-Type')}")
+            return r.read()
+
+    out = bytearray()
+    for piece in _split_for(text, 180):
+        out.extend(await asyncio.to_thread(fetch, piece))
+    return bytes(out)
+
+
+TTS_ENGINES = {"edge": _tts_edge, "google": _tts_google, "gtranslate": _tts_gtranslate}
 
 
 def tts_enabled() -> bool:
@@ -214,6 +259,25 @@ def _tts_allowed(ip: str) -> bool:
     return True
 
 
+async def _make_voice(text: str, lang: str) -> Optional[bytes]:
+    """기본 엔진 → 실패하면 예비 엔진. 실패 원인은 남긴다(Railway 로그·/learn/api/tts/status)."""
+    engines = [TTS_ENGINE] + ([TTS_FALLBACK] if TTS_FALLBACK in TTS_ENGINES and TTS_FALLBACK != TTS_ENGINE else [])
+    errors = []
+    for name in engines:
+        try:
+            data = await asyncio.wait_for(TTS_ENGINES[name](text, lang), timeout=25)
+            if data:
+                TTS_LAST["engine_used"] = name
+                return data
+            errors.append(f"{name}: 빈 음성")
+        except Exception as e:
+            errors.append(f"{name}: {type(e).__name__}: {e}"[:300])
+    msg = " | ".join(errors)[:600]
+    TTS_LAST.update(error=msg, error_at=datetime.utcnow().isoformat(timespec="seconds"))
+    print(f"[tts] 실패: {msg}", flush=True)
+    return None
+
+
 async def synthesize(text: str, lang: str, ip: str = "") -> Optional[bytes]:
     """글 → mp3. 캐시(메모리 → 디스크) 먼저 보고, 없으면 엔진으로 만든다. 실패하면 None."""
     key = _tts_key(text, lang)
@@ -230,16 +294,8 @@ async def synthesize(text: str, lang: str, ip: str = "") -> Optional[bytes]:
         pass
     if not _tts_allowed(ip):
         raise PermissionError("too many")
-    try:
-        data = await asyncio.wait_for(TTS_ENGINES[TTS_ENGINE](text, lang), timeout=25)
-    except Exception as e:  # 엔진 실패 원인을 남긴다(Railway 로그·/learn/api/tts/status 에서 확인)
-        msg = f"{type(e).__name__}: {e}"[:300] or type(e).__name__
-        TTS_LAST.update(error=msg, error_at=datetime.utcnow().isoformat(timespec="seconds"))
-        print(f"[tts] {TTS_ENGINE} 실패: {msg}", flush=True)
-        return None
+    data = await _make_voice(text, lang)
     if not data:
-        TTS_LAST.update(error="빈 음성", error_at=datetime.utcnow().isoformat(timespec="seconds"))
-        print(f"[tts] {TTS_ENGINE} 빈 음성", flush=True)
         return None
     TTS_LAST.update(ok_at=datetime.utcnow().isoformat(timespec="seconds"))
     if len(_TTS_MEM) >= _TTS_MEM_MAX:
@@ -615,6 +671,7 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
         """학습 페이지가 열릴 때 확인: 서버 읽어 주기를 쓸 수 있는지."""
         return {"enabled": tts_enabled(), "engine": TTS_ENGINE if tts_enabled() else "off",
                 "langs": list(TTS_LANGS), "max_chars": TTS_MAX_CHARS,
+                "fallback": TTS_FALLBACK, "engine_used": TTS_LAST["engine_used"],
                 "last_ok": TTS_LAST["ok_at"], "last_error": TTS_LAST["error"], "last_error_at": TTS_LAST["error_at"]}
 
     @app.get("/learn/api/tts/selftest", include_in_schema=False)
@@ -627,14 +684,11 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
         if not _tts_allowed(ip):
             return JSONResponse({"ok": False, "error": "잠시 뒤에 다시 시도해 주세요"}, status_code=429)
         started = time.time()
-        try:
-            data = await asyncio.wait_for(TTS_ENGINES[TTS_ENGINE]("안녕하세요. 소리 점검이에요.", "ko-KR"), timeout=25)
-        except Exception as e:
-            msg = f"{type(e).__name__}: {e}"[:300]
-            TTS_LAST.update(error=msg, error_at=datetime.utcnow().isoformat(timespec="seconds"))
-            print(f"[tts] selftest 실패: {msg}", flush=True)
-            return {"ok": False, "engine": TTS_ENGINE, "error": msg, "seconds": round(time.time() - started, 2)}
-        return {"ok": bool(data), "engine": TTS_ENGINE, "bytes": len(data or b""),
+        data = await _make_voice("안녕하세요. 소리 점검이에요.", "ko-KR")
+        if not data:
+            return {"ok": False, "engine": TTS_ENGINE, "fallback": TTS_FALLBACK, "error": TTS_LAST["error"],
+                    "seconds": round(time.time() - started, 2)}
+        return {"ok": True, "engine": TTS_ENGINE, "engine_used": TTS_LAST["engine_used"], "bytes": len(data),
                 "head": (data or b"")[:4].hex(), "seconds": round(time.time() - started, 2)}
 
     @app.api_route("/learn/api/tts", methods=["GET", "HEAD"], include_in_schema=False)

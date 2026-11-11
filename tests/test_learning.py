@@ -139,6 +139,7 @@ def fake_tts(monkeypatch, tmp_path):
 
     monkeypatch.setitem(learning.TTS_ENGINES, "edge", fake)
     monkeypatch.setattr(learning, "TTS_ENGINE", "edge")
+    monkeypatch.setattr(learning, "TTS_FALLBACK", "none")
     monkeypatch.setattr(learning, "TTS_CACHE_DIR", str(tmp_path))
     learning._TTS_MEM.clear()
     learning._TTS_HITS.clear()
@@ -178,6 +179,7 @@ def test_tts_engine_failure_is_503(client, monkeypatch, tmp_path):
         raise RuntimeError("network down")
     monkeypatch.setitem(learning.TTS_ENGINES, "edge", broken)
     monkeypatch.setattr(learning, "TTS_ENGINE", "edge")
+    monkeypatch.setattr(learning, "TTS_FALLBACK", "none")
     monkeypatch.setattr(learning, "TTS_CACHE_DIR", str(tmp_path))
     learning._TTS_MEM.clear()
     assert client.get("/learn/api/tts", params={"t": "안녕"}).status_code == 503
@@ -216,6 +218,7 @@ def test_tts_selftest_and_last_error(client, monkeypatch, tmp_path):
         raise ConnectionError("403 from engine")
     monkeypatch.setitem(learning.TTS_ENGINES, "edge", broken)
     monkeypatch.setattr(learning, "TTS_ENGINE", "edge")
+    monkeypatch.setattr(learning, "TTS_FALLBACK", "none")
     monkeypatch.setattr(learning, "TTS_CACHE_DIR", str(tmp_path))
     learning._TTS_MEM.clear()
     learning._TTS_HITS.clear()
@@ -223,3 +226,30 @@ def test_tts_selftest_and_last_error(client, monkeypatch, tmp_path):
     assert r["ok"] is False and "403 from engine" in r["error"]
     client.get("/learn/api/tts", params={"t": "안녕"})
     assert "ConnectionError" in client.get("/learn/api/tts/status").json()["last_error"]
+
+
+def test_tts_falls_back_to_second_engine(client, monkeypatch, tmp_path):
+    """기본 엔진(edge)이 막혀도(예: Microsoft 403) 예비 엔진으로 음성을 만든다."""
+    import learning
+
+    async def blocked(text, lang):
+        raise ConnectionError("WSServerHandshakeError: 403")
+
+    async def backup(text, lang):
+        return b"\xff\xf3backup"
+    monkeypatch.setitem(learning.TTS_ENGINES, "edge", blocked)
+    monkeypatch.setitem(learning.TTS_ENGINES, "gtranslate", backup)
+    monkeypatch.setattr(learning, "TTS_ENGINE", "edge")
+    monkeypatch.setattr(learning, "TTS_FALLBACK", "gtranslate")
+    monkeypatch.setattr(learning, "TTS_CACHE_DIR", str(tmp_path))
+    learning._TTS_MEM.clear()
+    learning._TTS_HITS.clear()
+    r = client.get("/learn/api/tts", params={"t": "안녕"})
+    assert r.status_code == 200 and r.content.endswith(b"backup")
+    assert client.get("/learn/api/tts/status").json()["engine_used"] == "gtranslate"
+
+
+def test_split_for_long_text():
+    import learning
+    parts = learning._split_for("가나다라 " * 100, 180)
+    assert all(len(p) <= 180 for p in parts) and "".join(parts).replace(" ", "") == "가나다라" * 100
