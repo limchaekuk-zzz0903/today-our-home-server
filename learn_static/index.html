@@ -2605,9 +2605,10 @@ function bindHomeExtras(){
   const tb=$('#ttsTest');if(tb)tb.addEventListener('click',()=>{const out=$('#ttsReport');out.hidden=false;out.textContent='소리를 내 보는 중… (안녕! 소리가 잘 들리니? / Hello!)';
     speak('안녕! 소리가 잘 들리니?','ko-KR');
     setTimeout(()=>{const r=ttsReport();out.textContent=[
-      r.server===true?(r.audio?'✅ 서버 읽어 주기 음성: 재생됨':r.audioFailed?'❌ 서버 읽어 주기 음성: 불러오지 못함(인터넷 연결 확인)':'· 서버 읽어 주기 음성: 사용 가능'):r.server===false?'· 서버 읽어 주기 음성: 꺼져 있음':'',
+      r.server===true?(r.audio?'✅ 서버 읽어 주기 음성: 재생됨':r.audioFailed?`❌ 서버 읽어 주기 음성: 불러오지 못함 (${r.lastErr||'원인 모름'})`:'· 서버 읽어 주기 음성: 사용 가능'):r.server===false?'· 서버 읽어 주기 음성: 꺼져 있음':'',
       r.bridge?'✅ 앱 음성 연결(브리지): 있음 → 휴대폰 음성으로 읽어요':'· 앱 음성 연결(브리지): 없음',
       r.ios?'· 아이폰·아이패드는 무음 모드(옆 스위치)에서 기기 음성이 나오지 않아요. 서버 음성은 무음 모드에서도 나와요.':'',
+      r.ios&&r.audio?'→ "재생됨"인데도 안 들리면: 볼륨을 올리고 무음 스위치를 꺼 보세요. 그래도 안 들리면 앱의 오디오 설정(AVAudioSession을 playback으로)이 필요해요.':'',
       r.webview&&!r.bridge&&r.server!==true?'⚠️ Android 앱 화면이에요. 앱에 음성 연결이 없으면 소리가 나지 않아요.':'',
       r.speech?`· 브라우저 음성: 있음 (음성 ${r.voices}개, 한국어 ${r.ko}개, 영어 ${r.en}개)`:'· 브라우저 음성: 없음',
       r.started?'✅ 소리 재생 시작됨':r.bridge?'':'❌ 소리가 시작되지 않았어요(소리 점검을 한 번 더 눌러 보세요)',
@@ -2992,31 +2993,54 @@ if(ON_SERVER){
   });
 }else if(IS_ANDROID_WEBVIEW&&!ttsBridge())document.documentElement.classList.add('tts-fail');
 // Server voice: one <audio> element reused for every piece (a WebView lets an element keep playing once a tap started it)
-const AUD={el:null,id:0,failed:false,started:false};
+const AUD={el:null,id:0,failed:false,started:false,lastErr:'',blobURL:null};
 try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(e){}
 const srvURL=(t,lang)=>`api/tts?l=${encodeURIComponent(lang)}&t=${encodeURIComponent(t)}`;
 function speakAudio(list,lang,fallback){
   const id=++AUD.id;
-  if(!AUD.el){AUD.el=new Audio();AUD.el.preload='auto';AUD.el.setAttribute('playsinline','');}
-  const el=AUD.el;let k=0;
-  const fail=()=>{if(id!==AUD.id)return;if(!AUD.started){AUD.failed=true;
-      // server voice unavailable: fall back to browser speech where it exists (on iPhone it is silent in silent mode)
-      if(fallback&&CAN_SPEAK&&!IS_ANDROID_WEBVIEW){if(IS_IOS&&!TTS.toldSilent){TTS.toldSilent=true;toast('🔔 소리가 안 들리면 아이폰 옆의 무음 스위치를 꺼 주세요.');}fallback(list.slice(k));return;}
-      ttsFail('🔇 소리를 불러오지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요. 듣기 문제는 "부모님이 읽어 주기"로 풀 수 있어요.',true);}else{k++;playK();}};
+  if(!AUD.el){AUD.el=new Audio();AUD.el.preload='auto';AUD.el.setAttribute('playsinline','');AUD.el.setAttribute('webkit-playsinline','');}
+  // iOS 17+: ask WebKit to treat page audio as media playback (not muted by the silent switch)
+  try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback';}catch(e){}
+  const el=AUD.el;let k=0,blobTried=-1,att=0; // att: each load attempt gets a number so stale error events are ignored
+  const giveUp=why=>{
+    AUD.lastErr=why;if(id!==AUD.id)return;
+    if(AUD.started){k++;playK();return;} // a later piece failed: skip it
+    AUD.failed=true;
+    // server voice unavailable: fall back to browser speech where it exists (on iPhone it is silent in silent mode)
+    if(fallback&&CAN_SPEAK&&!IS_ANDROID_WEBVIEW){if(IS_IOS&&!TTS.toldSilent){TTS.toldSilent=true;toast('🔔 소리가 안 들리면 아이폰 옆의 무음 스위치를 꺼 주세요.');}fallback(list.slice(k));return;}
+    ttsFail('🔇 소리를 불러오지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요. 듣기 문제는 "부모님이 읽어 주기"로 풀 수 있어요.',true);
+  };
+  // the direct URL did not play (some WebViews are picky about streaming): download the mp3 and play it from memory
+  const viaBlob=(a,why)=>{
+    if(id!==AUD.id||a!==att)return;
+    if(blobTried===k){att++;giveUp(why);return;}
+    blobTried=k;const kk=k,ba=++att;
+    fetch(srvURL(list[kk],lang),{credentials:'same-origin'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.blob();}).then(blob=>{
+      if(id!==AUD.id||kk!==k||ba!==att)return;
+      if(!blob.size)throw new Error('empty');
+      if(AUD.blobURL)URL.revokeObjectURL(AUD.blobURL);
+      AUD.blobURL=URL.createObjectURL(blob.type?blob:new Blob([blob],{type:'audio/mpeg'}));
+      el.src=AUD.blobURL;const pr=el.play();if(pr&&pr.catch)pr.catch(e=>{if(ba!==att||(e&&e.name==='AbortError'))return;att++;giveUp(why+' / blob '+(e&&e.name||e));});
+    }).catch(e=>{if(ba!==att)return;att++;giveUp(why+' / '+(e&&e.message||e));});
+  };
   const playK=()=>{
     if(id!==AUD.id||k>=list.length)return;
+    const a=++att;
     el.src=srvURL(list[k],lang);
     if(k+1<list.length)fetch(srvURL(list[k+1],lang),{credentials:'same-origin'}).catch(()=>{}); // warm the next piece
-    try{const pr=el.play();if(pr&&pr.catch)pr.catch(e=>{if(e&&e.name==='AbortError')return;fail();});}catch(e){fail();}
+    try{const pr=el.play();if(pr&&pr.catch)pr.catch(e=>{if(a!==att||(e&&e.name==='AbortError'))return;
+      // NotAllowedError means no tap allowed playback: nothing else will work either
+      if(e&&e.name==='NotAllowedError'){att++;giveUp('NotAllowedError');return;}
+      viaBlob(a,String(e&&e.name||e));});}catch(e){viaBlob(a,String(e));}
   };
-  el.onplaying=()=>{if(id!==AUD.id)return;AUD.started=true;TTS.started=true;document.documentElement.classList.remove('tts-fail');};
-  el.onended=()=>{if(id!==AUD.id)return;k++;setTimeout(playK,150);};
-  el.onerror=fail;
+  el.onplaying=()=>{if(id!==AUD.id)return;AUD.started=true;TTS.started=true;AUD.lastErr='';document.documentElement.classList.remove('tts-fail');};
+  el.onended=()=>{if(id!==AUD.id)return;k++;blobTried=-1;setTimeout(playK,150);};
+  el.onerror=()=>{const c=el.error&&el.error.code;viaBlob(att,'media error '+(c||'?'));};
   playK();
 }
 function ttsReport(){
   const vs=CAN_SPEAK?loadVoices():[],ko=vs.filter(v=>/^ko/i.test(v.lang||'')),en=vs.filter(v=>/^en/i.test(v.lang||''));
-  return {ios:IS_IOS,server:ON_SERVER?SRV_TTS.on:null,audio:AUD.started,audioFailed:AUD.failed,bridge:!!ttsBridge(),speech:CAN_SPEAK,webview:IS_ANDROID_WEBVIEW,voices:vs.length,ko:ko.length,en:en.length,started:TTS.started,failed:TTS.failed,ua:UA};
+  return {ios:IS_IOS,lastErr:AUD.lastErr,server:ON_SERVER?SRV_TTS.on:null,audio:AUD.started,audioFailed:AUD.failed,bridge:!!ttsBridge(),speech:CAN_SPEAK,webview:IS_ANDROID_WEBVIEW,voices:vs.length,ko:ko.length,en:en.length,started:TTS.started,failed:TTS.failed,ua:UA};
 }
 function stopSpeak(){AUD.id++;if(AUD.el){try{AUD.el.pause();}catch(e){}}SPQ.id++;clearInterval(SPQ.poll);clearInterval(SPQ.keep);SPQ.cur=null;const br=ttsBridge();if(br){try{br({type:'stop'});}catch(e){}}if(CAN_SPEAK){try{speechSynthesis.cancel();}catch(e){}}}
 // iOS only lets a page speak after a tap: warm the engine up on the first one
