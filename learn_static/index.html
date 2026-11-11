@@ -2929,39 +2929,54 @@ const chunks=t=>String(t).replace(/([.!?。])\s+/g,'$1\n').split('\n').flatMap(x
 const UA=navigator.userAgent||'';
 const IS_IOS=/iPad|iPhone|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
 const IS_ANDROID_WEBVIEW=/Android/.test(UA)&&/; wv\)/.test(UA);
+// Speak one piece at a time, starting the next when the previous ends. Queueing many utterances at once makes
+// Chrome on Android read only the first (or none), and Chrome can garbage-collect a queued utterance mid-way.
+const SPQ={id:0,cur:null,poll:null,keep:null};
 function speak(texts,lang='ko-KR'){
-  const list=[].concat(texts).filter(Boolean).flatMap(chunks);if(!list.length)return;
+  const list=packChunks([].concat(texts).filter(Boolean).flatMap(chunks));if(!list.length)return;
   const br=ttsBridge();
   if(br){try{br({type:'speak',text:list.join(' '),lang});return;}catch(e){}}
   // an Android app screen without the TTS bridge never makes a sound: say so right away
   if(!CAN_SPEAK||(IS_ANDROID_WEBVIEW&&!TTS.started)){ttsFail(IS_ANDROID_WEBVIEW?'🔇 앱 화면에서는 아직 소리가 나오지 않아요. 듣기 문제는 "부모님이 읽어 주기"를 눌러 주세요.':undefined);return;}
-  const run=(useVoice)=>{
-    try{
-      speechSynthesis.resume();
-      const v=useVoice?pickVoice(lang):null;
-      let retried=false;
-      const retry=()=>{if(retried||!useVoice||TTS.started)return;retried=true;try{speechSynthesis.cancel();}catch(e){}setTimeout(()=>run(false),60);};
-      list.forEach((t,k)=>{const u=new SpeechSynthesisUtterance(t);u.lang=lang;u.rate=lang.startsWith('en')?.85:.92;u.volume=1;if(v)u.voice=v;
-        if(k===0)u.onstart=()=>{TTS.started=true;clearTimeout(TTS.timer);clearTimeout(TTS.retryTimer);document.documentElement.classList.remove('tts-fail');};
-        // Android lists voices that are not downloaded; speaking with one fails, so retry once with the language only
-        u.onerror=e=>{const er=(e&&e.error)||'';if(er==='interrupted'||er==='canceled')return;if(useVoice&&v&&!TTS.started){retry();return;}if(/not-allowed|synthesis-unavailable|synthesis-failed|audio-hardware|language-unavailable|voice-unavailable/.test(er))ttsFail();};
-        speechSynthesis.speak(u);});
-      if(!TTS.started){
-        clearTimeout(TTS.retryTimer);if(useVoice&&v)TTS.retryTimer=setTimeout(retry,2500);
-        // the first utterance on Android can take a few seconds while the engine starts
-        clearTimeout(TTS.timer);TTS.timer=setTimeout(()=>{if(!TTS.started)ttsFail();},7000);
-      }
-    }catch(e){ttsFail();}
+  const id=++SPQ.id;
+  const stopTimers=()=>{clearInterval(SPQ.poll);clearInterval(SPQ.keep);SPQ.poll=SPQ.keep=null;};
+  const play=(k,useVoice)=>{
+    if(id!==SPQ.id)return;
+    if(k>=list.length){stopTimers();SPQ.cur=null;return;}
+    const v=useVoice?pickVoice(lang):null;
+    const u=new SpeechSynthesisUtterance(list[k]);u.lang=lang;u.rate=lang.startsWith('en')?.85:.92;u.volume=1;if(v)u.voice=v;
+    let done=false,began=false;
+    const next=()=>{if(done||id!==SPQ.id)return;done=true;clearInterval(SPQ.poll);setTimeout(()=>play(k+1,useVoice),120);};
+    const retryPlain=()=>{if(done||id!==SPQ.id)return;done=true;clearInterval(SPQ.poll);try{speechSynthesis.cancel();}catch(e){}setTimeout(()=>play(k,false),80);};
+    u.onstart=()=>{began=true;TTS.started=true;clearTimeout(TTS.timer);clearTimeout(TTS.retryTimer);document.documentElement.classList.remove('tts-fail');};
+    u.onend=next;
+    u.onerror=e=>{const er=(e&&e.error)||'';if(er==='interrupted'||er==='canceled'||id!==SPQ.id)return;
+      // Android lists voices that are not downloaded; speaking with one fails, so retry with the language only
+      if(v&&!began){retryPlain();return;}
+      if(/not-allowed|synthesis-unavailable|audio-hardware|language-unavailable|voice-unavailable/.test(er)&&!TTS.started){ttsFail();return;}
+      next();};
+    SPQ.cur=u; // keep a reference so the browser does not drop it mid-sentence
+    try{speechSynthesis.resume();speechSynthesis.speak(u);}catch(e){ttsFail();return;}
+    // some Android engines never fire onend: move on once the engine has gone quiet
+    clearInterval(SPQ.poll);let quiet=0;
+    SPQ.poll=setInterval(()=>{if(done){clearInterval(SPQ.poll);return;}let busy=true;try{busy=speechSynthesis.speaking||speechSynthesis.pending;}catch(e){}quiet=busy?0:quiet+1;if(began&&quiet>=3)next();},400);
+    if(!began&&v&&!TTS.started){clearTimeout(TTS.retryTimer);TTS.retryTimer=setTimeout(()=>{if(!began)retryPlain();},2500);}
+    if(!TTS.started){clearTimeout(TTS.timer);TTS.timer=setTimeout(()=>{if(!TTS.started)ttsFail();},7000);}
   };
+  // desktop Chrome pauses speech after ~15s; a pause/resume nudge keeps it going (on Android pause() means stop, so not there)
+  clearInterval(SPQ.keep);if(!/Android/.test(UA)&&/Chrome/.test(UA))SPQ.keep=setInterval(()=>{try{if(speechSynthesis.speaking&&!speechSynthesis.paused){speechSynthesis.pause();speechSynthesis.resume();}}catch(e){}},10000);
   let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending;speechSynthesis.cancel();}catch(e){}
-  if(busy)setTimeout(()=>run(true),80);else run(true);
+  // speaking right after cancel() is dropped by some Chrome versions; only wait when something was playing
+  if(busy)setTimeout(()=>play(0,true),150);else play(0,true);
 }
+// fewer, longer pieces: join short sentences up to about 160 characters
+function packChunks(arr){const out=[];for(const t of arr){const last=out[out.length-1];if(last&&last.length+t.length<160)out[out.length-1]=last+(/[.!?。]$/.test(last)?' ':'. ')+t;else out.push(t);}return out;}
 if(IS_ANDROID_WEBVIEW&&!ttsBridge())document.documentElement.classList.add('tts-fail');
 function ttsReport(){
   const vs=CAN_SPEAK?loadVoices():[],ko=vs.filter(v=>/^ko/i.test(v.lang||'')),en=vs.filter(v=>/^en/i.test(v.lang||''));
   return {bridge:!!ttsBridge(),speech:CAN_SPEAK,webview:IS_ANDROID_WEBVIEW,voices:vs.length,ko:ko.length,en:en.length,started:TTS.started,failed:TTS.failed,ua:UA};
 }
-function stopSpeak(){const br=ttsBridge();if(br){try{br({type:'stop'});}catch(e){}}if(CAN_SPEAK){try{speechSynthesis.cancel();}catch(e){}}}
+function stopSpeak(){SPQ.id++;clearInterval(SPQ.poll);clearInterval(SPQ.keep);SPQ.cur=null;const br=ttsBridge();if(br){try{br({type:'stop'});}catch(e){}}if(CAN_SPEAK){try{speechSynthesis.cancel();}catch(e){}}}
 // iOS only lets a page speak after a tap: warm the engine up on the first one
 document.addEventListener('pointerdown',()=>{if(TTS.unlocked||!IS_IOS||!CAN_SPEAK||ttsBridge())return;TTS.unlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}},{capture:true});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-speak]');if(b){e.preventDefault();speak(b.dataset.speak,b.dataset.lang||'ko-KR');}});
