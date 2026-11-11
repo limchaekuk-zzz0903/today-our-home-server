@@ -21,6 +21,10 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install edge-tts==7.2.7
+      - name: Engines (edge-tts 7.2.7, Google translate voice)
+        run: python scripts/diagnose_tts.py
+      - name: Engine with the newest edge-tts
+        run: pip install -U edge-tts && python scripts/diagnose_tts.py
       - name: Engine and live server check
         env:
           LEARN_BASE_URL: ${{ vars.LEARN_BASE_URL }}

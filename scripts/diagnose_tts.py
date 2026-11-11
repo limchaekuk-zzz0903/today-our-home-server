@@ -58,8 +58,19 @@ def server_check(base):
     print(f"  sw.js bypasses /api/ -> {b'/api/' in body}")
 
 
+def gtts_check():
+    """Google 번역 읽기(gTTS 방식) 엔드포인트가 데이터센터에서 동작하는지."""
+    for lang, text in (("ko", "안녕하세요. 소리 점검이에요."), ("en", "Hello!")):
+        q = urllib.parse.urlencode({"ie": "UTF-8", "client": "tw-ob", "tl": lang, "q": text})
+        st, h, body = get("https://translate.google.com/translate_tts?" + q, {"User-Agent": "Mozilla/5.0"})
+        print(f"GTRANSLATE {lang}: {st} type={h.get('Content-Type')} len={len(body)} head={body[:4].hex()}")
+
+
 if __name__ == "__main__":
+    import edge_tts
+    print("edge-tts version", getattr(edge_tts, "__version__", "?"))
     asyncio.run(engine_check())
+    gtts_check()
     for b in sys.argv[1:]:
         if b:
             server_check(b)
