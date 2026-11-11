@@ -8,3 +8,6 @@ venv/
 
 # 로컬 SQLite 개발 DB
 today_our_home_server.db
+
+# 읽어 주기 음성 캐시
+.tts_cache/

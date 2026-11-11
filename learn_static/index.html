@@ -2605,10 +2605,11 @@ function bindHomeExtras(){
   const tb=$('#ttsTest');if(tb)tb.addEventListener('click',()=>{const out=$('#ttsReport');out.hidden=false;out.textContent='소리를 내 보는 중… (안녕! 소리가 잘 들리니? / Hello!)';
     speak('안녕! 소리가 잘 들리니?','ko-KR');
     setTimeout(()=>{const r=ttsReport();out.textContent=[
+      r.server===true?(r.audio?'✅ 서버 읽어 주기 음성: 재생됨':r.audioFailed?'❌ 서버 읽어 주기 음성: 불러오지 못함(인터넷 연결 확인)':'· 서버 읽어 주기 음성: 사용 가능'):r.server===false?'· 서버 읽어 주기 음성: 꺼져 있음':'',
       r.bridge?'✅ 앱 음성 연결(브리지): 있음 → 휴대폰 음성으로 읽어요':'· 앱 음성 연결(브리지): 없음',
-      r.webview&&!r.bridge?'⚠️ Android 앱 화면이에요. 앱에 음성 연결이 없으면 소리가 나지 않아요.':'',
+      r.webview&&!r.bridge&&r.server!==true?'⚠️ Android 앱 화면이에요. 앱에 음성 연결이 없으면 소리가 나지 않아요.':'',
       r.speech?`· 브라우저 음성: 있음 (음성 ${r.voices}개, 한국어 ${r.ko}개, 영어 ${r.en}개)`:'· 브라우저 음성: 없음',
-      r.started?'✅ 소리 재생 시작됨':r.bridge?'':'❌ 소리가 시작되지 않았어요',
+      r.started?'✅ 소리 재생 시작됨':r.bridge?'':'❌ 소리가 시작되지 않았어요(소리 점검을 한 번 더 눌러 보세요)',
       !r.bridge&&r.speech&&!r.ko?'→ 기기 설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환에서 한국어 음성을 내려받아 주세요.':'',
       `기기 정보: ${r.ua}`].filter(Boolean).join('\n');},3500);});
   const nm=$('#kidname');if(nm)nm.addEventListener('input',()=>{P.name=nm.value;save();});
@@ -2914,14 +2915,19 @@ function sayText(html){
 }
 function loadVoices(){try{TTS.voices=speechSynthesis.getVoices()||[];}catch(e){TTS.voices=[];}return TTS.voices;}
 if(CAN_SPEAK){loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices);}catch(e){}}
-if(!CAN_SPEAK&&!ttsBridge())document.documentElement.classList.add('no-tts');
+// On the 오늘우리집 server (/learn/) the server can turn text into mp3, which plays even where Web Speech is missing.
+const ON_SERVER=/^https?:$/.test(location.protocol)&&/\/learn\/?$/.test(location.pathname);
+const SRV_TTS={on:null};
+if(!CAN_SPEAK&&!ttsBridge()&&!ON_SERVER)document.documentElement.classList.add('no-tts');
 function pickVoice(lang){
   const vs=TTS.voices.length?TTS.voices:loadVoices(),L=lang.toLowerCase().replace('_','-'),pre=L.slice(0,2);
   const norm=v=>String(v.lang||'').toLowerCase().replace('_','-');
   return vs.find(v=>norm(v)===L&&v.localService)||vs.find(v=>norm(v)===L)||vs.find(v=>norm(v).startsWith(pre))||null;
 }
-function ttsFail(msg){
-  TTS.failed=true;document.documentElement.classList.add('tts-fail');
+function ttsFail(msg,final){
+  TTS.failed=true;
+  if(!final&&ON_SERVER&&SRV_TTS.on!==false&&!AUD.failed)return; // the next tap uses the server voice
+document.documentElement.classList.add('tts-fail');
   if(!TTS.told){TTS.told=true;toast(msg||'🔇 이 기기에서는 소리가 나오지 않아요. 듣기 문제는 "부모님이 읽어 주기"를 눌러 주세요.');}
 }
 // Chrome stops long utterances after ~15s, so read sentence by sentence.
@@ -2937,6 +2943,7 @@ function speak(texts,lang='ko-KR'){
   const br=ttsBridge();
   if(br){try{br({type:'speak',text:list.join(' '),lang});return;}catch(e){}}
   // an Android app screen without the TTS bridge never makes a sound: say so right away
+  if(ON_SERVER&&SRV_TTS.on!==false&&!AUD.failed&&(IS_ANDROID_WEBVIEW||!CAN_SPEAK||TTS.failed)){speakAudio(list,lang);return;}
   if(!CAN_SPEAK||(IS_ANDROID_WEBVIEW&&!TTS.started)){ttsFail(IS_ANDROID_WEBVIEW?'🔇 앱 화면에서는 아직 소리가 나오지 않아요. 듣기 문제는 "부모님이 읽어 주기"를 눌러 주세요.':undefined);return;}
   const id=++SPQ.id;
   const stopTimers=()=>{clearInterval(SPQ.poll);clearInterval(SPQ.keep);SPQ.poll=SPQ.keep=null;};
@@ -2971,12 +2978,36 @@ function speak(texts,lang='ko-KR'){
 }
 // fewer, longer pieces: join short sentences up to about 160 characters
 function packChunks(arr){const out=[];for(const t of arr){const last=out[out.length-1];if(last&&last.length+t.length<160)out[out.length-1]=last+(/[.!?。]$/.test(last)?' ':'. ')+t;else out.push(t);}return out;}
-if(IS_ANDROID_WEBVIEW&&!ttsBridge())document.documentElement.classList.add('tts-fail');
+if(ON_SERVER){
+  fetch('api/tts/status',{credentials:'same-origin',headers:{Accept:'application/json'}}).then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{
+    SRV_TTS.on=!!(j&&j.enabled);
+    if(!SRV_TTS.on&&!ttsBridge()){if(!CAN_SPEAK)document.documentElement.classList.add('no-tts');else if(IS_ANDROID_WEBVIEW)document.documentElement.classList.add('tts-fail');}
+  });
+}else if(IS_ANDROID_WEBVIEW&&!ttsBridge())document.documentElement.classList.add('tts-fail');
+// Server voice: one <audio> element reused for every piece (a WebView lets an element keep playing once a tap started it)
+const AUD={el:null,id:0,failed:false,started:false};
+const srvURL=(t,lang)=>`api/tts?l=${encodeURIComponent(lang)}&t=${encodeURIComponent(t)}`;
+function speakAudio(list,lang){
+  const id=++AUD.id;
+  if(!AUD.el){AUD.el=new Audio();AUD.el.preload='auto';AUD.el.setAttribute('playsinline','');}
+  const el=AUD.el;let k=0;
+  const fail=()=>{if(id!==AUD.id)return;if(!AUD.started){AUD.failed=true;ttsFail('🔇 소리를 불러오지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요. 듣기 문제는 "부모님이 읽어 주기"로 풀 수 있어요.',true);}else{k++;playK();}};
+  const playK=()=>{
+    if(id!==AUD.id||k>=list.length)return;
+    el.src=srvURL(list[k],lang);
+    if(k+1<list.length)fetch(srvURL(list[k+1],lang),{credentials:'same-origin'}).catch(()=>{}); // warm the next piece
+    try{const pr=el.play();if(pr&&pr.catch)pr.catch(e=>{if(e&&e.name==='AbortError')return;fail();});}catch(e){fail();}
+  };
+  el.onplaying=()=>{if(id!==AUD.id)return;AUD.started=true;TTS.started=true;document.documentElement.classList.remove('tts-fail');};
+  el.onended=()=>{if(id!==AUD.id)return;k++;setTimeout(playK,150);};
+  el.onerror=fail;
+  playK();
+}
 function ttsReport(){
   const vs=CAN_SPEAK?loadVoices():[],ko=vs.filter(v=>/^ko/i.test(v.lang||'')),en=vs.filter(v=>/^en/i.test(v.lang||''));
-  return {bridge:!!ttsBridge(),speech:CAN_SPEAK,webview:IS_ANDROID_WEBVIEW,voices:vs.length,ko:ko.length,en:en.length,started:TTS.started,failed:TTS.failed,ua:UA};
+  return {server:ON_SERVER?SRV_TTS.on:null,audio:AUD.started,audioFailed:AUD.failed,bridge:!!ttsBridge(),speech:CAN_SPEAK,webview:IS_ANDROID_WEBVIEW,voices:vs.length,ko:ko.length,en:en.length,started:TTS.started,failed:TTS.failed,ua:UA};
 }
-function stopSpeak(){SPQ.id++;clearInterval(SPQ.poll);clearInterval(SPQ.keep);SPQ.cur=null;const br=ttsBridge();if(br){try{br({type:'stop'});}catch(e){}}if(CAN_SPEAK){try{speechSynthesis.cancel();}catch(e){}}}
+function stopSpeak(){AUD.id++;if(AUD.el){try{AUD.el.pause();}catch(e){}}SPQ.id++;clearInterval(SPQ.poll);clearInterval(SPQ.keep);SPQ.cur=null;const br=ttsBridge();if(br){try{br({type:'stop'});}catch(e){}}if(CAN_SPEAK){try{speechSynthesis.cancel();}catch(e){}}}
 // iOS only lets a page speak after a tap: warm the engine up on the first one
 document.addEventListener('pointerdown',()=>{if(TTS.unlocked||!IS_IOS||!CAN_SPEAK||ttsBridge())return;TTS.unlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}},{capture:true});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-speak]');if(b){e.preventDefault();speak(b.dataset.speak,b.dataset.lang||'ko-KR');}});
