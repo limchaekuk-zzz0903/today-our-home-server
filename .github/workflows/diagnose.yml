@@ -1,0 +1,31 @@
+name: Diagnose read-aloud
+
+# Checks the TTS engine from a machine with internet access, and probes the live server's
+# read-aloud endpoints. Set the repository variable LEARN_BASE_URL to the server address
+# (Settings → Secrets and variables → Actions → Variables) to probe it directly.
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install edge-tts==7.2.7
+      - name: Engine and live server check
+        env:
+          LEARN_BASE_URL: ${{ vars.LEARN_BASE_URL }}
+        run: >
+          python scripts/diagnose_tts.py "$LEARN_BASE_URL"
+          https://today-our-home-server-production.up.railway.app
+          https://mindful-happiness-production.up.railway.app
+          https://web-production.up.railway.app

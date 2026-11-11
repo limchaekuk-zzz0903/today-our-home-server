@@ -155,6 +155,7 @@ TTS_CACHE_DIR = os.environ.get("TTS_CACHE_DIR") or os.path.join(os.path.dirname(
 _TTS_MEM: dict = {}          # 최근 음성 (메모리)
 _TTS_MEM_MAX = 300
 _TTS_HITS: dict = {}         # IP별 최근 요청 시각 (남용 방지)
+TTS_LAST = {"ok_at": None, "error": None, "error_at": None}  # 마지막 성공·실패 (점검용)
 TTS_RATE = (240, 600)        # IP당 10분에 새 음성 240개까지 (캐시된 음성은 세지 않음)
 
 
@@ -231,10 +232,16 @@ async def synthesize(text: str, lang: str, ip: str = "") -> Optional[bytes]:
         raise PermissionError("too many")
     try:
         data = await asyncio.wait_for(TTS_ENGINES[TTS_ENGINE](text, lang), timeout=25)
-    except Exception:
+    except Exception as e:  # 엔진 실패 원인을 남긴다(Railway 로그·/learn/api/tts/status 에서 확인)
+        msg = f"{type(e).__name__}: {e}"[:300] or type(e).__name__
+        TTS_LAST.update(error=msg, error_at=datetime.utcnow().isoformat(timespec="seconds"))
+        print(f"[tts] {TTS_ENGINE} 실패: {msg}", flush=True)
         return None
     if not data:
+        TTS_LAST.update(error="빈 음성", error_at=datetime.utcnow().isoformat(timespec="seconds"))
+        print(f"[tts] {TTS_ENGINE} 빈 음성", flush=True)
         return None
+    TTS_LAST.update(ok_at=datetime.utcnow().isoformat(timespec="seconds"))
     if len(_TTS_MEM) >= _TTS_MEM_MAX:
         _TTS_MEM.pop(next(iter(_TTS_MEM)))
     _TTS_MEM[key] = data
@@ -607,7 +614,28 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
     async def learn_tts_status():
         """학습 페이지가 열릴 때 확인: 서버 읽어 주기를 쓸 수 있는지."""
         return {"enabled": tts_enabled(), "engine": TTS_ENGINE if tts_enabled() else "off",
-                "langs": list(TTS_LANGS), "max_chars": TTS_MAX_CHARS}
+                "langs": list(TTS_LANGS), "max_chars": TTS_MAX_CHARS,
+                "last_ok": TTS_LAST["ok_at"], "last_error": TTS_LAST["error"], "last_error_at": TTS_LAST["error_at"]}
+
+    @app.get("/learn/api/tts/selftest", include_in_schema=False)
+    async def learn_tts_selftest(request: Request):
+        """서버에서 음성을 실제로 만들어 본다(캐시를 거치지 않음). 소리 문제를 점검할 때 브라우저로 열어 보면 된다."""
+        if not tts_enabled():
+            return {"ok": False, "engine": "off", "error": "TTS_ENGINE=off"}
+        ip = (request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+              or (request.client.host if request.client else ""))
+        if not _tts_allowed(ip):
+            return JSONResponse({"ok": False, "error": "잠시 뒤에 다시 시도해 주세요"}, status_code=429)
+        started = time.time()
+        try:
+            data = await asyncio.wait_for(TTS_ENGINES[TTS_ENGINE]("안녕하세요. 소리 점검이에요.", "ko-KR"), timeout=25)
+        except Exception as e:
+            msg = f"{type(e).__name__}: {e}"[:300]
+            TTS_LAST.update(error=msg, error_at=datetime.utcnow().isoformat(timespec="seconds"))
+            print(f"[tts] selftest 실패: {msg}", flush=True)
+            return {"ok": False, "engine": TTS_ENGINE, "error": msg, "seconds": round(time.time() - started, 2)}
+        return {"ok": bool(data), "engine": TTS_ENGINE, "bytes": len(data or b""),
+                "head": (data or b"")[:4].hex(), "seconds": round(time.time() - started, 2)}
 
     @app.api_route("/learn/api/tts", methods=["GET", "HEAD"], include_in_schema=False)
     async def learn_tts(request: Request, t: str = "", l: str = "ko-KR"):

@@ -207,3 +207,19 @@ def test_tts_supports_range_requests_for_iphone(client, fake_tts):
     assert r.status_code == 416
     h = client.head("/learn/api/tts", params={"t": "안녕하세요"})
     assert h.status_code == 200 and h.headers["content-length"] == str(len(data))
+
+
+def test_tts_selftest_and_last_error(client, monkeypatch, tmp_path):
+    import learning
+
+    async def broken(text, lang):
+        raise ConnectionError("403 from engine")
+    monkeypatch.setitem(learning.TTS_ENGINES, "edge", broken)
+    monkeypatch.setattr(learning, "TTS_ENGINE", "edge")
+    monkeypatch.setattr(learning, "TTS_CACHE_DIR", str(tmp_path))
+    learning._TTS_MEM.clear()
+    learning._TTS_HITS.clear()
+    r = client.get("/learn/api/tts/selftest").json()
+    assert r["ok"] is False and "403 from engine" in r["error"]
+    client.get("/learn/api/tts", params={"t": "안녕"})
+    assert "ConnectionError" in client.get("/learn/api/tts/status").json()["last_error"]
