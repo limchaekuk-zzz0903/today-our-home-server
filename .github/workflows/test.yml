@@ -1,0 +1,27 @@
+name: Tests
+
+# Runs the server tests on every push and pull request.
+# tests/test_learning.py keeps the learning page (/learn/) open to everyone:
+# it must never turn back into a members-only page.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r requirements.txt pytest httpx
+      - name: Run tests
+        run: pytest -q

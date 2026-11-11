@@ -5,7 +5,7 @@
   1) 앱이 인증 헤더(X-Device-ID, X-Device-Secret)와 함께 POST /api/learning/session 호출
      → 5분 동안 한 번만 쓸 수 있는 입장권(ticket)이 담긴 URL을 받음
   2) 앱이 그 URL을 WebView로 염 → GET /learn/?ticket=...
-     → 입장권 확인 후 로그인 쿠키(toh_learn, 30일)를 심고 /learn/ 으로 이동
+     → 입장권 확인 후 진도 저장용 쿠키(toh_learn, 30일)를 심고 /learn/ 으로 이동
   3) 학습 페이지가 /learn/api/progress 로 별·크리스탈 진도를 불러오고 저장(쿠키 인증)
   4) 앱은 GET /api/learning/subjects 로 과목 목록(수학·국어·영어·과학)을 받아 과목별 버튼을 만들고,
      GET /api/learning/family-progress 로 가족 구성원별·과목별 학습 현황을 조회
@@ -13,7 +13,12 @@
 과목·학년·화 구성은 learn_static/catalog.json(학습지 저장소가 만들어 주는 파일)에서 읽는다.
 과목이나 화가 늘어나도 scripts/sync_learn.sh 로 파일만 갱신하면 서버 코드는 그대로 둔다.
 
-/learn 아래 경로는 기기 인증 미들웨어에서 제외되고, 이 모듈이 쿠키로 직접 인증한다.
+학습 페이지 자체에는 회원·로그인 개념이 없다. /learn/ 은 누구에게나 열린다(입장권이 없거나,
+이미 썼거나, 만료돼도 페이지는 그대로 열림). 쿠키는 오늘우리집 회원의 진도를 서버에 저장하는
+데에만 쓰이고, 쿠키가 없으면 학습 페이지는 기기(브라우저) 안에만 진도를 저장한다.
+→ "회원만 볼 수 있음" 화면이 다시 생기지 않도록 tests/test_learning.py 가 지킨다.
+
+/learn 아래 경로는 기기 인증 미들웨어에서 제외된다. 진도 API(/learn/api/progress)만 쿠키를 확인한다.
 """
 import hashlib
 import json
@@ -24,10 +29,12 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "learn_static")
 STATIC_FILES = {
+    "index.html": "text/html; charset=utf-8",
+    "catalog.json": "application/json",
     "manifest.webmanifest": "application/manifest+json",
     "sw.js": "text/javascript",
     "icon.svg": "image/svg+xml",
@@ -127,17 +134,6 @@ INIT_STMTS = [
         updated_at  TEXT NOT NULL
     )""",
 ]
-
-_NEED_APP_PAGE = """<!doctype html><html lang="ko"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>지혜섬 탐험대</title>
-<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#F2F4FB;color:#1B2140;padding:24px;box-sizing:border-box}
-main{max-width:360px;text-align:center;background:#fff;border:3px solid #1B2140;border-radius:12px;padding:28px;box-shadow:6px 6px 0 #1B2140}
-h1{font-size:1.4rem;margin:0 0 12px}p{line-height:1.6;margin:0}</style></head>
-<body><main><h1>오늘우리집 앱에서 열어 주세요</h1>
-<p>지혜섬 탐험대는 오늘우리집 회원 전용 학습 페이지예요.<br>앱에 로그인한 뒤 학습 메뉴에서 다시 열어 주세요.</p>
-</main></body></html>"""
-
 
 def _utcnow() -> datetime:
     return datetime.utcnow()
@@ -331,9 +327,7 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
         start 로 시작 화면을 지정: kor(과목 페이지), eng-g4(과목·학년 지도), frac-1(화), daily(오늘의 도전) 등.
         생략하면 과목 선택 첫 화면."""
         device_id = request.headers.get("X-Device-ID", "")
-        device = await DB.fetchrow("SELECT id FROM devices WHERE id = ?", device_id)
-        if not device:
-            raise HTTPException(status_code=404, detail="등록되지 않은 기기예요")
+        # 기기 비밀값은 인증 미들웨어가 이미 확인했다. devices 행이 없더라도 학습 페이지는 열 수 있어야 한다.
         if not _valid_start(start):
             start = None
         ticket = secrets.token_urlsafe(32)
@@ -348,6 +342,8 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
         return {
             "url": f"{_public_base(request)}/learn/?ticket={ticket}",
             "expires_in": int(TICKET_TTL.total_seconds()),
+            # 입장권 없이 여는 주소. 이 주소로 열어도 학습은 되고, 진도는 기기 안에만 저장된다.
+            "public_url": f"{_public_base(request)}/learn/" + (f"#{start}" if start else ""),
         }
 
     @app.get("/api/learning/subjects")
@@ -401,14 +397,28 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
         q = f"?{request.url.query}" if request.url.query else ""
         return RedirectResponse(f"/learn/{q}", status_code=307)
 
+    def _page():
+        return FileResponse(
+            os.path.join(STATIC_DIR, "index.html"),
+            media_type="text/html; charset=utf-8",
+            headers={"Cache-Control": "no-cache", "X-Frame-Options": "SAMEORIGIN"},
+        )
+
     @app.get("/learn/", include_in_schema=False)
-    async def learn_page(request: Request, ticket: Optional[str] = None):
-        if ticket:
-            row = await DB.fetchrow(
-                "SELECT device_id, start, expires_at, used FROM learning_tickets WHERE ticket_hash = ?", _hash(ticket)
-            )
-            if not row or row["used"] or row["expires_at"] < _iso(_utcnow()):
-                return HTMLResponse(_NEED_APP_PAGE, status_code=403)
+    async def learn_page(request: Request, ticket: Optional[str] = None, start: Optional[str] = None):
+        """학습 페이지. 누구나 열 수 있다. 유효한 입장권이 있으면 진도 저장용 쿠키만 덧붙인다."""
+        if ticket is None:
+            # /learn/?start=kor 처럼 열면 시작 화면으로 보내 준다
+            if start and _valid_start(start):
+                return RedirectResponse(f"/learn/#{start}", status_code=303)
+            return _page()
+        row = await DB.fetchrow(
+            "SELECT device_id, start, expires_at, used FROM learning_tickets WHERE ticket_hash = ?", _hash(ticket)
+        )
+        start_screen = (row.get("start") if row else None) or (start if _valid_start(start) else None)
+        # 입장권은 URL에서 지운다(새로고침·공유 때 다시 쓰이지 않도록). 시작 화면은 # 뒤로 넘긴다.
+        resp = RedirectResponse("/learn/" + (f"#{start_screen}" if start_screen else ""), status_code=303)
+        if row and not row["used"] and row["expires_at"] >= _iso(_utcnow()):
             await DB.execute("UPDATE learning_tickets SET used = 1 WHERE ticket_hash = ?", _hash(ticket))
             token = secrets.token_urlsafe(32)
             now = _utcnow()
@@ -416,21 +426,13 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
                 "INSERT INTO learning_sessions (token_hash, device_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
                 _hash(token), row["device_id"], _iso(now), _iso(now + SESSION_TTL),
             )
-            target = "/learn/" + (f"#{row['start']}" if row.get("start") else "")
-            resp = RedirectResponse(target, status_code=303)
             resp.set_cookie(
                 COOKIE, token, max_age=int(SESSION_TTL.total_seconds()), path=COOKIE_PATH,
                 httponly=True, samesite="lax", secure=_is_https(request),
             )
-            return resp
-
-        if not await _device_from_cookie(request):
-            return HTMLResponse(_NEED_APP_PAGE, status_code=403)
-        return FileResponse(
-            os.path.join(STATIC_DIR, "index.html"),
-            media_type="text/html; charset=utf-8",
-            headers={"Cache-Control": "no-cache", "X-Frame-Options": "SAMEORIGIN"},
-        )
+        # 이미 쓴(또는 만료된) 입장권: WebView가 같은 주소를 다시 열었을 때. 이미 받은 쿠키가 있으면
+        # 그대로 진도가 저장되고, 없으면 기기 안에만 저장된다. 어느 쪽이든 페이지는 막지 않는다.
+        return resp
 
     @app.get("/learn/api/progress", include_in_schema=False)
     async def learn_get_progress(request: Request):
