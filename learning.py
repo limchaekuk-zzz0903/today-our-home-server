@@ -20,8 +20,12 @@
 
 /learn 아래 경로는 기기 인증 미들웨어에서 제외된다. 진도 API(/learn/api/progress)만 쿠키를 확인한다.
 """
+import asyncio
+import base64
 import hashlib
 import json
+import time
+import urllib.request
 import os
 import re
 import secrets
@@ -29,7 +33,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "learn_static")
 STATIC_FILES = {
@@ -134,6 +138,114 @@ INIT_STMTS = [
         updated_at  TEXT NOT NULL
     )""",
 ]
+
+# ── 읽어 주기 음성(TTS) ────────────────────────────────────────────────────────
+# Android 앱 화면(WebView)에는 웹 음성 합성이 없어서 학습 페이지가 소리를 낼 수 없다.
+# 그래서 서버가 글을 mp3로 만들어 주고, 학습 페이지가 <audio>로 재생한다(앱 수정 불필요).
+#   TTS_ENGINE=edge   (기본) Microsoft Edge 읽어 주기 음성. 키가 필요 없다.
+#   TTS_ENGINE=google Google Cloud Text-to-Speech. GOOGLE_TTS_API_KEY 필요(공식 유료 API).
+#   TTS_ENGINE=off    끔. 학습 페이지는 "부모님이 읽어 주기"로 대신한다.
+TTS_ENGINE = os.environ.get("TTS_ENGINE", "edge").strip().lower()
+TTS_MAX_CHARS = 400
+TTS_LANGS = {
+    "ko-KR": {"edge": "ko-KR-SunHiNeural", "google": "ko-KR-Wavenet-A", "rate": "-8%", "speed": 0.92},
+    "en-US": {"edge": "en-US-AnaNeural", "google": "en-US-Wavenet-F", "rate": "-15%", "speed": 0.85},
+}
+TTS_CACHE_DIR = os.environ.get("TTS_CACHE_DIR") or os.path.join(os.path.dirname(os.path.abspath(__file__)), ".tts_cache")
+_TTS_MEM: dict = {}          # 최근 음성 (메모리)
+_TTS_MEM_MAX = 300
+_TTS_HITS: dict = {}         # IP별 최근 요청 시각 (남용 방지)
+TTS_RATE = (240, 600)        # IP당 10분에 새 음성 240개까지 (캐시된 음성은 세지 않음)
+
+
+async def _tts_edge(text: str, lang: str) -> bytes:
+    import edge_tts  # 서버에만 필요. 테스트에서는 엔진을 바꿔 끼운다.
+    conf = TTS_LANGS[lang]
+    out = bytearray()
+    async for chunk in edge_tts.Communicate(text, conf["edge"], rate=conf["rate"]).stream():
+        if chunk.get("type") == "audio":
+            out.extend(chunk["data"])
+    return bytes(out)
+
+
+async def _tts_google(text: str, lang: str) -> bytes:
+    key = os.environ.get("GOOGLE_TTS_API_KEY", "")
+    if not key:
+        raise RuntimeError("GOOGLE_TTS_API_KEY 가 없어요")
+    conf = TTS_LANGS[lang]
+    body = json.dumps({
+        "input": {"text": text},
+        "voice": {"languageCode": lang, "name": conf["google"]},
+        "audioConfig": {"audioEncoding": "MP3", "speakingRate": conf["speed"]},
+    }).encode()
+    req = urllib.request.Request(
+        "https://texttospeech.googleapis.com/v1/text:synthesize",
+        data=body, headers={"Content-Type": "application/json", "X-Goog-Api-Key": key}, method="POST")
+
+    def call():
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return base64.b64decode(json.loads(r.read())["audioContent"])
+    return await asyncio.to_thread(call)
+
+
+TTS_ENGINES = {"edge": _tts_edge, "google": _tts_google}
+
+
+def tts_enabled() -> bool:
+    return TTS_ENGINE in TTS_ENGINES
+
+
+def _tts_key(text: str, lang: str) -> str:
+    return hashlib.sha256(f"{TTS_ENGINE}|{lang}|{text}".encode()).hexdigest()
+
+
+def _tts_allowed(ip: str) -> bool:
+    limit, window = TTS_RATE
+    now = time.time()
+    hits = [t for t in _TTS_HITS.get(ip, []) if now - t < window]
+    if len(hits) >= limit:
+        _TTS_HITS[ip] = hits
+        return False
+    hits.append(now)
+    _TTS_HITS[ip] = hits
+    if len(_TTS_HITS) > 5000:
+        _TTS_HITS.clear()
+    return True
+
+
+async def synthesize(text: str, lang: str, ip: str = "") -> Optional[bytes]:
+    """글 → mp3. 캐시(메모리 → 디스크) 먼저 보고, 없으면 엔진으로 만든다. 실패하면 None."""
+    key = _tts_key(text, lang)
+    if key in _TTS_MEM:
+        return _TTS_MEM[key]
+    path = os.path.join(TTS_CACHE_DIR, key[:2], key + ".mp3")
+    try:
+        with open(path, "rb") as f:
+            data = f.read()
+        if data:
+            _TTS_MEM[key] = data
+            return data
+    except OSError:
+        pass
+    if not _tts_allowed(ip):
+        raise PermissionError("too many")
+    try:
+        data = await asyncio.wait_for(TTS_ENGINES[TTS_ENGINE](text, lang), timeout=25)
+    except Exception:
+        return None
+    if not data:
+        return None
+    if len(_TTS_MEM) >= _TTS_MEM_MAX:
+        _TTS_MEM.pop(next(iter(_TTS_MEM)))
+    _TTS_MEM[key] = data
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(data)
+    except OSError:
+        pass
+    return data
+
 
 def _utcnow() -> datetime:
     return datetime.utcnow()
@@ -464,6 +576,31 @@ def register(app: FastAPI, DB, upsert_sql) -> None:
             device_id, json.dumps(new, ensure_ascii=False), _iso(_utcnow()),
         )
         return {"status": "ok", **_summary(new)}
+
+    @app.get("/learn/api/tts/status", include_in_schema=False)
+    async def learn_tts_status():
+        """학습 페이지가 열릴 때 확인: 서버 읽어 주기를 쓸 수 있는지."""
+        return {"enabled": tts_enabled(), "engine": TTS_ENGINE if tts_enabled() else "off",
+                "langs": list(TTS_LANGS), "max_chars": TTS_MAX_CHARS}
+
+    @app.get("/learn/api/tts", include_in_schema=False)
+    async def learn_tts(request: Request, t: str = "", l: str = "ko-KR"):
+        """읽어 주기 음성(mp3). 누구나 쓸 수 있다(학습 페이지에는 로그인이 없음). 길이·언어·횟수 제한."""
+        text = " ".join(t.split())
+        if not tts_enabled():
+            return JSONResponse({"detail": "읽어 주기 음성이 꺼져 있어요"}, status_code=503)
+        if not text or len(text) > TTS_MAX_CHARS or l not in TTS_LANGS:
+            return JSONResponse({"detail": "읽을 글이 올바르지 않아요"}, status_code=400)
+        ip = (request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+              or (request.client.host if request.client else ""))
+        try:
+            data = await synthesize(text, l, ip)
+        except PermissionError:
+            return JSONResponse({"detail": "잠시 뒤에 다시 들어 주세요"}, status_code=429)
+        if not data:
+            return JSONResponse({"detail": "음성을 만들지 못했어요"}, status_code=503)
+        return Response(data, media_type="audio/mpeg",
+                        headers={"Cache-Control": "public, max-age=31536000, immutable"})
 
     @app.get("/learn/{name}", include_in_schema=False)
     async def learn_static(name: str):

@@ -124,3 +124,68 @@ def test_session_works_even_without_devices_row(client, member):
 def test_subjects_api(client, member):
     j = client.get("/api/learning/subjects", headers=member).json()
     assert [s["id"] for s in j["subjects"]] == ["math", "kor", "eng", "sci"]
+
+
+# ── 읽어 주기 음성(TTS): Android 앱 화면에서도 소리가 나도록 서버가 mp3를 만든다 ──
+
+@pytest.fixture()
+def fake_tts(monkeypatch, tmp_path):
+    import learning
+    calls = []
+
+    async def fake(text, lang):
+        calls.append((text, lang))
+        return b"ID3fake-mp3:" + text.encode()
+
+    monkeypatch.setitem(learning.TTS_ENGINES, "edge", fake)
+    monkeypatch.setattr(learning, "TTS_ENGINE", "edge")
+    monkeypatch.setattr(learning, "TTS_CACHE_DIR", str(tmp_path))
+    learning._TTS_MEM.clear()
+    learning._TTS_HITS.clear()
+    return calls
+
+
+def test_tts_status_on(client, fake_tts):
+    assert client.get("/learn/api/tts/status").json()["enabled"] is True
+
+
+def test_tts_returns_mp3_without_login_and_caches(client, fake_tts):
+    client.cookies.clear()
+    r = client.get("/learn/api/tts", params={"t": "드디어 분수 성!", "l": "ko-KR"})
+    assert r.status_code == 200 and r.headers["content-type"] == "audio/mpeg"
+    assert r.content.startswith(b"ID3")
+    client.get("/learn/api/tts", params={"t": "드디어  분수 성!", "l": "ko-KR"})  # 공백만 다르면 같은 음성
+    assert len(fake_tts) == 1
+
+
+@pytest.mark.parametrize("params", [{"t": ""}, {"t": "가" * 401}, {"t": "hello", "l": "fr-FR"}])
+def test_tts_rejects_bad_input(client, fake_tts, params):
+    assert client.get("/learn/api/tts", params=params).status_code == 400
+
+
+def test_tts_rate_limit(client, fake_tts, monkeypatch):
+    import learning
+    monkeypatch.setattr(learning, "TTS_RATE", (2, 600))
+    codes = [client.get("/learn/api/tts", params={"t": f"문장 {i}"}).status_code for i in range(3)]
+    assert codes == [200, 200, 429]
+    assert client.get("/learn/api/tts", params={"t": "문장 0"}).status_code == 200  # 캐시는 제한 없음
+
+
+def test_tts_engine_failure_is_503(client, monkeypatch, tmp_path):
+    import learning
+
+    async def broken(text, lang):
+        raise RuntimeError("network down")
+    monkeypatch.setitem(learning.TTS_ENGINES, "edge", broken)
+    monkeypatch.setattr(learning, "TTS_ENGINE", "edge")
+    monkeypatch.setattr(learning, "TTS_CACHE_DIR", str(tmp_path))
+    learning._TTS_MEM.clear()
+    assert client.get("/learn/api/tts", params={"t": "안녕"}).status_code == 503
+
+
+def test_tts_off(client, monkeypatch):
+    import learning
+    monkeypatch.setattr(learning, "TTS_ENGINE", "off")
+    assert client.get("/learn/api/tts/status").json()["enabled"] is False
+    assert client.get("/learn/api/tts", params={"t": "안녕"}).status_code == 503
+    assert_learning_page(client.get("/learn/"))

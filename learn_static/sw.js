@@ -1,6 +1,6 @@
-// Offline support. The deploy workflow replaces 732203c1ac54 with the commit SHA,
+// Offline support. The deploy workflow replaces f0fa597b798f with the commit SHA,
 // so every release gets a fresh cache and old caches are deleted on activate.
-const CACHE = 'math3-adventure-732203c1ac54';
+const CACHE = 'math3-adventure-f0fa597b798f';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
