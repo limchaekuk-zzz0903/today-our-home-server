@@ -1,6 +1,11 @@
 # 학습 페이지(지혜섬 탐험대) 앱 연동 가이드
 
-오늘우리집 회원이 앱 안에서 초등 학습 페이지 **지혜섬 탐험대**를 쓸 수 있도록 서버에 연동해 두었습니다.
+오늘우리집 앱 안에서 초등 학습 페이지 **지혜섬 탐험대**를 쓸 수 있도록 서버에 연동해 두었습니다.
+
+> **학습 페이지에는 회원·로그인 개념이 없습니다.** `/learn/`은 누구나 열 수 있습니다.
+> 오늘우리집 연동은 "회원이면 진도를 서버(계정)에 저장해 주는 것"뿐이고, 페이지를 막는 데 쓰지 않습니다.
+> 입장권이 없거나, 이미 썼거나, 만료돼도 페이지는 그대로 열리고 진도는 기기 안에 저장됩니다.
+> 이 규칙은 `tests/test_learning.py`가 지키며, GitHub Actions(`Tests`)에서 push·PR마다 확인합니다.
 처음에는 수학만 있었지만 지금은 **수학·국어·영어·과학 4과목**이 있습니다.
 
 | 과목 | 학년 | 화 | 크리스탈(대장 문제) |
@@ -32,15 +37,18 @@
   └─ GET /api/learning/progress          → 과목별 내 진도 (선택)
 [앱] 과목 카드 탭 (예: 국어)
   └─ POST /api/learning/session?start=kor   (평소처럼 X-Device-ID, X-Device-Secret 헤더)
-       ← { "url": "https://<서버>/learn/?ticket=...", "expires_in": 300 }
-[앱] url 을 WebView 로 열기
-  └─ 서버: 입장권 확인 → 로그인 쿠키(30일) 설정 → /learn/#kor (국어 과목 페이지)
+       ← { "url": "https://<서버>/learn/?ticket=...", "public_url": "https://<서버>/learn/#kor", "expires_in": 300 }
+[앱] url 을 WebView 로 열기 (발급이 실패하면 public_url 또는 https://<서버>/learn/ 을 그대로 열기)
+  └─ 서버: 입장권이 유효하면 진도 저장용 쿠키(30일) 설정 → /learn/#kor (국어 과목 페이지)
+           입장권이 없거나 무효여도 → /learn/#kor 로 열림 (진도는 기기 안에만 저장)
 [학습 페이지] 별·크리스탈·경험치·배지·메달을 서버에 자동 저장 (/learn/api/progress)
 [앱] GET /api/learning/family-progress → 가족 구성원별·과목별 학습 현황 (선택)
 ```
 
 - 입장권은 **5분 안에 한 번만** 쓸 수 있습니다. 버튼을 누를 때마다 새로 받으세요.
-- 앱을 거치지 않고 `/learn/`을 열면 "오늘우리집 앱에서 열어 주세요" 안내만 보입니다.
+- 앱을 거치지 않고 `/learn/`을 열어도 학습 페이지가 그대로 열립니다. 이때 진도는 그 기기(브라우저)에만 저장됩니다.
+- 같은 입장권 주소를 다시 열어도(새로고침, 앱 복귀, WebView 미리 불러오기) 막히지 않습니다. 처음 받은 쿠키로 계속 저장됩니다.
+- 응답의 `public_url`은 입장권 없는 주소입니다. 세션 발급이 실패할 때 대신 열면 됩니다(진도는 기기 안에만 저장).
 - 기기가 로그아웃되면(device secret 삭제) 학습 세션도 함께 무효가 됩니다.
 - 진도는 기기(회원) 단위로 저장됩니다. 여러 번 저장돼도 별·경험치·기록은 큰 값이, 크리스탈·배지·메달은 한 번 얻으면 계속 유지됩니다.
 - 오답 노트와 학습 기록(부모님용)은 기기 안(WebView 저장소)에만 남고 서버로 보내지 않습니다.
@@ -184,7 +192,10 @@ Future<void> openLearning(BuildContext context, {String? start}) async {
     Uri.parse('$baseUrl/api/learning/session${start != null ? '?start=$start' : ''}'),
     headers: {'X-Device-ID': deviceId, 'X-Device-Secret': deviceSecret},
   );
-  final url = jsonDecode(res.body)['url'] as String;
+  // 발급이 실패해도(로그아웃, 네트워크 오류 등) 학습 페이지는 열어 준다. 이때 진도는 기기 안에만 저장된다.
+  final url = res.statusCode == 200
+      ? jsonDecode(res.body)['url'] as String
+      : '$baseUrl/learn/${start != null ? '#$start' : ''}';
   final controller = WebViewController()
     ..setJavaScriptMode(JavaScriptMode.unrestricted)
     ..loadRequest(Uri.parse(url));
@@ -231,7 +242,10 @@ export function Learning({ route }) {
   useEffect(() => {
     const q = route.params?.start ? `?start=${route.params.start}` : '';
     fetch(`${BASE_URL}/api/learning/session${q}`, { method: 'POST', headers: H })
-      .then(r => r.json()).then(j => setUrl(j.url));
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(j => setUrl(j.url))
+      // 발급이 실패해도 학습 페이지는 연다(진도는 기기 안에만 저장)
+      .catch(() => setUrl(`${BASE_URL}/learn/${route.params?.start ? '#' + route.params.start : ''}`));
   }, [route.params?.start]);
   return url ? <WebView source={{ uri: url }} javaScriptEnabled domStorageEnabled sharedCookiesEnabled mediaPlaybackRequiresUserAction={false} /> : <ActivityIndicator />;
 }

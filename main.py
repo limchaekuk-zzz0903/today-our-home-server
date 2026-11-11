@@ -30,7 +30,7 @@ _USE_PG = bool(_DB_URL and "postgresql" in _DB_URL)
 # SQLite fallback (로컬 개발용)
 if not _USE_PG:
     import sqlite3, threading
-    _sqlite_path = os.path.join(os.path.dirname(__file__), "today_our_home_server.db")
+    _sqlite_path = os.environ.get("SQLITE_PATH") or os.path.join(os.path.dirname(__file__), "today_our_home_server.db")
     _sqlite_lock = threading.Lock()
 
 # ── DB 연결 헬퍼 ──────────────────────────────────────────────────────────────
